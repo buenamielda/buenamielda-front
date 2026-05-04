@@ -1,0 +1,85 @@
+// ── Tokens ────────────────────────────────────────────────
+$footer-bg:      #1C1008;
+$footer-surface: #261508;
+$brand-gold:     #C8860A;
+$brand-gold-dim: rgba(200, 134, 10, 0.6);
+$text-primary:   #F5F0E8;
+$text-muted:     rgba(245, 240, 232, 0.5);
+$text-link:      rgba(245, 240, 232, 0.7);
+$font-serif:     'Georgia', 'Times New Roman', serif;
+
+// ── Base ──────────────────────────────────────────────────
+.site-footer {
+  background: $footer-bg;
+  color: $text-primary;
+  width: 100%;
+}
+
+// ── Logo ──────────────────────────────────────────────────
+.footer-logo-text {
+  font-family: $font-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: 0.01em;
+
+  em {
+    font-style: italic;
+    color: $brand-gold;
+  }
+}
+
+.footer-tagline {
+  font-family: $font-serif;
+  font-size: 0.875rem;
+  color: $text-muted;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 220px;
+}
+
+// ── Columnas ──────────────────────────────────────────────
+.footer-col-title {
+  font-family: $font-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $brand-gold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-link {
+  font-family: $font-serif;
+  font-size: 0.875rem;
+  color: $text-link;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  line-height: 1.4;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+// ── Divider ───────────────────────────────────────────────
+.footer-divider {
+  border-color: rgba(245, 240, 232, 0.08) !important;
+}
+
+// ── Copyright ─────────────────────────────────────────────
+.footer-copy {
+  font-family: $font-serif;
+  font-size: 0.78rem;
+  color: $text-muted;
+  margin: 0;
+  letter-spacing: 0.02em;
+}

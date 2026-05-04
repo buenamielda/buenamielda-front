@@ -1,1 +1,49 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+$miel-primary: mat.define-palette(mat.$brown-palette, 800, 600, 900);
+$miel-accent:  mat.define-palette(mat.$amber-palette, 700, 500, 900);
+
+$miel-theme: mat.define-light-theme((
+  color: (
+    primary: $miel-primary,
+    accent:  $miel-accent,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+@include mat.all-component-themes($miel-theme);
+
+// Variables globales del proyecto
+$brand-dark:  #2C1810;
+$brand-gold:  #C8860A;
+$brand-bg:    #FDFAF5;
+
+// ── Tipografía menú móvil navbar ──────────────────────────
+.mobile-menu-panel {
+  .mat-mdc-list-item .mdc-list-item__primary-text,
+  .mat-mdc-list-item .mdc-list-item__content {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-size: 0.95rem !important;
+    color: #5C3D2E !important;
+  }
+
+  .mat-expansion-panel-header-title,
+  .mat-panel-title {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-size: 0.95rem !important;
+    color: #5C3D2E !important;
+  }
+
+  .submenu-list {
+    .mdc-list-item__primary-text {
+      font-family: 'Georgia', 'Times New Roman', serif !important;
+      font-size: 0.875rem !important;
+      color: rgba(92, 61, 46, 0.8) !important;
+    }
+  }
+
+  .mat-mdc-list-item .mat-icon {
+    color: #5C3D2E !important;
+  }
+}

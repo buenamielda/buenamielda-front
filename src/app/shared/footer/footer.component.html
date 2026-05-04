@@ -1,0 +1,51 @@
+<footer class="site-footer">
+  <div class="container-fluid px-4 px-lg-5">
+
+    <!-- Fila principal -->
+    <div class="row gy-5 py-5">
+
+      <!-- Logo + tagline -->
+      <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+        <a routerLink="/" class="footer-logo d-flex align-items-center gap-2 text-decoration-none">
+          <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+            <ellipse cx="14" cy="16" rx="10" ry="9" fill="#C8860A" opacity="0.2"/>
+            <ellipse cx="14" cy="15" rx="7"  ry="8" fill="#C8860A" opacity="0.4"/>
+            <path d="M10 8 Q14 2 18 8" stroke="#C8860A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M8 11 Q14 6 20 11" stroke="#C8860A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            <ellipse cx="14" cy="15" rx="4" ry="5" fill="#C8860A" opacity="0.85"/>
+          </svg>
+          <span class="footer-logo-text">Buena <em>mielda</em></span>
+        </a>
+        <p class="footer-tagline">Buena miel da mi colmena</p>
+      </div>
+
+      <!-- Columnas de links -->
+      <div class="col-12 col-lg-8">
+        <div class="row gy-4">
+          <div class="col-6 col-md-4" *ngFor="let col of columns">
+            <h4 class="footer-col-title">{{ col.title }}</h4>
+            <ul class="footer-links list-unstyled">
+              <li *ngFor="let link of col.links">
+                <a [routerLink]="link.route" class="footer-link">{{ link.label }}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Divider -->
+    <mat-divider class="footer-divider" />
+
+    <!-- Copyright -->
+    <div class="row py-3">
+      <div class="col-12 text-center">
+        <p class="footer-copy">
+          © Buena mielda {{ year }} All Rights Reserved
+        </p>
+      </div>
+    </div>
+
+  </div>
+</footer>

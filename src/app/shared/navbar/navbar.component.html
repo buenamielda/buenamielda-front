@@ -1,0 +1,186 @@
+<mat-toolbar class="navbar-toolbar" [class.scrolled]="scrolled()">
+  <div class="container-fluid px-3 px-lg-4 w-100">
+    <div class="row align-items-center w-100 g-0">
+      <!-- Logo -->
+      <div class="col-auto">
+        <a
+          routerLink="/"
+          class="navbar-logo d-flex align-items-center gap-2 text-decoration-none"
+        >
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <ellipse
+              cx="14"
+              cy="16"
+              rx="10"
+              ry="9"
+              fill="#C8860A"
+              opacity="0.15"
+            />
+            <ellipse
+              cx="14"
+              cy="15"
+              rx="7"
+              ry="8"
+              fill="#C8860A"
+              opacity="0.30"
+            />
+            <path
+              d="M10 8 Q14 2 18 8"
+              stroke="#C8860A"
+              stroke-width="1.5"
+              fill="none"
+              stroke-linecap="round"
+            />
+            <path
+              d="M8 11 Q14 6 20 11"
+              stroke="#C8860A"
+              stroke-width="1.2"
+              fill="none"
+              stroke-linecap="round"
+            />
+            <ellipse
+              cx="14"
+              cy="15"
+              rx="4"
+              ry="5"
+              fill="#C8860A"
+              opacity="0.7"
+            />
+          </svg>
+          <span class="logo-text">Buena <em>mielda</em></span>
+        </a>
+      </div>
+
+      <!-- Links desktop -->
+      <div class="col d-none d-lg-flex justify-content-center">
+        <nav class="d-flex align-items-center gap-1">
+          <a
+            routerLink="/productos"
+            routerLinkActive="link-active"
+            class="nav-link-btn"
+          >
+            Productos
+          </a>
+
+          <div class="custom-dropdown" [class.open]="dropdownOpen()">
+            <button
+              class="nav-link-btn dropdown-trigger"
+              (click)="toggleDropdown()"
+              [class.link-active]="dropdownOpen()"
+            >
+              Aprende apicultura
+              <mat-icon class="chevron-icon" [class.rotated]="dropdownOpen()"
+                >expand_more</mat-icon
+              >
+            </button>
+            <div class="custom-dropdown-panel">
+              <a
+                *ngFor="let item of apiculturaLinks"
+                [routerLink]="item.route"
+                class="dropdown-item-link"
+                (click)="closeDropdown()"
+              >
+                {{ item.label }}
+              </a>
+            </div>
+          </div>
+
+          <a
+            routerLink="/blog"
+            routerLinkActive="link-active"
+            class="nav-link-btn"
+            >Blog</a
+          >
+          <a
+            routerLink="/sobre-nosotros"
+            routerLinkActive="link-active"
+            class="nav-link-btn"
+            >Sobre nosotros</a
+          >
+          <a
+            routerLink="/contacto"
+            routerLinkActive="link-active"
+            class="nav-link-btn"
+            >Contacto</a
+          >
+        </nav>
+      </div>
+
+      <!-- Acciones -->
+      <div class="col-auto ms-auto d-flex align-items-center gap-1">
+        <a
+          mat-icon-button
+          routerLink="/cuenta"
+          class="action-btn"
+          aria-label="Mi cuenta"
+        >
+          <mat-icon>person_outline</mat-icon>
+        </a>
+
+        <a
+          mat-icon-button
+          routerLink="/carrito"
+          class="action-btn"
+          aria-label="Carrito"
+        >
+          <mat-icon
+            [matBadge]="cartCount()"
+            matBadgeColor="warn"
+            matBadgeSize="small"
+            [matBadgeHidden]="cartCount() === 0"
+          >
+            shopping_bag
+          </mat-icon>
+        </a>
+
+        <button
+          mat-icon-button
+          class="hamburger-btn d-flex d-lg-none"
+          (click)="toggleMobileMenu()"
+          aria-label="Abrir menú"
+        >
+          <mat-icon>{{ mobileMenuOpen() ? "close" : "menu" }}</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<!-- Menú móvil -->
+<div class="mobile-menu-overlay d-lg-none" [class.open]="mobileMenuOpen()">
+  <div class="mobile-menu-panel">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/productos" (click)="closeMobileMenu()">
+        <span matListItemTitle>Productos</span>
+      </a>
+
+      <mat-expansion-panel class="mobile-expansion" elevation="0">
+        <mat-expansion-panel-header>
+          <mat-panel-title class="mobile-expansion-title">
+            Aprende apicultura
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list class="submenu-list">
+          <a
+            mat-list-item
+            *ngFor="let item of apiculturaLinks"
+            [routerLink]="item.route"
+            (click)="closeMobileMenu()"
+          >
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+
+      <a mat-list-item routerLink="/blog" (click)="closeMobileMenu()"
+        ><span matListItemTitle>Blog</span></a
+      >
+      <a mat-list-item routerLink="/sobre-nosotros" (click)="closeMobileMenu()"
+        ><span matListItemTitle>Sobre nosotros</span></a
+      >
+      <a mat-list-item routerLink="/contacto" (click)="closeMobileMenu()"
+        ><span matListItemTitle>Contacto</span></a
+      >
+    </mat-nav-list>
+  </div>
+</div>

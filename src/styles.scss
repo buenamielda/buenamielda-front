@@ -1,41 +1,49 @@
-
-// Custom Theming for Angular Material
-// For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
-// Plus imports for other components in your app.
 
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
-@include mat.core();
+$miel-primary: mat.define-palette(mat.$brown-palette, 800, 600, 900);
+$miel-accent:  mat.define-palette(mat.$amber-palette, 700, 500, 900);
 
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$buenamielda-front-primary: mat.define-palette(mat.$indigo-palette);
-$buenamielda-front-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
-
-// The warn palette is optional (defaults to red).
-$buenamielda-front-warn: mat.define-palette(mat.$red-palette);
-
-// Create the theme object. A theme consists of configurations for individual
-// theming systems such as "color" or "typography".
-$buenamielda-front-theme: mat.define-light-theme((
+$miel-theme: mat.define-light-theme((
   color: (
-    primary: $buenamielda-front-primary,
-    accent: $buenamielda-front-accent,
-    warn: $buenamielda-front-warn,
+    primary: $miel-primary,
+    accent:  $miel-accent,
   ),
   typography: mat.define-typography-config(),
-  density: 0
+  density: 0,
 ));
 
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
-@include mat.all-component-themes($buenamielda-front-theme);
+@include mat.all-component-themes($miel-theme);
 
-/* You can add global styles to this file, and also import other style files */
+// Variables globales del proyecto
+$brand-dark:  #2C1810;
+$brand-gold:  #C8860A;
+$brand-bg:    #FDFAF5;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+// ── Tipografía menú móvil navbar ──────────────────────────
+.mobile-menu-panel {
+  .mat-mdc-list-item .mdc-list-item__primary-text,
+  .mat-mdc-list-item .mdc-list-item__content {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-size: 0.95rem !important;
+    color: #5C3D2E !important;
+  }
+
+  .mat-expansion-panel-header-title,
+  .mat-panel-title {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-size: 0.95rem !important;
+    color: #5C3D2E !important;
+  }
+
+  .submenu-list {
+    .mdc-list-item__primary-text {
+      font-family: 'Georgia', 'Times New Roman', serif !important;
+      font-size: 0.875rem !important;
+      color: rgba(92, 61, 46, 0.8) !important;
+    }
+  }
+
+  .mat-mdc-list-item .mat-icon {
+    color: #5C3D2E !important;
+  }
+}

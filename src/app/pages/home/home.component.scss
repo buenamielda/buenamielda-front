@@ -1,0 +1,181 @@
+$brand-dark: #2C1810;
+$brand-mid: #5C3D2E;
+$brand-gold: #C8860A;
+$brand-gold-bright: #E6AC00;
+$brand-bg: #FAF7F2;
+$brand-soft: #EFE7DA;
+$font-serif: 'Georgia', 'Times New Roman', serif;
+
+:host {
+  display: block;
+  background: $brand-bg;
+}
+
+.home-benefits,
+.home-testimonials,
+.home-popular {
+  padding: 5rem 0;
+}
+
+.home-benefits {
+  background: rgba(#A3937C, 0.2);
+}
+
+.home-testimonials {
+  background: rgba($brand-gold-bright, 0.1);
+}
+
+.home-popular {
+  background: $brand-bg;
+}
+
+.section-heading {
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+}
+
+.section-kicker {
+  margin: 0 0 0.75rem;
+  color: $brand-gold;
+  font-family: $font-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.section-title {
+  margin: 0 0 1rem;
+  color: $brand-dark;
+  font-family: $font-serif;
+  font-size: clamp(1.65rem, 3vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.section-copy {
+  max-width: 560px;
+  margin: 0 0 1.75rem;
+  color: rgba($brand-dark, 0.78);
+  font-family: $font-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.section-cta,
+.popular-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  background: $brand-gold-bright;
+  color: #fff;
+  font-family: $font-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 12px rgba($brand-gold, 0.25);
+  transition: transform 0.16s ease, background 0.16s ease;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  &:hover {
+    background: $brand-gold;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+}
+
+.benefits-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.benefit-item,
+.testimonial-card {
+  border: 1px solid rgba($brand-dark, 0.08);
+  background: rgba(#fff, 0.68);
+  box-shadow: 0 10px 30px rgba($brand-dark, 0.07);
+}
+
+.benefit-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+.benefit-icon {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba($brand-gold-bright, 0.16);
+  color: $brand-gold;
+  flex: 0 0 auto;
+}
+
+.benefit-item h3 {
+  margin: 0 0 0.35rem;
+  color: $brand-dark;
+  font-family: $font-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.benefit-item p,
+.testimonial-card p {
+  margin: 0;
+  color: rgba($brand-dark, 0.74);
+  font-family: $font-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.testimonial-card {
+  min-height: 180px;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.testimonial-card span {
+  display: block;
+  margin-top: 1.25rem;
+  color: $brand-mid;
+  font-family: $font-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.popular-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+@media (max-width: 767.98px) {
+  .home-benefits,
+  .home-testimonials,
+  .home-popular {
+    padding: 3.5rem 0;
+  }
+
+  .benefit-item {
+    grid-template-columns: 1fr;
+  }
+
+  .popular-links a {
+    width: 100%;
+  }
+}

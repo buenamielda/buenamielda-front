@@ -1,0 +1,107 @@
+<section class="products-section">
+  <div class="container-lg px-3 px-lg-4">
+
+    <!-- Título -->
+    <div class="row">
+      <div class="col-12 text-center">
+        <h2 class="section-title">{{ sectionTitle }}</h2>
+      </div>
+    </div>
+
+    <!-- Barra de controles -->
+    <div class="row align-items-center gy-3 mb-4" *ngIf="showControls">
+
+      <!-- Contador resultados -->
+      <div class="col-12 col-md-5">
+        <p class="results-label">{{ resultLabel }}</p>
+      </div>
+
+      <!-- Ordenar -->
+      <div class="col-12 col-md-7 d-flex justify-content-md-end">
+        <mat-form-field class="sort-field" appearance="outline" subscriptSizing="dynamic">
+          <mat-select
+            [value]="sortOrder()"
+            (selectionChange)="onSort($event.value)">
+            <mat-option *ngFor="let opt of sortOptions" [value]="opt.value">
+              {{ opt.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+    </div>
+
+    <!-- Buscador + Filtrar -->
+    <div class="row align-items-center mb-4 gy-2" *ngIf="showControls">
+
+      <div class="col-12 col-md-8">
+        <div class="search-wrapper">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar"
+            [value]="searchQuery()"
+            (input)="onSearch($any($event.target).value)"
+          />
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4 d-flex justify-content-md-end">
+        <button class="btn-filtrar">
+          <mat-icon>tune</mat-icon>
+          Filtrar
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Grid de productos -->
+    <div class="row gy-4" [class.list-view]="viewMode() === 'list'">
+
+      <div
+        *ngFor="let product of filteredProducts()"
+        class="col-6 col-md-4 col-lg-3 product-col">
+
+        <div class="product-card" [routerLink]="['/productos', product.id]">
+
+          <!-- Imagen -->
+          <div class="product-img-wrap">
+            <img
+              [src]="product.image"
+              [alt]="product.name"
+              class="product-img"
+              loading="lazy"
+              onerror="this.src='assets/images/placeholder.jpg'"
+            />
+          </div>
+
+          <!-- Info -->
+          <div class="product-info">
+            <p class="product-name">{{ product.name }}</p>
+            <p class="product-price">{{ formatPrice(product.price) }}</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sin resultados -->
+      <div *ngIf="filteredProducts().length === 0" class="col-12 text-center py-5">
+        <mat-icon class="no-results-icon">search_off</mat-icon>
+        <p class="no-results-text">No se encontraron productos para "{{ searchQuery() }}"</p>
+      </div>
+
+    </div>
+
+    <!-- Toggle vista lista -->
+    <div class="row view-toggle-row" *ngIf="showControls && showViewToggle">
+      <div class="col-12 d-flex justify-content-end">
+        <button class="view-toggle" (click)="setView(viewMode() === 'grid' ? 'list' : 'grid')">
+          <mat-icon>{{ viewMode() === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
+          {{ viewMode() === 'grid' ? 'Mostrar los productos en lista' : 'Mostrar en cuadrícula' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>

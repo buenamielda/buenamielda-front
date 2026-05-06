@@ -1,0 +1,77 @@
+<app-hero />
+
+<app-product-grid
+  sectionTitle="Nuestros productos"
+  [showControls]="false"
+  [showViewToggle]="false"
+/>
+<section class="home-benefits">
+  <div class="container-lg px-3 px-lg-4">
+    <div class="row align-items-center gy-5">
+      <div class="col-12 col-lg-6">
+        <p class="section-kicker">Del cuidado de las abejas a tu mesa</p>
+        <h2 class="section-title">
+          Una tienda para comprar miel y aprender de apicultura
+        </h2>
+        <p class="section-copy">
+          Buena mielda une ecommerce y divulgacion cientifica para que cada
+          producto tenga contexto: origen, proceso, propiedades y relacion con
+          el trabajo del colmenar.
+        </p>
+
+        <a routerLink="/aprende" class="section-cta">
+          Aprende apicultura
+          <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="benefits-panel">
+          <article class="benefit-item" *ngFor="let benefit of benefits">
+            <span class="benefit-icon">
+              <mat-icon>{{ benefit.icon }}</mat-icon>
+            </span>
+            <div>
+              <h3>{{ benefit.title }}</h3>
+              <p>{{ benefit.text }}</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="home-testimonials">
+  <div class="container-lg px-3 px-lg-4">
+    <div class="section-heading">
+      <p class="section-kicker">Experiencia de usuario</p>
+      <h2 class="section-title">Opiniones que refuerzan la confianza</h2>
+    </div>
+
+    <div class="row gy-4">
+      <div class="col-12 col-md-4" *ngFor="let testimonial of testimonials">
+        <article class="testimonial-card">
+          <p>"{{ testimonial.quote }}"</p>
+          <span>{{ testimonial.author }}</span>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="home-popular">
+  <div class="container-lg px-3 px-lg-4">
+    <div class="section-heading">
+      <p class="section-kicker">Mas buscado</p>
+      <h2 class="section-title">Accesos destacados</h2>
+    </div>
+
+    <div class="popular-links">
+      <a *ngFor="let link of popularLinks" [routerLink]="link.route">
+        {{ link.label }}
+        <mat-icon>arrow_forward</mat-icon>
+      </a>
+    </div>
+  </div>
+</section>

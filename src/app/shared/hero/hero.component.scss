@@ -1,0 +1,155 @@
+// ── Tokens ────────────────────────────────────────────────
+$brand-dark:   #2C1810;
+$brand-gold:   #C8860A;
+$brand-gold-h: #E09A10;
+$font-serif:   'Georgia', 'Times New Roman', serif;
+
+// ── Hero wrapper ──────────────────────────────────────────
+.hero {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    height: 480px;
+  }
+
+  @media (max-width: 480px) {
+    height: 420px;
+  }
+}
+
+// ── Imagen de fondo ───────────────────────────────────────
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  display: block;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(245, 240, 232, 0.3); // crema suave, más coherente con el diseño
+}
+
+// ── Tarjeta glassmorphism ─────────────────────────────────
+.hero-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 3rem;
+  max-width: 480px;
+  width: 90%;
+
+  // Efecto cristal del prototipo
+  background: rgba(245, 240, 232, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 240, 232, 0.4);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(20, 10, 4, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  // Animación de entrada
+  animation: heroCardIn 0.7s ease both;
+
+  @media (max-width: 480px) {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@keyframes heroCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Icono abeja ───────────────────────────────────────────
+.hero-bee {
+  margin-bottom: 0.5rem;
+  animation: heroCardIn 0.7s ease 0.1s both;
+
+  svg {
+    filter: drop-shadow(0 2px 4px rgba(20, 10, 4, 0.15));
+  }
+}
+
+// ── Título ────────────────────────────────────────────────
+.hero-title {
+  font-family: $font-serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 700;
+  color: $brand-dark;
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.01em;
+  animation: heroCardIn 0.7s ease 0.15s both;
+}
+
+// ── Subtítulo ─────────────────────────────────────────────
+.hero-subtitle {
+  font-family: $font-serif;
+  font-size: 0.9rem;
+  color: rgba($brand-dark, 0.8);
+  line-height: 1.65;
+  margin: 0 0 1.5rem;
+  max-width: 340px;
+  animation: heroCardIn 0.7s ease 0.2s both;
+
+  strong {
+    font-weight: 700;
+    color: $brand-dark;
+  }
+}
+
+// ── CTA ───────────────────────────────────────────────────
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.75rem;
+  background: $brand-gold;
+  color: #fff;
+  font-family: $font-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 12px rgba($brand-gold, 0.35);
+  animation: heroCardIn 0.7s ease 0.25s both;
+
+  &:hover {
+    background: $brand-gold-h;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 18px rgba($brand-gold, 0.45);
+    color: #fff;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

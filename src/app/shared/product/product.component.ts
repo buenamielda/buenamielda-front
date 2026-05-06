@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, Input, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -26,8 +26,9 @@ import { Product } from '../../models/product.model';
   styleUrl: './product.component.scss',
 })
 export class ProductGridComponent {
-
-  // ── Datos hardcodeados — reemplaza por llamada HTTP cuando el backend esté listo
+  @Input() sectionTitle = 'Todos los productos';
+  @Input() showControls = true;
+  @Input() showViewToggle = true;
   // this.products.set(await this.productService.getAll())
   private allProducts = signal<Product[]>([
     { id: 1, name: 'Miel de Tomillo',    price: 9.99,  image: 'assets/images/miel-tomillo.jpg',    category: 'miel' },

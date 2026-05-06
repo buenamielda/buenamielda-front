@@ -4,12 +4,12 @@
     <!-- Título -->
     <div class="row">
       <div class="col-12 text-center">
-        <h2 class="section-title">Todos los productos</h2>
+        <h2 class="section-title">{{ sectionTitle }}</h2>
       </div>
     </div>
 
     <!-- Barra de controles -->
-    <div class="row align-items-center gy-3 mb-4">
+    <div class="row align-items-center gy-3 mb-4" *ngIf="showControls">
 
       <!-- Contador resultados -->
       <div class="col-12 col-md-5">
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Buscador + Filtrar -->
-    <div class="row align-items-center mb-4 gy-2">
+    <div class="row align-items-center mb-4 gy-2" *ngIf="showControls">
 
       <div class="col-12 col-md-8">
         <div class="search-wrapper">
@@ -94,7 +94,7 @@
     </div>
 
     <!-- Toggle vista lista -->
-    <div class="row mt-4">
+    <div class="row view-toggle-row" *ngIf="showControls && showViewToggle">
       <div class="col-12 d-flex justify-content-end">
         <button class="view-toggle" (click)="setView(viewMode() === 'grid' ? 'list' : 'grid')">
           <mat-icon>{{ viewMode() === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>

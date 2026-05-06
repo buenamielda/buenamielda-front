@@ -1,0 +1,117 @@
+<main class="admin-products-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="admin-header">
+      <div>
+        <p class="admin-kicker">Administración</p>
+        <h1>Crear producto</h1>
+        <p>
+          Crea nuevos productos para el catálogo. Esta pantalla está preparada
+          para conectarse más adelante a la API REST.
+        </p>
+      </div>
+    </header>
+
+    <section class="admin-layout">
+      <form class="product-form" (ngSubmit)="createProduct()">
+        <div class="form-heading">
+          <h2>Crear producto</h2>
+        </div>
+
+        <label>
+          Nombre
+          <input
+            type="text"
+            required
+            [ngModel]="form().name"
+            name="name"
+            (ngModelChange)="onFieldChange('name', $event)"
+          />
+        </label>
+
+        <div class="form-row">
+          <label>
+            Precio
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              required
+              [ngModel]="form().price"
+              name="price"
+              (ngModelChange)="onFieldChange('price', $event)"
+            />
+          </label>
+
+          <label>
+            Categoría
+            <select
+              [ngModel]="form().category"
+              name="category"
+              (ngModelChange)="onFieldChange('category', $event)"
+            >
+              <option value="miel">Miel</option>
+              <option value="polen">Polen</option>
+              <option value="propoleo">Propóleo</option>
+              <option value="cosmetica">Cosmética</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Imagen
+          <input
+            type="text"
+            [ngModel]="form().image"
+            name="image"
+            (ngModelChange)="onFieldChange('image', $event)"
+          />
+        </label>
+
+        <label>
+          Peso neto
+          <input
+            type="text"
+            [ngModel]="form().netWeight"
+            name="netWeight"
+            (ngModelChange)="onFieldChange('netWeight', $event)"
+          />
+        </label>
+
+        <label>
+          Descripción
+          <textarea
+            rows="4"
+            [ngModel]="form().description"
+            name="description"
+            (ngModelChange)="onFieldChange('description', $event)"
+          ></textarea>
+        </label>
+
+        <label>
+          Detalles
+          <textarea
+            rows="5"
+            [ngModel]="form().detailsText"
+            name="detailsText"
+            (ngModelChange)="onFieldChange('detailsText', $event)"
+            placeholder="Un detalle por línea"
+          ></textarea>
+        </label>
+
+        <label class="status-check">
+          <input
+            type="checkbox"
+            [ngModel]="form().active"
+            name="active"
+            (ngModelChange)="onFieldChange('active', $event)"
+          />
+          Producto activo en tienda
+        </label>
+
+        <button class="primary-button" type="submit">
+          Crear producto
+        </button>
+      </form>
+    </section>
+  </div>
+</main>

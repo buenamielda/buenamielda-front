@@ -1,5 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 import { Product } from '../models/product.model';
+
+export type ProductPayload = Omit<Product, 'id'>;
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +14,7 @@ export class ProductCatalogService {
       price: 9.99,
       image: 'assets/images/miel-tomillo.svg',
       category: 'miel',
+      active: true,
       netWeight: '1 Kg',
       description:
         'Miel pura de primera calidad, obtenida de colmenas locales y producida de manera artesanal.',
@@ -22,18 +25,57 @@ export class ProductCatalogService {
         'Peso neto: 1 Kg.',
       ],
     },
-    { id: 2, name: 'Miel de Mil Flores', price: 9.99, image: 'assets/images/miel-mil-flores.svg', category: 'miel' },
-    { id: 3, name: 'Miel de Montana', price: 9.99, image: 'assets/images/miel-montana.svg', category: 'miel' },
-    { id: 4, name: 'Miel de Lavanda', price: 9.99, image: 'assets/images/miel-lavanda.svg', category: 'miel' },
-    { id: 5, name: 'Miel del Bosque', price: 9.99, image: 'assets/images/miel-bosque.svg', category: 'miel' },
-    { id: 6, name: 'Miel de Azahar', price: 9.99, image: 'assets/images/miel-azahar.svg', category: 'miel' },
-    { id: 7, name: 'Miel de Eucalipto', price: 9.99, image: 'assets/images/miel-eucalipto.svg', category: 'miel' },
-    { id: 8, name: 'Polen natural', price: 12.5, image: 'assets/images/polen-natural.svg', category: 'polen' },
+    { id: 2, name: 'Miel de Mil Flores', price: 9.99, image: 'assets/images/miel-mil-flores.svg', category: 'miel', active: true },
+    { id: 3, name: 'Miel de Montana', price: 9.99, image: 'assets/images/miel-montana.svg', category: 'miel', active: true },
+    { id: 4, name: 'Miel de Lavanda', price: 9.99, image: 'assets/images/miel-lavanda.svg', category: 'miel', active: true },
+    { id: 5, name: 'Miel del Bosque', price: 9.99, image: 'assets/images/miel-bosque.svg', category: 'miel', active: true },
+    { id: 6, name: 'Miel de Azahar', price: 9.99, image: 'assets/images/miel-azahar.svg', category: 'miel', active: true },
+    { id: 7, name: 'Miel de Eucalipto', price: 9.99, image: 'assets/images/miel-eucalipto.svg', category: 'miel', active: true },
+    { id: 8, name: 'Polen natural', price: 12.5, image: 'assets/images/polen-natural.svg', category: 'polen', active: true },
   ]);
 
-  readonly products = this.productList.asReadonly();
+  readonly allProducts = this.productList.asReadonly();
+  readonly products = computed(() =>
+    this.productList().filter((product) => product.active)
+  );
 
   getById(id: number): Product | undefined {
     return this.productList().find((product) => product.id === id);
+  }
+
+  create(payload: ProductPayload): Product {
+    const product = {
+      ...payload,
+      id: this.nextId(),
+    };
+
+    this.productList.update((products) => [...products, product]);
+    return product;
+  }
+
+  update(id: number, payload: ProductPayload): void {
+    this.productList.update((products) =>
+      products.map((product) =>
+        product.id === id ? { ...payload, id } : product
+      )
+    );
+  }
+
+  setActive(id: number, active: boolean): void {
+    this.productList.update((products) =>
+      products.map((product) =>
+        product.id === id ? { ...product, active } : product
+      )
+    );
+  }
+
+  delete(id: number): void {
+    this.productList.update((products) =>
+      products.filter((product) => product.id !== id)
+    );
+  }
+
+  private nextId(): number {
+    return Math.max(0, ...this.productList().map((product) => product.id)) + 1;
   }
 }

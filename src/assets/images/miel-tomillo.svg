@@ -1,0 +1,11 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="640" fill="#F0EAE0"/>
+  <ellipse cx="320" cy="520" rx="150" ry="26" fill="#2C1810" opacity=".12"/>
+  <path d="M238 184h164l-16 334H254L238 184Z" fill="#D99A20"/>
+  <path d="M264 210h112l-12 276H276L264 210Z" fill="#F3C64C"/>
+  <path d="M254 170h132v40H254v-40Z" fill="#5C3D2E"/>
+  <path d="M274 126h92v48h-92v-48Z" fill="#C8860A"/>
+  <rect x="254" y="294" width="132" height="94" rx="18" fill="#FAF7F2"/>
+  <text x="320" y="329" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="700" fill="#2C1810">Miel</text>
+  <text x="320" y="361" text-anchor="middle" font-family="Georgia, serif" font-size="18" fill="#C8860A">Tomillo</text>
+</svg>

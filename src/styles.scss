@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@include mat.core();
 
 $miel-primary: mat.define-palette(mat.$brown-palette, 800, 600, 900);
 $miel-accent:  mat.define-palette(mat.$amber-palette, 700, 500, 900);

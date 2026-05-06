@@ -92,6 +92,22 @@ export class AdminProductsComponent {
     this.form.set(this.emptyForm());
   }
 
+  toggleActive(product: Product): void {
+    this.productCatalog.setActive(product.id, !product.active);
+  }
+
+  deleteProduct(product: Product): void {
+    const confirmed = window.confirm(
+      `Quieres borrar definitivamente "${product.name}"?`
+    );
+
+    if (confirmed) {
+      this.productCatalog.delete(product.id);
+      if (this.editingId() === product.id) {
+        this.resetForm();
+      }
+    }
+  }
 
   formatPrice(price: number): string {
     return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);

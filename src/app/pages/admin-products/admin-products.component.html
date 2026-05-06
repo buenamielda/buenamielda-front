@@ -5,7 +5,7 @@
         <p class="admin-kicker">Administracion</p>
         <h1>Gestion de productos</h1>
         <p>
-          Crea y edita. Esta pantalla
+          Crea, edita, desactiva o borra productos del catalogo. Esta pantalla
           esta preparada para conectarse mas adelante a la API REST.
         </p>
       </div>
@@ -165,7 +165,12 @@
 
             <div class="row-actions">
               <button type="button" (click)="editProduct(product)">Editar</button>
-            
+              <button type="button" (click)="toggleActive(product)">
+                {{ product.active ? 'Desactivar' : 'Reactivar' }}
+              </button>
+              <button type="button" class="danger" (click)="deleteProduct(product)">
+                Borrar
+              </button>
             </div>
           </article>
         </div>

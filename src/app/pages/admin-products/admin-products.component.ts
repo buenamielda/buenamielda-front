@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Product } from '../../models/product.model';
 import {
   ProductCatalogService,
   ProductPayload,
@@ -27,29 +28,70 @@ interface ProductForm {
 export class AdminProductsComponent {
   private readonly productCatalog = inject(ProductCatalogService);
 
+  readonly products = this.productCatalog.allProducts;
+  readonly editingId = signal<number | null>(null);
+  readonly searchQuery = signal('');
+
   readonly form = signal<ProductForm>(this.emptyForm());
 
-  onFieldChange<K extends keyof ProductForm>(
-    field: K,
-    value: ProductForm[K]
-  ): void {
-    this.form.update((current) => ({
-      ...current,
-      [field]: value,
-    }));
+  readonly filteredProducts = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) {
+      return this.products();
+    }
+
+    return this.products().filter((product) =>
+      [product.name, product.category, product.description ?? '']
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
+    );
+  });
+
+  readonly activeCount = computed(
+    () => this.products().filter((product) => product.active).length
+  );
+
+  readonly inactiveCount = computed(
+    () => this.products().filter((product) => !product.active).length
+  );
+
+  onFieldChange<K extends keyof ProductForm>(field: K, value: ProductForm[K]): void {
+    this.form.update((current) => ({ ...current, [field]: value }));
   }
 
-  createProduct(): void {
+  saveProduct(): void {
     const payload = this.toPayload(this.form());
+    const editingId = this.editingId();
 
-    this.productCatalog.create(payload);
+    if (editingId) {
+      this.productCatalog.update(editingId, payload);
+    } else {
+      this.productCatalog.create(payload);
+    }
 
     this.resetForm();
   }
 
+  editProduct(product: Product): void {
+    this.editingId.set(product.id);
+    this.form.set({
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: product.category,
+      active: product.active,
+      netWeight: product.netWeight ?? '',
+      description: product.description ?? '',
+      detailsText: product.details?.join('\n') ?? '',
+    });
+  }
+
   resetForm(): void {
+    this.editingId.set(null);
     this.form.set(this.emptyForm());
   }
+
 
   formatPrice(price: number): string {
     return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);

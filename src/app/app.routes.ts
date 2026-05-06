@@ -14,6 +14,14 @@ export const routes: Routes = [
     title: 'Productos | Buena mielda',
   },
   {
+    path: 'productos/:id',
+    loadComponent: () =>
+      import('./pages/product-detail/product-detail.component').then(
+        (m) => m.ProductDetailComponent
+      ),
+    title: 'Detalle de producto | Buena mielda',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

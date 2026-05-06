@@ -22,6 +22,14 @@ export const routes: Routes = [
     title: 'Detalle de producto | Buena mielda',
   },
   {
+     path: 'admin/productos',
+    loadComponent: () =>
+      import('./pages/admin-products/admin-products.component').then(
+        (m) => m.AdminProductsComponent
+      ),
+    title: 'Administrar productos | Buena mielda',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

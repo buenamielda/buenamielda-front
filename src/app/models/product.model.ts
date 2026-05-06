@@ -4,6 +4,7 @@ export interface Product {
   price: number;
   image: string;
   category: string;
+  active: boolean;
   description?: string;
   details?: string[];
   netWeight?: string;

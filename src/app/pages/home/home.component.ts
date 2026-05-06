@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { HeroComponent } from './../shared/hero/hero.component';
-import { ProductGridComponent } from './../shared/product/product.component';
+import { HeroComponent } from '../../shared/hero/hero.component';
+import { ProductGridComponent } from '../../shared/product/product.component';
 
 @Component({
   selector: 'app-home',

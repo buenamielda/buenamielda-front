@@ -1,16 +1,22 @@
 <app-hero />
 
-<app-product-grid />
-
+<app-product-grid
+  sectionTitle="Nuestros productos"
+  [showControls]="false"
+  [showViewToggle]="false"
+/>
 <section class="home-benefits">
   <div class="container-lg px-3 px-lg-4">
     <div class="row align-items-center gy-5">
       <div class="col-12 col-lg-6">
         <p class="section-kicker">Del cuidado de las abejas a tu mesa</p>
-        <h2 class="section-title">Una tienda para comprar miel y aprender de apicultura</h2>
+        <h2 class="section-title">
+          Una tienda para comprar miel y aprender de apicultura
+        </h2>
         <p class="section-copy">
-          Buena mielda une ecommerce y divulgacion cientifica para que cada producto tenga contexto:
-          origen, proceso, propiedades y relacion con el trabajo del colmenar.
+          Buena mielda une ecommerce y divulgacion cientifica para que cada
+          producto tenga contexto: origen, proceso, propiedades y relacion con
+          el trabajo del colmenar.
         </p>
 
         <a routerLink="/aprende" class="section-cta">

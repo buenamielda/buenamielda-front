@@ -1,9 +1,9 @@
 $brand-dark: #272727;
-$brand-brown: #2C1810;
-$brand-mid: #5C3D2E;
-$brand-gold: #E6AC00;
-$brand-soft: #F0EAE0;
-$font-serif: 'Georgia', 'Times New Roman', serif;
+$brand-brown: #2c1810;
+$brand-mid: #5c3d2e;
+$brand-gold: #e6ac00;
+$brand-soft: #f0eae0;
+$font-serif: "Georgia", "Times New Roman", serif;
 
 :host {
   display: block;
@@ -154,6 +154,7 @@ $font-serif: 'Georgia', 'Times New Roman', serif;
   align-items: center;
   justify-content: center;
   margin-top: 0.25rem;
+  border: 0;
   border-radius: 8px;
   background: $brand-gold;
   color: #fff;
@@ -161,10 +162,13 @@ $font-serif: 'Georgia', 'Times New Roman', serif;
   font-size: 1.05rem;
   font-weight: 700;
   text-decoration: none;
-  transition: transform 0.16s ease, background 0.16s ease;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
 
   &:hover {
-    background: #C8860A;
+    background: #c8860a;
     color: #fff;
     transform: translateY(-1px);
   }

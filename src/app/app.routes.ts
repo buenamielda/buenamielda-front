@@ -17,17 +17,23 @@ export const routes: Routes = [
     path: 'productos/:id',
     loadComponent: () =>
       import('./pages/product-detail/product-detail.component').then(
-        (m) => m.ProductDetailComponent
+        (m) => m.ProductDetailComponent,
       ),
     title: 'Detalle de producto | Buena mielda',
   },
   {
-     path: 'admin/productos',
+    path: 'admin/productos',
     loadComponent: () =>
       import('./pages/admin-products/admin-products.component').then(
-        (m) => m.AdminProductsComponent
+        (m) => m.AdminProductsComponent,
       ),
     title: 'Administrar productos | Buena mielda',
+  },
+  {
+    path: 'carrito',
+    loadComponent: () =>
+      import('./pages/cart/cart.component').then((m) => m.CartComponent),
+    title: 'Carrito | Buena mielda',
   },
   {
     path: '**',

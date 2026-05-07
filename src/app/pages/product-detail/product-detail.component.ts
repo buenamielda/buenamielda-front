@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { ProductCatalogService } from '../../services/product-catalog.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -13,7 +14,9 @@ import { ProductCatalogService } from '../../services/product-catalog.service';
 })
 export class ProductDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly productCatalog = inject(ProductCatalogService);
+  private readonly cartService = inject(CartService);
 
   readonly quantity = signal(1);
   readonly purchaseMode = signal<'single' | 'subscription'>('single');
@@ -35,6 +38,11 @@ export class ProductDetailComponent {
 
   setPurchaseMode(mode: 'single' | 'subscription'): void {
     this.purchaseMode.set(mode);
+  }
+
+  addToCart(): void {
+    this.cartService.add(this.product(), this.quantity(), this.purchaseMode());
+    this.router.navigate(['/carrito']);
   }
 
   formatPrice(price: number): string {

@@ -1,0 +1,53 @@
+<main class="cart-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="cart-header">
+      <p class="cart-kicker">Carrito</p>
+      <h1>Articulos en tu cesta</h1>
+      <a routerLink="/productos" class="back-link">Seguir comprando</a>
+    </header>
+
+    <section class="cart-empty" *ngIf="items().length === 0">
+      <div class="empty-icon">0</div>
+      <h2>Tu cesta esta vacia</h2>
+      <p>
+        Anade productos desde el catalogo para ver aqui el detalle completo de
+        tu pedido.
+      </p>
+      <a routerLink="/productos" class="catalog-button">Ver productos</a>
+    </section>
+
+    <ng-container *ngIf="items().length > 0">
+      <section class="cart-table" aria-label="Articulos en tu cesta">
+        <div class="cart-row cart-head">
+          <span>Producto</span>
+          <span>Precio</span>
+         
+        </div>
+
+        <div class="cart-row cart-item" *ngFor="let item of items()">
+          <div class="item-product">
+            <img [src]="item.product.image" [alt]="item.product.name" />
+            <div>
+              <h2>{{ item.product.name }}&reg;</h2>
+              <p>{{ modeLabel(item.purchaseMode) }}</p>
+            </div>
+          </div>
+
+          <p class="item-price">{{ formatPrice(item.product.price) }}</p>
+        </div>
+      </section>
+
+      <section class="cart-summary">
+        <div class="summary-card">
+          <div class="summary-line">
+            <span>Productos acumulados</span>
+            <strong>{{ itemCount() }}</strong>
+          </div>
+          <p>Los impuestos y el coste de envio se calcularan mas tarde.</p>
+        </div>
+
+        <a routerLink="/checkout/datos" class="checkout-button">Comprar</a>
+      </section>
+    </ng-container>
+  </div>
+</main>

@@ -46,9 +46,9 @@
           </div>
         </div>
 
-        <a routerLink="/carrito" class="buy-button">
+        <button type="button" class="buy-button" (click)="addToCart()">
           Anadir al carro
-        </a>
+        </button>
 
         <div class="product-details">
           <p *ngFor="let detail of product().details">{{ detail }}</p>

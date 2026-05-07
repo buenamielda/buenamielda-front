@@ -1,4 +1,4 @@
-import { Component, signal, HostListener } from '@angular/core';
+import { Component, signal, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -9,6 +9,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-navbar',
@@ -29,10 +30,12 @@ import { MatDividerModule } from '@angular/material/divider';
   styleUrl: './navbar.component.scss',
 })
 export class NavbarComponent {
+  private readonly cartService = inject(CartService);
+
   mobileMenuOpen = signal(false);
   dropdownOpen   = signal(false);
   scrolled       = signal(false);
-  cartCount      = signal(3);
+  cartCount      = this.cartService.itemCount;
 
   apiculturaLinks = [
     { label: 'Guía del apicultor', route: '/aprende/guia' },

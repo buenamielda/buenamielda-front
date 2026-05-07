@@ -21,7 +21,8 @@
         <div class="cart-row cart-head">
           <span>Producto</span>
           <span>Precio</span>
-         
+          <span>Cantidad</span>
+          <span>Total</span>
         </div>
 
         <div class="cart-row cart-item" *ngFor="let item of items()">
@@ -34,6 +35,17 @@
           </div>
 
           <p class="item-price">{{ formatPrice(item.product.price) }}</p>
+
+          <div class="quantity-control">
+            <span>Cantidad</span>
+            <div class="quantity-buttons">
+              <button type="button" (click)="increaseQuantity(item)" aria-label="Sumar producto">+</button>
+              <strong>{{ item.quantity }}</strong>
+              <button type="button" (click)="decreaseQuantity(item)" aria-label="Restar producto">-</button>
+            </div>
+          </div>
+
+          <p class="item-total">{{ formatPrice(itemTotal(item)) }}</p>
         </div>
       </section>
 
@@ -42,6 +54,10 @@
           <div class="summary-line">
             <span>Productos acumulados</span>
             <strong>{{ itemCount() }}</strong>
+          </div>
+          <div class="summary-line total-line">
+            <span>Total</span>
+            <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <p>Los impuestos y el coste de envio se calcularan mas tarde.</p>
         </div>

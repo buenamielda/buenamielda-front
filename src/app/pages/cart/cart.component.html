@@ -31,6 +31,7 @@
             <div>
               <h2>{{ item.product.name }}&reg;</h2>
               <p>{{ modeLabel(item.purchaseMode) }}</p>
+              <button type="button" (click)="removeItem(item)">Eliminar</button>
             </div>
           </div>
 
@@ -39,9 +40,21 @@
           <div class="quantity-control">
             <span>Cantidad</span>
             <div class="quantity-buttons">
-              <button type="button" (click)="increaseQuantity(item)" aria-label="Sumar producto">+</button>
+              <button
+                type="button"
+                (click)="increaseQuantity(item)"
+                aria-label="Sumar producto"
+              >
+                +
+              </button>
               <strong>{{ item.quantity }}</strong>
-              <button type="button" (click)="decreaseQuantity(item)" aria-label="Restar producto">-</button>
+              <button
+                type="button"
+                (click)="decreaseQuantity(item)"
+                aria-label="Restar producto"
+              >
+                -
+              </button>
             </div>
           </div>
 

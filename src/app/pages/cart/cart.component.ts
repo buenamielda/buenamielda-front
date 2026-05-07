@@ -29,10 +29,10 @@ export class CartComponent {
     this.cartService.decrease(item.product.id, item.purchaseMode);
   }
 
-   itemTotal(item: CartItem): number {
+  itemTotal(item: CartItem): number {
     return item.product.price * item.quantity;
   }
-  
+
   modeLabel(mode: PurchaseMode): string {
     return mode === 'subscription'
       ? 'Suscripcion cada 4 semanas'
@@ -41,5 +41,9 @@ export class CartComponent {
 
   formatPrice(price: number): string {
     return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  }
+
+  removeItem(item: CartItem): void {
+    this.cartService.remove(item.product.id, item.purchaseMode);
   }
 }

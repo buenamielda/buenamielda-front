@@ -3,8 +3,11 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
+import { Producto } from '../../models/product.model';
 import { ProductCatalogService } from '../../services/product-catalog.service';
 import { CartService } from '../../services/cart.service';
+
+type ModoCompra = 'single' | 'subscription';
 
 @Component({
   selector: 'app-product-detail',
@@ -20,16 +23,18 @@ export class ProductDetailComponent implements OnInit {
   private readonly cartService = inject(CartService);
 
   readonly cantidad = signal(1);
-  readonly modoCompra = signal<'single' | 'subscription'>('single');
+  readonly modoCompra = signal<ModoCompra>('single');
 
-  readonly producto = computed(() => {
-    const id = Number(this.route.snapshot.paramMap.get('id') ?? 1);
+  readonly cargando = this.productCatalog.cargando;
+  readonly error = this.productCatalog.error;
 
-    return (
-      this.productCatalog.obtenerPorId(id) ??
-      this.productCatalog.productos()[0]
-    );
-  });
+  readonly idProducto = computed(() =>
+    Number(this.route.snapshot.paramMap.get('id'))
+  );
+
+  readonly producto = computed<Producto | undefined>(() =>
+    this.productCatalog.obtenerPorId(this.idProducto())
+  );
 
   readonly total = computed(() => {
     const producto = this.producto();
@@ -42,23 +47,29 @@ export class ProductDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id') ?? 1);
+    const id = this.idProducto();
+
+    if (!id || Number.isNaN(id)) {
+      this.router.navigate(['/productos']);
+      return;
+    }
+
     this.productCatalog.cargarProductoPorId(id);
   }
 
-  increaseQuantity(): void {
+  incrementarCantidad(): void {
     this.cantidad.update((value) => value + 1);
   }
 
-  decreaseQuantity(): void {
+  reducirCantidad(): void {
     this.cantidad.update((value) => Math.max(1, value - 1));
   }
 
-  setPurchaseMode(mode: 'single' | 'subscription'): void {
-    this.modoCompra.set(mode);
+  seleccionarModoCompra(modo: ModoCompra): void {
+    this.modoCompra.set(modo);
   }
 
-  addToCart(): void {
+  anadirAlCarrito(): void {
     const producto = this.producto();
 
     if (!producto) {
@@ -69,7 +80,7 @@ export class ProductDetailComponent implements OnInit {
     this.router.navigate(['/carrito']);
   }
 
-  formatPrice(precio: number): string {
+  formatearPrecio(precio: number): string {
     return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
   }
 }

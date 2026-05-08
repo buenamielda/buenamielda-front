@@ -1,69 +1,126 @@
 <main class="product-detail-page">
   <div class="container-lg px-3 px-lg-4">
-    <section class="product-layout">
-      <article class="product-visual" [routerLink]="['/productos', producto().id]">
-        <img [src]="producto().imagenUrl" [alt]="producto().nombre" />
-      </article>
 
-      <section class="product-summary">
-        <h1>{{ producto().nombre }}</h1>
-        <p class="product-price">{{ formatPrice(producto().precio) }}</p>
+    <div *ngIf="cargando()" class="text-center py-5">
+      <p>Cargando producto...</p>
+    </div>
 
-        <div class="product-actions">
-          <div class="quantity-control" aria-label="Seleccionar cantidad">
-            <span>Cantidad</span>
-            <div class="quantity-buttons">
-              <button type="button" (click)="increaseQuantity()" aria-label="Sumar producto">+</button>
-              <strong>{{ cantidad() }}</strong>
-              <button type="button" (click)="decreaseQuantity()" aria-label="Restar producto">-</button>
+    <div *ngIf="error()" class="text-center py-5">
+      <p>{{ error() }}</p>
+      <a routerLink="/productos">Volver al catálogo</a>
+    </div>
+
+    <ng-container *ngIf="producto() as producto">
+      <section class="product-layout">
+        <article class="product-visual" [routerLink]="['/productos', producto.id]">
+          <img
+            [src]="producto.imagenUrl"
+            [alt]="producto.nombre"
+            loading="lazy"
+            onerror="this.src='assets/images/placeholder.jpg'"
+          />
+        </article>
+
+        <section class="product-summary">
+          <h1>{{ producto.nombre }}</h1>
+
+          <p class="product-price">
+            {{ formatearPrecio(producto.precio) }}
+          </p>
+
+          <p class="product-stock">
+            Stock disponible: {{ producto.stock }}
+          </p>
+
+          <div class="product-actions">
+            <div class="quantity-control" aria-label="Seleccionar cantidad">
+              <span>Cantidad</span>
+
+              <div class="quantity-buttons">
+                <button
+                  type="button"
+                  (click)="incrementarCantidad()"
+                  aria-label="Sumar producto"
+                >
+                  +
+                </button>
+
+                <strong>{{ cantidad() }}</strong>
+
+                <button
+                  type="button"
+                  (click)="reducirCantidad()"
+                  aria-label="Restar producto"
+                >
+                  -
+                </button>
+              </div>
+            </div>
+
+            <div class="purchase-options">
+              <label
+                class="purchase-option"
+                [class.selected]="modoCompra() === 'single'"
+              >
+                <input
+                  type="radio"
+                  name="purchaseMode"
+                  [checked]="modoCompra() === 'single'"
+                  (change)="seleccionarModoCompra('single')"
+                />
+                <span>Compra única</span>
+              </label>
+
+              <label
+                class="purchase-option subscription"
+                [class.selected]="modoCompra() === 'subscription'"
+              >
+                <input
+                  type="radio"
+                  name="purchaseMode"
+                  [checked]="modoCompra() === 'subscription'"
+                  (change)="seleccionarModoCompra('subscription')"
+                />
+                <span>Suscripción y entrega cada <strong>4 semanas</strong></span>
+                <small>
+                  Suscríbete ahora y obtén el 10% de descuento en cada pedido recurrente.
+                  El descuento se aplicará al finalizar la compra. Ver detalles.
+                </small>
+              </label>
             </div>
           </div>
 
-          <div class="purchase-options">
-            <label class="purchase-option" [class.selected]="modoCompra() === 'single'">
-              <input
-                type="radio"
-                name="purchaseMode"
-                [checked]="modoCompra() === 'single'"
-                (change)="setPurchaseMode('single')"
-              />
-              <span>Compra unica</span>
-            </label>
+          <p class="product-total">
+            Total: {{ formatearPrecio(total()) }}
+          </p>
 
-            <label class="purchase-option subscription" [class.selected]="modoCompra() === 'subscription'">
-              <input
-                type="radio"
-                name="purchaseMode"
-                [checked]="modoCompra() === 'subscription'"
-                (change)="setPurchaseMode('subscription')"
-              />
-              <span>Suscripcion y entrega cada <strong>4 semanas</strong></span>
-              <small>
-                Suscribete ahora y obten el 10% de descuento en cada pedido recurrente.
-                El descuento se aplicara al finalizar la compra. Ver detalles
-              </small>
-            </label>
+          <button
+            type="button"
+            class="buy-button"
+            (click)="anadirAlCarrito()"
+          >
+            Añadir al carro
+          </button>
+
+          <div class="product-details" *ngIf="producto.detalles?.length">
+            <p *ngFor="let detalle of producto.detalles">
+              {{ detalle }}
+            </p>
           </div>
-        </div>
-
-        <button type="button" class="buy-button" (click)="addToCart()">
-          Anadir al carro
-        </button>
-
-        <div class="product-details">
-          <p *ngFor="let detail of producto().detalles">{{ detail }}</p>
-        </div>
+        </section>
       </section>
-    </section>
 
-    <section class="product-description">
-      <p>
-        {{ producto().descripcion }}
-      </p>
-      <p class="shipping">
-        <mat-icon>local_shipping</mat-icon>
-        ENVIO GRATUITO
-      </p>
-    </section>
+      <section class="product-description">
+        <p>
+          {{ producto.descripcion }}
+        </p>
+
+        <p class="shipping">
+          <mat-icon>local_shipping</mat-icon>
+          ENVÍO GRATUITO
+        </p>
+      </section>
+    </ng-container>
+
   </div>
 </main>

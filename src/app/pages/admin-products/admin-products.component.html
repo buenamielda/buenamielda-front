@@ -5,8 +5,7 @@
         <p class="admin-kicker">Administracion</p>
         <h1>Gestion de productos</h1>
         <p>
-          Crea, edita, desactiva o borra productos del catalogo. Esta pantalla
-          esta preparada para conectarse mas adelante a la API REST.
+          Crea, edita, desactiva o borra productos del catalogo.
         </p>
       </div>
 
@@ -16,21 +15,21 @@
           <span>Total</span>
         </article>
         <article>
-          <strong>{{ activeCount() }}</strong>
+          <strong>{{ totalActivos() }}</strong>
           <span>Activos</span>
         </article>
         <article>
-          <strong>{{ inactiveCount() }}</strong>
+          <strong>{{ totalInactivos() }}</strong>
           <span>Inactivos</span>
         </article>
       </div>
     </header>
 
     <section class="admin-layout">
-      <form class="product-form" (ngSubmit)="saveProduct()">
+      <form class="product-form" (ngSubmit)="guardarProducto()">
         <div class="form-heading">
           <h2>{{ editingId() ? 'Modificar producto' : 'Crear producto' }}</h2>
-          <button type="button" class="ghost-button" (click)="resetForm()" *ngIf="editingId()">
+          <button type="button" class="ghost-button" (click)="reiniciarFormulario()" *ngIf="editingId()">
             Cancelar
           </button>
         </div>
@@ -42,7 +41,7 @@
             required
             [ngModel]="form().nombre"
             name="name"
-            (ngModelChange)="onFieldChange('nombre', $event)"
+            (ngModelChange)="cambiarCampo('nombre', $event)"
           />
         </label>
 
@@ -56,7 +55,7 @@
               required
               [ngModel]="form().precio"
               name="price"
-              (ngModelChange)="onFieldChange('precio', $event)"
+              (ngModelChange)="cambiarCampo('precio', $event)"
             />
           </label>
 
@@ -65,7 +64,7 @@
             <select
               [ngModel]="form().nombreCategoria"
               name="category"
-              (ngModelChange)="onFieldChange('nombreCategoria', $event)"
+              (ngModelChange)="cambiarCampo('nombreCategoria', $event)"
             >
               <option value="miel">Miel</option>
               <option value="polen">Polen</option>
@@ -81,7 +80,7 @@
             type="text"
             [ngModel]="form().imagenUrl"
             name="image"
-            (ngModelChange)="onFieldChange('imagenUrl', $event)"
+            (ngModelChange)="cambiarCampo('imagenUrl', $event)"
           />
         </label>
 
@@ -91,7 +90,7 @@
             type="text"
             [ngModel]="form().pesoNeto"
             name="netWeight"
-            (ngModelChange)="onFieldChange('pesoNeto', $event)"
+            (ngModelChange)="cambiarCampo('pesoNeto', $event)"
           />
         </label>
 
@@ -101,7 +100,7 @@
             rows="4"
             [ngModel]="form().descripcion"
             name="description"
-            (ngModelChange)="onFieldChange('descripcion', $event)"
+            (ngModelChange)="cambiarCampo('descripcion', $event)"
           ></textarea>
         </label>
 
@@ -111,7 +110,7 @@
             rows="5"
             [ngModel]="form().detallesTexto"
             name="detailsText"
-            (ngModelChange)="onFieldChange('detallesTexto', $event)"
+            (ngModelChange)="cambiarCampo('detallesTexto', $event)"
             placeholder="Un detalle por linea"
           ></textarea>
         </label>
@@ -121,7 +120,7 @@
             type="checkbox"
             [ngModel]="form().activo"
             name="active"
-            (ngModelChange)="onFieldChange('activo', $event)"
+            (ngModelChange)="cambiarCampo('activo', $event)"
           />
           Producto activo en tienda
         </label>
@@ -156,7 +155,7 @@
 
             <div class="product-main">
               <h3>{{ product.nombre }}</h3>
-              <p>{{ product.nombreCategoria }} · {{ formatPrice(product.precio) }}</p>
+              <p>{{ product.nombreCategoria }} · {{ formatearPrecio(product.precio) }}</p>
             </div>
 
             <span class="status-pill" [class.off]="!product.activo">
@@ -164,11 +163,11 @@
             </span>
 
             <div class="row-actions">
-              <button type="button" (click)="editProduct(product)">Editar</button>
-              <button type="button" (click)="toggleActive(product)">
+              <button type="button" (click)="editarProducto(product)">Editar</button>
+              <button type="button" (click)="desactivarProducto(product)">
                 {{ product.activo ? 'Desactivar' : 'Reactivar' }}
               </button>
-              <button type="button" class="danger" (click)="deleteProduct(product)">
+              <button type="button" class="danger" (click)="borrarProducto(product)">
                 Borrar
               </button>
             </div>

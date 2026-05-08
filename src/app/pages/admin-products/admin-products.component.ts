@@ -26,17 +26,19 @@ interface FormularioProducto {
   styleUrl: './admin-products.component.scss',
 })
 export class AdminProductsComponent implements OnInit {
-  private readonly productCatalog = inject(ProductCatalogService);
+  private readonly catalogoProductos = inject(ProductCatalogService);
 
-  readonly productos = this.productCatalog.todosLosProductos;
+  readonly productos = this.catalogoProductos.todosLosProductos;
+  readonly error = this.catalogoProductos.error;
+
   readonly editingId = signal<number | null>(null);
   readonly busqueda = signal('');
-  readonly form = signal(this.formularioVacio());
+  readonly form = signal<FormularioProducto>(this.formularioVacio());
 
   readonly productosFiltrados = computed(() => {
-    const q = this.busqueda().trim().toLowerCase();
+    const textoBusqueda = this.busqueda().trim().toLowerCase();
 
-    if (!q) {
+    if (!textoBusqueda) {
       return this.productos();
     }
 
@@ -48,43 +50,56 @@ export class AdminProductsComponent implements OnInit {
       ]
         .join(' ')
         .toLowerCase()
-        .includes(q)
+        .includes(textoBusqueda)
     );
   });
 
-  readonly activeCount = computed(
+  readonly totalProductos = computed(() => this.productos().length);
+
+  readonly totalActivos = computed(
     () => this.productos().filter((producto) => producto.activo).length
   );
 
-  readonly inactiveCount = computed(
+  readonly totalInactivos = computed(
     () => this.productos().filter((producto) => !producto.activo).length
   );
 
   ngOnInit(): void {
-    this.productCatalog.cargarProductos();
+    this.catalogoProductos.cargarProductos();
   }
 
-  onFieldChange<K extends keyof FormularioProducto>(
-    field: K,
-    value: FormularioProducto[K]
+  cambiarCampo<K extends keyof FormularioProducto>(
+    campo: K,
+    valor: FormularioProducto[K]
   ): void {
-    this.form.update((current) => ({ ...current, [field]: value }));
+    this.form.update((actual) => ({ ...actual, [campo]: valor }));
   }
 
-  saveProduct(): void {
-    const payload = this.toPayload(this.form());
+  cambiarCategoria(idCategoria: number): void {
+    this.form.update((actual) => ({
+      ...actual,
+      idCategoria: Number(idCategoria),
+      nombreCategoria: this.obtenerNombreCategoria(Number(idCategoria)),
+    }));
+  }
+
+  guardarProducto(): void {
+    const payload = this.convertirFormularioAPayload(this.form());
     const editingId = this.editingId();
 
     if (editingId) {
-      this.productCatalog.actualizarProducto(editingId, payload);
+      this.catalogoProductos.actualizarProducto(editingId, payload);
     } else {
-      this.productCatalog.crearProducto(payload);
+      this.catalogoProductos.crearProducto(payload);
     }
 
-    this.resetForm();
+    this.reiniciarFormulario();
   }
 
-  editProduct(producto: Producto): void {
+  editarProducto(producto: Producto): void {
+    const idCategoria =
+      producto.idCategoria ?? this.resolverIdCategoria(producto.nombreCategoria);
+
     this.editingId.set(producto.id);
 
     this.form.set({
@@ -92,8 +107,7 @@ export class AdminProductsComponent implements OnInit {
       precio: producto.precio,
       stock: producto.stock ?? 1,
       imagenUrl: producto.imagenUrl,
-      idCategoria:
-        producto.idCategoria ?? this.resolverIdCategoria(producto.nombreCategoria),
+      idCategoria,
       nombreCategoria: producto.nombreCategoria,
       activo: producto.activo,
       pesoNeto: producto.pesoNeto ?? '',
@@ -102,32 +116,38 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  resetForm(): void {
+  reiniciarFormulario(): void {
     this.editingId.set(null);
     this.form.set(this.formularioVacio());
   }
 
-  toggleActive(producto: Producto): void {
-    if (producto.activo) {
-      this.productCatalog.desactivarProducto(producto.id);
+  desactivarProducto(producto: Producto): void {
+    if (!producto.activo) {
+      return;
     }
+
+    this.catalogoProductos.desactivarProducto(producto.id);
   }
 
-  deleteProduct(producto: Producto): void {
-    const confirmed = window.confirm(
-      `Quieres borrar definitivamente "${producto.nombre}"?`
+  borrarProducto(producto: Producto): void {
+    const confirmado = window.confirm(
+      `¿Quieres desactivar "${producto.nombre}"?`
     );
 
-    if (confirmed) {
-      this.productCatalog.desactivarProducto(producto.id);
+    if (confirmado) {
+      this.catalogoProductos.desactivarProducto(producto.id);
 
       if (this.editingId() === producto.id) {
-        this.resetForm();
+        this.reiniciarFormulario();
       }
     }
   }
 
-  formatPrice(precio: number): string {
+  cambiarBusqueda(valor: string): void {
+    this.busqueda.set(valor);
+  }
+
+  formatearPrecio(precio: number): string {
     return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
   }
 
@@ -146,17 +166,19 @@ export class AdminProductsComponent implements OnInit {
     };
   }
 
-  private toPayload(form: FormularioProducto): ProductoPayload {
+  private convertirFormularioAPayload(
+    form: FormularioProducto
+  ): ProductoPayload {
     return {
       nombre: form.nombre.trim(),
+      descripcion: form.descripcion.trim(),
       precio: Number(form.precio) || 0,
       stock: Number(form.stock) || 1,
       imagenUrl: form.imagenUrl.trim() || 'assets/images/miel-tomillo.svg',
       idCategoria: Number(form.idCategoria) || 1,
-      nombreCategoria: form.nombreCategoria.trim() || 'Miel',
+      nombreCategoria: form.nombreCategoria,
       activo: form.activo,
       pesoNeto: form.pesoNeto.trim(),
-      descripcion: form.descripcion.trim(),
       detalles: form.detallesTexto
         .split('\n')
         .map((detalle) => detalle.trim())
@@ -172,5 +194,13 @@ export class AdminProductsComponent implements OnInit {
     }
 
     return 1;
+  }
+
+  private obtenerNombreCategoria(idCategoria: number): string {
+    if (idCategoria === 2) {
+      return 'Polen';
+    }
+
+    return 'Miel';
   }
 }

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+
 import { ProductCatalogService } from '../../services/product-catalog.service';
 import { CartService } from '../../services/cart.service';
 
@@ -12,40 +13,63 @@ import { CartService } from '../../services/cart.service';
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
 })
-export class ProductDetailComponent {
+export class ProductDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productCatalog = inject(ProductCatalogService);
   private readonly cartService = inject(CartService);
 
-  readonly quantity = signal(1);
-  readonly purchaseMode = signal<'single' | 'subscription'>('single');
+  readonly cantidad = signal(1);
+  readonly modoCompra = signal<'single' | 'subscription'>('single');
 
-  readonly product = computed(() => {
+  readonly producto = computed(() => {
     const id = Number(this.route.snapshot.paramMap.get('id') ?? 1);
-    return this.productCatalog.getById(id) ?? this.productCatalog.products()[0];
+
+    return (
+      this.productCatalog.obtenerPorId(id) ??
+      this.productCatalog.productos()[0]
+    );
   });
 
-  readonly total = computed(() => this.product().price * this.quantity());
+  readonly total = computed(() => {
+    const producto = this.producto();
+
+    if (!producto) {
+      return 0;
+    }
+
+    return producto.precio * this.cantidad();
+  });
+
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id') ?? 1);
+    this.productCatalog.cargarProductoPorId(id);
+  }
 
   increaseQuantity(): void {
-    this.quantity.update((value) => value + 1);
+    this.cantidad.update((value) => value + 1);
   }
 
   decreaseQuantity(): void {
-    this.quantity.update((value) => Math.max(1, value - 1));
+    this.cantidad.update((value) => Math.max(1, value - 1));
   }
 
   setPurchaseMode(mode: 'single' | 'subscription'): void {
-    this.purchaseMode.set(mode);
+    this.modoCompra.set(mode);
   }
 
   addToCart(): void {
-    this.cartService.add(this.product(), this.quantity(), this.purchaseMode());
+    const producto = this.producto();
+
+    if (!producto) {
+      return;
+    }
+
+    this.cartService.add(producto, this.cantidad(), this.modoCompra());
     this.router.navigate(['/carrito']);
   }
 
-  formatPrice(price: number): string {
-    return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  formatPrice(precio: number): string {
+    return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
   }
 }

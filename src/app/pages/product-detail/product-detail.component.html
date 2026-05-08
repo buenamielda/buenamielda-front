@@ -1,40 +1,40 @@
 <main class="product-detail-page">
   <div class="container-lg px-3 px-lg-4">
     <section class="product-layout">
-      <article class="product-visual" [routerLink]="['/productos', product().id]">
-        <img [src]="product().image" [alt]="product().name" />
+      <article class="product-visual" [routerLink]="['/productos', producto().id]">
+        <img [src]="producto().imagenUrl" [alt]="producto().nombre" />
       </article>
 
       <section class="product-summary">
-        <h1>{{ product().name }}</h1>
-        <p class="product-price">{{ formatPrice(product().price) }}</p>
+        <h1>{{ producto().nombre }}</h1>
+        <p class="product-price">{{ formatPrice(producto().precio) }}</p>
 
         <div class="product-actions">
           <div class="quantity-control" aria-label="Seleccionar cantidad">
             <span>Cantidad</span>
             <div class="quantity-buttons">
               <button type="button" (click)="increaseQuantity()" aria-label="Sumar producto">+</button>
-              <strong>{{ quantity() }}</strong>
+              <strong>{{ cantidad() }}</strong>
               <button type="button" (click)="decreaseQuantity()" aria-label="Restar producto">-</button>
             </div>
           </div>
 
           <div class="purchase-options">
-            <label class="purchase-option" [class.selected]="purchaseMode() === 'single'">
+            <label class="purchase-option" [class.selected]="modoCompra() === 'single'">
               <input
                 type="radio"
                 name="purchaseMode"
-                [checked]="purchaseMode() === 'single'"
+                [checked]="modoCompra() === 'single'"
                 (change)="setPurchaseMode('single')"
               />
               <span>Compra unica</span>
             </label>
 
-            <label class="purchase-option subscription" [class.selected]="purchaseMode() === 'subscription'">
+            <label class="purchase-option subscription" [class.selected]="modoCompra() === 'subscription'">
               <input
                 type="radio"
                 name="purchaseMode"
-                [checked]="purchaseMode() === 'subscription'"
+                [checked]="modoCompra() === 'subscription'"
                 (change)="setPurchaseMode('subscription')"
               />
               <span>Suscripcion y entrega cada <strong>4 semanas</strong></span>
@@ -51,14 +51,14 @@
         </button>
 
         <div class="product-details">
-          <p *ngFor="let detail of product().details">{{ detail }}</p>
+          <p *ngFor="let detail of producto().detalles">{{ detail }}</p>
         </div>
       </section>
     </section>
 
     <section class="product-description">
       <p>
-        {{ product().description }}
+        {{ producto().descripcion }}
       </p>
       <p class="shipping">
         <mat-icon>local_shipping</mat-icon>

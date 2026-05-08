@@ -27,15 +27,15 @@
 
         <div class="cart-row cart-item" *ngFor="let item of items()">
           <div class="item-product">
-            <img [src]="item.product.image" [alt]="item.product.name" />
+            <img [src]="item.product.imagenUrl" [alt]="item.product.nombre" />
             <div>
-              <h2>{{ item.product.name }}&reg;</h2>
+              <h2>{{ item.product.nombre }}&reg;</h2>
               <p>{{ modeLabel(item.purchaseMode) }}</p>
               <button type="button" (click)="removeItem(item)">Eliminar</button>
             </div>
           </div>
 
-          <p class="item-price">{{ formatPrice(item.product.price) }}</p>
+          <p class="item-price">{{ formatPrice(item.product.precio) }}</p>
 
           <div class="quantity-control">
             <span>Cantidad</span>

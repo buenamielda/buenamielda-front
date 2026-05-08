@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import {
   CartItem,
   CartService,
@@ -30,17 +31,17 @@ export class CartComponent {
   }
 
   itemTotal(item: CartItem): number {
-    return item.product.price * item.quantity;
+    return item.product.precio * item.quantity;
   }
 
   modeLabel(mode: PurchaseMode): string {
     return mode === 'subscription'
-      ? 'Suscripcion cada 4 semanas'
-      : 'Compra unica';
+      ? 'Suscripción cada 4 semanas'
+      : 'Compra única';
   }
 
-  formatPrice(price: number): string {
-    return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  formatPrice(precio: number): string {
+    return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
   }
 
   removeItem(item: CartItem): void {

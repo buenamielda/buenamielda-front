@@ -1,10 +1,11 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { Product } from '../models/product.model';
+
+import { Producto } from '../models/product.model';
 
 export type PurchaseMode = 'single' | 'subscription';
 
 export interface CartItem {
-  product: Product;
+  product: Producto;
   quantity: number;
   purchaseMode: PurchaseMode;
 }
@@ -16,21 +17,28 @@ export class CartService {
   private readonly cartItems = signal<CartItem[]>([]);
 
   readonly items = this.cartItems.asReadonly();
+
   readonly itemCount = computed(() =>
     this.cartItems().reduce((total, item) => total + item.quantity, 0)
   );
+
   readonly subtotal = computed(() =>
     this.cartItems().reduce(
-      (total, item) => total + item.product.price * item.quantity,
+      (total, item) => total + item.product.precio * item.quantity,
       0
     )
   );
 
-  add(product: Product, quantity = 1, purchaseMode: PurchaseMode = 'single'): void {
+  add(
+    product: Producto,
+    quantity = 1,
+    purchaseMode: PurchaseMode = 'single'
+  ): void {
     this.cartItems.update((items) => {
       const existing = items.find(
         (item) =>
-          item.product.id === product.id && item.purchaseMode === purchaseMode
+          item.product.id === product.id &&
+          item.purchaseMode === purchaseMode
       );
 
       if (!existing) {
@@ -57,7 +65,8 @@ export class CartService {
     this.cartItems.update((items) =>
       items.filter(
         (item) =>
-          item.product.id !== productId || item.purchaseMode !== purchaseMode
+          item.product.id !== productId ||
+          item.purchaseMode !== purchaseMode
       )
     );
   }
@@ -70,7 +79,10 @@ export class CartService {
     this.cartItems.update((items) =>
       items
         .map((item) => {
-          if (item.product.id !== productId || item.purchaseMode !== purchaseMode) {
+          if (
+            item.product.id !== productId ||
+            item.purchaseMode !== purchaseMode
+          ) {
             return item;
           }
 

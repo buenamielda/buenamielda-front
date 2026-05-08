@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, computed, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+
 import { ProductCatalogService } from '../../services/product-catalog.service';
 
 @Component({
@@ -25,18 +26,18 @@ import { ProductCatalogService } from '../../services/product-catalog.service';
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss',
 })
-export class ProductGridComponent {
-  private readonly productCatalog = inject(ProductCatalogService);
+export class ProductGridComponent implements OnInit {
+  private readonly catalogoProductos = inject(ProductCatalogService);
 
   @Input() sectionTitle = 'Todos los productos';
   @Input() showControls = true;
   @Input() showViewToggle = true;
 
-  searchQuery = signal('');
-  sortOrder = signal('default');
-  viewMode = signal<'grid' | 'list'>('grid');
+  busqueda = signal('');
+  ordenSeleccionado = signal('default');
+  modoVista = signal<'grid' | 'list'>('grid');
 
-  sortOptions = [
+  opcionesOrden = [
     { value: 'default', label: 'Ordenar por' },
     { value: 'price-asc', label: 'Precio: menor a mayor' },
     { value: 'price-desc', label: 'Precio: mayor a menor' },
@@ -44,39 +45,63 @@ export class ProductGridComponent {
     { value: 'name-desc', label: 'Nombre: Z-A' },
   ];
 
-  filteredProducts = computed(() => {
-    let result = this.productCatalog.products();
+  productosFiltrados = computed(() => {
+    let resultado = this.catalogoProductos.productos();
 
-    const q = this.searchQuery().toLowerCase().trim();
-    if (q) {
-      result = result.filter((product) => product.name.toLowerCase().includes(q));
+    const textoBusqueda = this.busqueda().toLowerCase().trim();
+
+    if (textoBusqueda) {
+      resultado = resultado.filter((producto) =>
+        producto.nombre.toLowerCase().includes(textoBusqueda)
+      );
     }
 
-    switch (this.sortOrder()) {
+    switch (this.ordenSeleccionado()) {
       case 'price-asc':
-        return [...result].sort((a, b) => a.price - b.price);
+        return [...resultado].sort((a, b) => a.precio - b.precio);
       case 'price-desc':
-        return [...result].sort((a, b) => b.price - a.price);
+        return [...resultado].sort((a, b) => b.precio - a.precio);
       case 'name-asc':
-        return [...result].sort((a, b) => a.name.localeCompare(b.name));
+        return [...resultado].sort((a, b) =>
+          a.nombre.localeCompare(b.nombre)
+        );
       case 'name-desc':
-        return [...result].sort((a, b) => b.name.localeCompare(a.name));
+        return [...resultado].sort((a, b) =>
+          b.nombre.localeCompare(a.nombre)
+        );
       default:
-        return result;
+        return resultado;
     }
   });
 
-  get resultLabel(): string {
-    const total = this.productCatalog.products().length;
-    const visible = this.filteredProducts().length;
-    return `Mostrando 1-${visible} de ${total} resultados`;
+  get etiquetaResultados(): string {
+    const total = this.catalogoProductos.productos().length;
+    const visibles = this.productosFiltrados().length;
+
+    if (visibles === 0) {
+      return `Mostrando 0 de ${total} resultados`;
+    }
+
+    return `Mostrando 1-${visibles} de ${total} resultados`;
   }
 
-  onSearch(value: string) { this.searchQuery.set(value); }
-  onSort(value: string) { this.sortOrder.set(value); }
-  setView(mode: 'grid' | 'list') { this.viewMode.set(mode); }
+  ngOnInit(): void {
+    this.catalogoProductos.cargarProductos();
+  }
 
-  formatPrice(price: number): string {
-    return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  buscar(valor: string): void {
+    this.busqueda.set(valor);
+  }
+
+  ordenar(valor: string): void {
+    this.ordenSeleccionado.set(valor);
+  }
+
+  cambiarVista(modo: 'grid' | 'list'): void {
+    this.modoVista.set(modo);
+  }
+
+  formatearPrecio(precio: number): string {
+    return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
   }
 }

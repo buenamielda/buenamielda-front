@@ -1,21 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Product } from '../../models/product.model';
-import {
-  ProductCatalogService,
-  ProductPayload,
-} from '../../services/product-catalog.service';
 
-interface ProductForm {
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  active: boolean;
-  netWeight: string;
-  description: string;
-  detailsText: string;
+import { Producto, ProductoPayload } from '../../models/product.model';
+import { ProductCatalogService } from '../../services/product-catalog.service';
+
+interface FormularioProducto {
+  nombre: string;
+  precio: number;
+  stock: number;
+  imagenUrl: string;
+  idCategoria: number;
+  nombreCategoria: string;
+  activo: boolean;
+  pesoNeto: string;
+  descripcion: string;
+  detallesTexto: string;
 }
 
 @Component({
@@ -25,23 +25,27 @@ interface ProductForm {
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss',
 })
-export class AdminProductsComponent {
+export class AdminProductsComponent implements OnInit {
   private readonly productCatalog = inject(ProductCatalogService);
 
-  readonly products = this.productCatalog.allProducts;
+  readonly productos = this.productCatalog.todosLosProductos;
   readonly editingId = signal<number | null>(null);
-  readonly searchQuery = signal('');
+  readonly busqueda = signal('');
+  readonly form = signal(this.formularioVacio());
 
-  readonly form = signal<ProductForm>(this.emptyForm());
+  readonly productosFiltrados = computed(() => {
+    const q = this.busqueda().trim().toLowerCase();
 
-  readonly filteredProducts = computed(() => {
-    const q = this.searchQuery().trim().toLowerCase();
     if (!q) {
-      return this.products();
+      return this.productos();
     }
 
-    return this.products().filter((product) =>
-      [product.name, product.category, product.description ?? '']
+    return this.productos().filter((producto) =>
+      [
+        producto.nombre,
+        producto.nombreCategoria,
+        producto.descripcion ?? '',
+      ]
         .join(' ')
         .toLowerCase()
         .includes(q)
@@ -49,14 +53,21 @@ export class AdminProductsComponent {
   });
 
   readonly activeCount = computed(
-    () => this.products().filter((product) => product.active).length
+    () => this.productos().filter((producto) => producto.activo).length
   );
 
   readonly inactiveCount = computed(
-    () => this.products().filter((product) => !product.active).length
+    () => this.productos().filter((producto) => !producto.activo).length
   );
 
-  onFieldChange<K extends keyof ProductForm>(field: K, value: ProductForm[K]): void {
+  ngOnInit(): void {
+    this.productCatalog.cargarProductos();
+  }
+
+  onFieldChange<K extends keyof FormularioProducto>(
+    field: K,
+    value: FormularioProducto[K]
+  ): void {
     this.form.update((current) => ({ ...current, [field]: value }));
   }
 
@@ -65,80 +76,101 @@ export class AdminProductsComponent {
     const editingId = this.editingId();
 
     if (editingId) {
-      this.productCatalog.update(editingId, payload);
+      this.productCatalog.actualizarProducto(editingId, payload);
     } else {
-      this.productCatalog.create(payload);
+      this.productCatalog.crearProducto(payload);
     }
 
     this.resetForm();
   }
 
-  editProduct(product: Product): void {
-    this.editingId.set(product.id);
+  editProduct(producto: Producto): void {
+    this.editingId.set(producto.id);
+
     this.form.set({
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-      active: product.active,
-      netWeight: product.netWeight ?? '',
-      description: product.description ?? '',
-      detailsText: product.details?.join('\n') ?? '',
+      nombre: producto.nombre,
+      precio: producto.precio,
+      stock: producto.stock ?? 1,
+      imagenUrl: producto.imagenUrl,
+      idCategoria:
+        producto.idCategoria ?? this.resolverIdCategoria(producto.nombreCategoria),
+      nombreCategoria: producto.nombreCategoria,
+      activo: producto.activo,
+      pesoNeto: producto.pesoNeto ?? '',
+      descripcion: producto.descripcion ?? '',
+      detallesTexto: producto.detalles?.join('\n') ?? '',
     });
   }
 
   resetForm(): void {
     this.editingId.set(null);
-    this.form.set(this.emptyForm());
+    this.form.set(this.formularioVacio());
   }
 
-  toggleActive(product: Product): void {
-    this.productCatalog.setActive(product.id, !product.active);
+  toggleActive(producto: Producto): void {
+    if (producto.activo) {
+      this.productCatalog.desactivarProducto(producto.id);
+    }
   }
 
-  deleteProduct(product: Product): void {
+  deleteProduct(producto: Producto): void {
     const confirmed = window.confirm(
-      `Quieres borrar definitivamente "${product.name}"?`
+      `Quieres borrar definitivamente "${producto.nombre}"?`
     );
 
     if (confirmed) {
-      this.productCatalog.delete(product.id);
-      if (this.editingId() === product.id) {
+      this.productCatalog.desactivarProducto(producto.id);
+
+      if (this.editingId() === producto.id) {
         this.resetForm();
       }
     }
   }
 
-  formatPrice(price: number): string {
-    return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  formatPrice(precio: number): string {
+    return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
   }
 
-  private emptyForm(): ProductForm {
+  private formularioVacio(): FormularioProducto {
     return {
-      name: '',
-      price: 0,
-      image: 'assets/images/miel-tomillo.svg',
-      category: 'miel',
-      active: true,
-      netWeight: '',
-      description: '',
-      detailsText: '',
+      nombre: '',
+      precio: 0,
+      stock: 1,
+      imagenUrl: 'assets/images/miel-tomillo.svg',
+      idCategoria: 1,
+      nombreCategoria: 'Miel',
+      activo: true,
+      pesoNeto: '',
+      descripcion: '',
+      detallesTexto: '',
     };
   }
 
-  private toPayload(form: ProductForm): ProductPayload {
+  private toPayload(form: FormularioProducto): ProductoPayload {
     return {
-      name: form.name.trim(),
-      price: Number(form.price) || 0,
-      image: form.image.trim() || 'assets/images/miel-tomillo.svg',
-      category: form.category.trim() || 'miel',
-      active: form.active,
-      netWeight: form.netWeight.trim(),
-      description: form.description.trim(),
-      details: form.detailsText
+      nombre: form.nombre.trim(),
+      precio: Number(form.precio) || 0,
+      stock: Number(form.stock) || 1,
+      imagenUrl: form.imagenUrl.trim() || 'assets/images/miel-tomillo.svg',
+      idCategoria: Number(form.idCategoria) || 1,
+      nombreCategoria: form.nombreCategoria.trim() || 'Miel',
+      activo: form.activo,
+      pesoNeto: form.pesoNeto.trim(),
+      descripcion: form.descripcion.trim(),
+      detalles: form.detallesTexto
         .split('\n')
-        .map((detail) => detail.trim())
+        .map((detalle) => detalle.trim())
         .filter(Boolean),
     };
+  }
+
+  private resolverIdCategoria(nombreCategoria: string): number {
+    const categoria = nombreCategoria.toLowerCase().trim();
+
+    if (categoria === 'polen') {
+      return 2;
+    }
+
+    return 1;
   }
 }

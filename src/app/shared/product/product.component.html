@@ -13,16 +13,16 @@
 
       <!-- Contador resultados -->
       <div class="col-12 col-md-5">
-        <p class="results-label">{{ resultLabel }}</p>
+        <p class="results-label">{{ etiquetaResultados }}</p>
       </div>
 
       <!-- Ordenar -->
       <div class="col-12 col-md-7 d-flex justify-content-md-end">
         <mat-form-field class="sort-field" appearance="outline" subscriptSizing="dynamic">
           <mat-select
-            [value]="sortOrder()"
-            (selectionChange)="onSort($event.value)">
-            <mat-option *ngFor="let opt of sortOptions" [value]="opt.value">
+            [value]="ordenSeleccionado()"
+            (selectionChange)="ordenar($event.value)">
+            <mat-option *ngFor="let opt of opcionesOrden" [value]="opt.value">
               {{ opt.label }}
             </mat-option>
           </mat-select>
@@ -41,8 +41,8 @@
             type="text"
             class="search-input"
             placeholder="Buscar"
-            [value]="searchQuery()"
-            (input)="onSearch($any($event.target).value)"
+            [value]="busqueda()"
+            (input)="buscar($any($event.target).value)"
           />
         </div>
       </div>
@@ -57,10 +57,10 @@
     </div>
 
     <!-- Grid de productos -->
-    <div class="row gy-4" [class.list-view]="viewMode() === 'list'">
+    <div class="row gy-4" [class.list-view]="modoVista() === 'list'">
 
       <div
-        *ngFor="let product of filteredProducts()"
+        *ngFor="let product of productosFiltrados()"
         class="col-6 col-md-4 col-lg-3 product-col">
 
         <div class="product-card" [routerLink]="['/productos', product.id]">
@@ -68,8 +68,8 @@
           <!-- Imagen -->
           <div class="product-img-wrap">
             <img
-              [src]="product.image"
-              [alt]="product.name"
+              [src]="product.imagenUrl"
+              [alt]="product.nombre"
               class="product-img"
               loading="lazy"
               onerror="this.src='assets/images/placeholder.jpg'"
@@ -78,17 +78,17 @@
 
           <!-- Info -->
           <div class="product-info">
-            <p class="product-name">{{ product.name }}</p>
-            <p class="product-price">{{ formatPrice(product.price) }}</p>
+            <p class="product-name">{{ product.nombre }}</p>
+            <p class="product-price">{{ formatearPrecio(product.precio) }}</p>
           </div>
 
         </div>
       </div>
 
       <!-- Sin resultados -->
-      <div *ngIf="filteredProducts().length === 0" class="col-12 text-center py-5">
+      <div *ngIf="productosFiltrados().length === 0" class="col-12 text-center py-5">
         <mat-icon class="no-results-icon">search_off</mat-icon>
-        <p class="no-results-text">No se encontraron productos para "{{ searchQuery() }}"</p>
+        <p class="no-results-text">No se encontraron productos para "{{ busqueda() }}"</p>
       </div>
 
     </div>
@@ -96,9 +96,9 @@
     <!-- Toggle vista lista -->
     <div class="row view-toggle-row" *ngIf="showControls && showViewToggle">
       <div class="col-12 d-flex justify-content-end">
-        <button class="view-toggle" (click)="setView(viewMode() === 'grid' ? 'list' : 'grid')">
-          <mat-icon>{{ viewMode() === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
-          {{ viewMode() === 'grid' ? 'Mostrar los productos en lista' : 'Mostrar en cuadrícula' }}
+        <button class="view-toggle" (click)="cambiarVista(modoVista() === 'grid' ? 'list' : 'grid')">
+          <mat-icon>{{ modoVista() === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
+          {{ modoVista() === 'grid' ? 'Mostrar los productos en lista' : 'Mostrar en cuadrícula' }}
         </button>
       </div>
     </div>

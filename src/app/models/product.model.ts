@@ -1,11 +1,28 @@
-export interface Product {
+export interface Producto {
   id: number;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  active: boolean;
-  description?: string;
-  details?: string[];
-  netWeight?: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  stock: number;
+  imagenUrl: string;
+  activo: boolean;
+  nombreCategoria: string;
+
+  detalles?: string[];
+  pesoNeto?: string;
+  idCategoria?: number;
+}
+
+export interface ProductoPayload {
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  stock: number;
+  imagenUrl: string;
+  idCategoria: number;
+
+  activo?: boolean;
+  nombreCategoria?: string;
+  detalles?: string[];
+  pesoNeto?: string;
 }

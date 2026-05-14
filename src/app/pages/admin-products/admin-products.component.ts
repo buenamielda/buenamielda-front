@@ -121,13 +121,12 @@ export class AdminProductsComponent implements OnInit {
     this.form.set(this.formularioVacio());
   }
 
-  desactivarProducto(producto: Producto): void {
-    if (!producto.activo) {
-      return;
-    }
-
-    this.catalogoProductos.desactivarProducto(producto.id);
-  }
+ alternarEstadoProducto(producto: Producto): void {
+  this.catalogoProductos.actualizarEstadoProducto(
+    producto.id,
+    !producto.activo
+  );
+}
 
   borrarProducto(producto: Producto): void {
   const confirmado = window.confirm(

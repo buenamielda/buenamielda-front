@@ -4,9 +4,7 @@
       <div>
         <p class="admin-kicker">Administracion</p>
         <h1>Gestion de productos</h1>
-        <p>
-          Crea, edita, desactiva o borra productos del catalogo.
-        </p>
+        <p>Crea, edita, desactiva o borra productos del catalogo.</p>
       </div>
 
       <div class="admin-stats">
@@ -28,8 +26,13 @@
     <section class="admin-layout">
       <form class="product-form" (ngSubmit)="guardarProducto()">
         <div class="form-heading">
-          <h2>{{ editingId() ? 'Modificar producto' : 'Crear producto' }}</h2>
-          <button type="button" class="ghost-button" (click)="reiniciarFormulario()" *ngIf="editingId()">
+          <h2>{{ editingId() ? "Modificar producto" : "Crear producto" }}</h2>
+          <button
+            type="button"
+            class="ghost-button"
+            (click)="reiniciarFormulario()"
+            *ngIf="editingId()"
+          >
             Cancelar
           </button>
         </div>
@@ -126,7 +129,7 @@
         </label>
 
         <button class="primary-button" type="submit">
-          {{ editingId() ? 'Guardar cambios' : 'Crear producto' }}
+          {{ editingId() ? "Guardar cambios" : "Crear producto" }}
         </button>
       </form>
 
@@ -155,21 +158,30 @@
 
             <div class="product-main">
               <h3>{{ product.nombre }}</h3>
-              <p>{{ product.nombreCategoria }} · {{ formatearPrecio(product.precio) }}</p>
+              <p>
+                {{ product.nombreCategoria }} ·
+                {{ formatearPrecio(product.precio) }}
+              </p>
             </div>
 
             <span class="status-pill" [class.off]="!product.activo">
-              {{ product.activo ? 'Activo' : 'Inactivo' }}
+              {{ product.activo ? "Activo" : "Inactivo" }}
             </span>
 
             <div class="row-actions">
-              <button type="button" (click)="editarProducto(product)">Editar</button>
-              <button type="button" (click)="desactivarProducto(product)">
-                {{ product.activo ? 'Desactivar' : 'Reactivar' }}
+              <button type="button" (click)="editarProducto(product)">
+                Editar
               </button>
-              <button type="button" class="danger-button" (click)="borrarProducto(product)">
-  Borrar
-</button>
+              <button type="button" (click)="alternarEstadoProducto(product)">
+                {{ product.activo ? "Desactivar" : "Reactivar" }}
+              </button>
+              <button
+                type="button"
+                class="danger-button"
+                (click)="borrarProducto(product)"
+              >
+                Borrar
+              </button>
             </div>
           </article>
         </div>

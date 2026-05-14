@@ -111,6 +111,21 @@ export class ProductCatalogService {
     });
   }
 
+  borrarProducto(id: number): void {
+  this.error.set(null);
+
+  this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
+    next: () => {
+      this.productosSignal.update((productos) =>
+        productos.filter((producto) => producto.id !== id)
+      );
+    },
+    error: () => {
+      this.error.set('No se ha podido borrar el producto.');
+    },
+  });
+}
+
   private toRequestDto(producto: ProductoPayload) {
     return {
       nombre: producto.nombre.trim(),

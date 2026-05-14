@@ -130,18 +130,18 @@ export class AdminProductsComponent implements OnInit {
   }
 
   borrarProducto(producto: Producto): void {
-    const confirmado = window.confirm(
-      `¿Quieres desactivar "${producto.nombre}"?`
-    );
+  const confirmado = window.confirm(
+    `¿Quieres borrar "${producto.nombre}"? El producto dejará de aparecer en el sistema.`
+  );
 
-    if (confirmado) {
-      this.catalogoProductos.desactivarProducto(producto.id);
+  if (confirmado) {
+    this.catalogoProductos.borrarProducto(producto.id);
 
-      if (this.editingId() === producto.id) {
-        this.reiniciarFormulario();
-      }
+    if (this.editingId() === producto.id) {
+      this.reiniciarFormulario();
     }
   }
+}
 
   cambiarBusqueda(valor: string): void {
     this.busqueda.set(valor);

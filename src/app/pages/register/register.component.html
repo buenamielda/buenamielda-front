@@ -1,0 +1,84 @@
+<main class="register-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="register-header">
+      <h1>Crear una cuenta</h1>
+      <a routerLink="/productos" class="back-link">Volver</a>
+    </header>
+
+    <section class="register-card" aria-labelledby="register-title">
+      <div class="register-intro">
+        <p class="register-kicker">Registro de usuario</p>
+        <h2 id="register-title">Tus datos de acceso</h2>
+        <p>
+          Crea tu cuenta para realizar compras, guardar tus datos y preparar el
+          inicio de sesion posteriormente.
+        </p>
+      </div>
+
+      <form class="register-form" (ngSubmit)="submit()" novalidate>
+        <label>
+          Nombre
+          <input
+            type="text"
+            autocomplete="name"
+            [ngModel]="form().nombre"
+            name="nombre"
+            (ngModelChange)="updateField('nombre', $event)"
+            [class.invalid]="showNameError()"
+          />
+          <span class="field-error" *ngIf="showNameError()">Introduce al menos 2 caracteres.</span>
+        </label>
+
+        <label>
+          Email
+          <input
+            type="email"
+            autocomplete="email"
+            [ngModel]="form().email"
+            name="email"
+            (ngModelChange)="updateField('email', $event)"
+            [class.invalid]="showEmailError()"
+          />
+          <span class="field-error" *ngIf="showEmailError()">Introduce un email valido.</span>
+        </label>
+
+        <label>
+          Contraseña
+          <input
+            type="password"
+            autocomplete="new-password"
+            [ngModel]="form().password"
+            name="password"
+            (ngModelChange)="updateField('password', $event)"
+            [class.invalid]="showPasswordError()"
+          />
+          <span class="field-error" *ngIf="showPasswordError()">La contraseña debe tener al menos 8 caracteres.</span>
+        </label>
+
+        <label>
+          Repetir contraseña
+          <input
+            type="password"
+            autocomplete="new-password"
+            [ngModel]="form().repeatPassword"
+            name="repeatPassword"
+            (ngModelChange)="updateField('repeatPassword', $event)"
+            [class.invalid]="showRepeatPasswordError()"
+          />
+          <span class="field-error" *ngIf="showRepeatPasswordError()">Las contraseñas no coinciden.</span>
+        </label>
+
+        <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+        <p class="form-success" *ngIf="createdUser() as user">
+          Cuenta creada correctamente para {{ user.email }}. Rol asignado:
+          {{ user.roles.join(', ') }}.
+        </p>
+
+        <button type="submit" class="submit-button" [disabled]="loading()">
+          {{ loading() ? 'Creando cuenta...' : 'Continuar' }}
+        </button>
+      </form>
+    </section>
+  </div>
+</main>

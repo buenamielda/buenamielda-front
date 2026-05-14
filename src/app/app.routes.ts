@@ -36,6 +36,22 @@ export const routes: Routes = [
     title: 'Carrito | Buena mielda',
   },
   {
+    path: 'registro',
+    loadComponent: () =>
+      import('./pages/register/register.component').then(
+        (m) => m.RegisterComponent
+      ),
+    title: 'Crear cuenta | Buena mielda',
+  },
+  {
+    path: 'crear-cuenta',
+    redirectTo: 'registro',
+  },
+  {
+    path: 'cuenta',
+    redirectTo: 'registro',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

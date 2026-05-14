@@ -138,6 +138,7 @@ export class ProductCatalogService {
       idCategoria:
         producto.idCategoria ||
         this.resolverIdCategoria(producto.nombreCategoria),
+      activo: producto.activo ?? true,
     };
   }
 

@@ -18,7 +18,7 @@ export class ProductCatalogService {
   readonly todosLosProductos = this.productosSignal.asReadonly();
 
   readonly productos = computed(() =>
-    this.productosSignal().filter((producto) => producto.activo)
+    this.productosSignal().filter((producto) => producto.activo),
   );
 
   cargarProductos(): void {
@@ -48,7 +48,7 @@ export class ProductCatalogService {
     this.http.get<Producto>(`${this.apiUrl}/${id}`).subscribe({
       next: (producto) => {
         this.productosSignal.update((productos) =>
-          this.insertarOActualizar(productos, producto)
+          this.insertarOActualizar(productos, producto),
         );
         this.cargando.set(false);
       },
@@ -62,17 +62,19 @@ export class ProductCatalogService {
   crearProducto(payload: ProductoPayload): void {
     this.error.set(null);
 
-    this.http.post<Producto>(this.apiUrl, this.toRequestDto(payload)).subscribe({
-      next: (productoCreado) => {
-        this.productosSignal.update((productos) => [
-          ...productos,
-          productoCreado,
-        ]);
-      },
-      error: () => {
-        this.error.set('No se ha podido crear el producto.');
-      },
-    });
+    this.http
+      .post<Producto>(this.apiUrl, this.toRequestDto(payload))
+      .subscribe({
+        next: (productoCreado) => {
+          this.productosSignal.update((productos) => [
+            ...productos,
+            productoCreado,
+          ]);
+        },
+        error: () => {
+          this.error.set('No se ha podido crear el producto.');
+        },
+      });
   }
 
   actualizarProducto(id: number, payload: ProductoPayload): void {
@@ -84,8 +86,8 @@ export class ProductCatalogService {
         next: (productoActualizado) => {
           this.productosSignal.update((productos) =>
             productos.map((producto) =>
-              producto.id === id ? productoActualizado : producto
-            )
+              producto.id === id ? productoActualizado : producto,
+            ),
           );
         },
         error: () => {
@@ -94,37 +96,37 @@ export class ProductCatalogService {
       });
   }
 
-  desactivarProducto(id: number): void {
+  borrarProducto(id: number): void {
     this.error.set(null);
 
     this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
       next: () => {
         this.productosSignal.update((productos) =>
-          productos.map((producto) =>
-            producto.id === id ? { ...producto, activo: false } : producto
-          )
+          productos.filter((producto) => producto.id !== id),
         );
       },
       error: () => {
-        this.error.set('No se ha podido desactivar el producto.');
+        this.error.set('No se ha podido borrar el producto.');
       },
     });
   }
 
-  borrarProducto(id: number): void {
-  this.error.set(null);
+  actualizarEstadoProducto(id: number, activo: boolean): void {
+    this.error.set(null);
 
-  this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
-    next: () => {
-      this.productosSignal.update((productos) =>
-        productos.filter((producto) => producto.id !== id)
-      );
-    },
-    error: () => {
-      this.error.set('No se ha podido borrar el producto.');
-    },
-  });
-}
+    this.http.patch<Producto>(`${this.apiUrl}/${id}`, { activo }).subscribe({
+      next: (productoActualizado) => {
+        this.productosSignal.update((productos) =>
+          productos.map((producto) =>
+            producto.id === id ? productoActualizado : producto,
+          ),
+        );
+      },
+      error: () => {
+        this.error.set('No se ha podido actualizar el estado del producto.');
+      },
+    });
+  }
 
   private toRequestDto(producto: ProductoPayload) {
     return {
@@ -134,7 +136,8 @@ export class ProductCatalogService {
       stock: Number(producto.stock) > 0 ? Number(producto.stock) : 1,
       imagenUrl: producto.imagenUrl?.trim() || 'assets/images/miel-tomillo.svg',
       idCategoria:
-        producto.idCategoria || this.resolverIdCategoria(producto.nombreCategoria),
+        producto.idCategoria ||
+        this.resolverIdCategoria(producto.nombreCategoria),
     };
   }
 
@@ -150,7 +153,7 @@ export class ProductCatalogService {
 
   private insertarOActualizar(
     productos: Producto[],
-    producto: Producto
+    producto: Producto,
   ): Producto[] {
     const existe = productos.some((item) => item.id === producto.id);
 
@@ -158,8 +161,6 @@ export class ProductCatalogService {
       return [...productos, producto];
     }
 
-    return productos.map((item) =>
-      item.id === producto.id ? producto : item
-    );
+    return productos.map((item) => (item.id === producto.id ? producto : item));
   }
 }

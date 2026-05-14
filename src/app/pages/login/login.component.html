@@ -1,0 +1,62 @@
+<main class="login-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="login-header">
+      <h1>Iniciar sesion</h1>
+      <a routerLink="/productos" class="back-link">Volver</a>
+    </header>
+
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="login-intro">
+        <p class="login-kicker">Acceso de usuario</p>
+        <h2 id="login-title">Tus credenciales</h2>
+        <p>
+          Entra con tu email y contrasena para acceder a tus funcionalidades
+          personalizadas.
+        </p>
+      </div>
+
+      <form class="login-form" (ngSubmit)="submit()" novalidate>
+        <label>
+          Email
+          <input
+            type="email"
+            autocomplete="email"
+            [ngModel]="form().email"
+            name="email"
+            (ngModelChange)="updateField('email', $event)"
+            [class.invalid]="showEmailError()"
+          />
+          <span class="field-error" *ngIf="showEmailError()">Introduce un email valido.</span>
+        </label>
+
+        <label>
+          Contraseña
+          <input
+            type="password"
+            autocomplete="current-password"
+            [ngModel]="form().password"
+            name="password"
+            (ngModelChange)="updateField('password', $event)"
+            [class.invalid]="showPasswordError()"
+          />
+          <span class="field-error" *ngIf="showPasswordError()">Introduce tu contrasena.</span>
+        </label>
+
+        <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+        <p class="form-success" *ngIf="loggedUser() as user">
+          Sesion iniciada correctamente. Bienvenido, {{ user.nombre }}.
+        </p>
+
+        <button type="submit" class="submit-button" [disabled]="loading()">
+          {{ loading() ? 'Entrando...' : 'Continuar' }}
+        </button>
+
+        <div class="login-links">
+          <a routerLink="/recuperar-password">He olvidado mi contrasena</a>
+          <a routerLink="/registro">No tienes cuenta? Registrate</a>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>

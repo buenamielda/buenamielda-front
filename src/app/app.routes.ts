@@ -52,6 +52,12 @@ export const routes: Routes = [
     redirectTo: 'registro',
   },
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then((m) => m.LoginComponent),
+    title: 'Iniciar sesion | Buena mielda',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

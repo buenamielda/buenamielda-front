@@ -1,4 +1,7 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
+
 import {
   LoginRequestDto,
   LoginResponseDto,
@@ -39,6 +42,9 @@ export class UserNotFoundError extends Error {
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = '/api/auth';
+
   private readonly users = signal<StoredUser[]>([
     {
       id: 1,
@@ -53,32 +59,36 @@ export class AuthService {
   private readonly authenticatedUser = signal<LoginResponseDto | null>(null);
 
   readonly registeredUsers = computed<UsuarioResponseDto[]>(() =>
-    this.users().map(({ passwordHash, ...user }) => user)
+    this.users().map(({ passwordHash, ...user }) => user),
   );
   readonly currentUser = this.authenticatedUser.asReadonly();
   readonly isAuthenticated = computed(() => this.authenticatedUser() !== null);
 
-  register(request: RegistroRequestDto): UsuarioResponseDto {
-    const email = request.email.trim().toLowerCase();
-    const exists = this.users().some((user) => user.email === email);
+  register(request: RegistroRequestDto): Observable<UsuarioResponseDto> {
+  const body: RegistroRequestDto = {
+    nombre: request.nombre.trim(),
+    email: request.email.trim().toLowerCase(),
+    password: request.password,
+  };
 
-    if (exists) {
-      throw new EmailAlreadyRegisteredError(email);
-    }
+  return this.http
+    .post<UsuarioResponseDto>(`${this.apiUrl}/register`, body)
+    .pipe(
+      catchError((error: HttpErrorResponse) => {
+        const message = error.error?.message ?? '';
 
-    const user: StoredUser = {
-      id: this.nextId(),
-      nombre: request.nombre.trim(),
-      email,
-      activo: true,
-      roles: ['USER'],
-      passwordHash: this.hashPassword(request.password),
-    };
+        if (
+          error.status === 400 ||
+          error.status === 404 ||
+          message.toLowerCase().includes('email')
+        ) {
+          return throwError(() => new EmailAlreadyRegisteredError(body.email));
+        }
 
-    this.users.update((users) => [...users, user]);
-    const { passwordHash, ...response } = user;
-    return response;
-  }
+        return throwError(() => error);
+      })
+    );
+}
 
   login(request: LoginRequestDto): LoginResponseDto {
     const email = request.email.trim().toLowerCase();

@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import {
   AuthService,
-  InactiveUserError,
   InvalidCredentialsError,
+  LoginValidationError,
 } from '../../services/auth.service';
 import { LoginResponseDto } from '../../models/auth.model';
 
@@ -36,7 +37,9 @@ export class LoginComponent {
 
   readonly canSubmit = computed(() => {
     const value = this.form();
-    return this.isEmailValid(value.email) && value.password.length > 0;
+    return (
+      this.isEmailValid(value.email) && this.isPasswordValid(value.password)
+    );
   });
 
   updateField<K extends keyof LoginForm>(field: K, value: LoginForm[K]): void {
@@ -55,22 +58,27 @@ export class LoginComponent {
 
     this.loading.set(true);
 
-    try {
-      const user = this.authService.login(this.form());
-      this.loggedUser.set(user);
-      this.form.set({ email: '', password: '' });
-      this.submitted.set(false);
-    } catch (error) {
-      if (error instanceof InvalidCredentialsError) {
-        this.errorMessage.set('Email o contrasena incorrectos.');
-      } else if (error instanceof InactiveUserError) {
-        this.errorMessage.set('Tu usuario esta desactivado. Contacta con soporte.');
-      } else {
-        this.errorMessage.set('No se ha podido iniciar sesion. Intentalo de nuevo.');
-      }
-    } finally {
-      this.loading.set(false);
-    }
+    this.authService
+      .login(this.form())
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (user) => {
+          this.loggedUser.set(user);
+          this.form.set({ email: '', password: '' });
+          this.submitted.set(false);
+        },
+        error: (error) => {
+          if (error instanceof InvalidCredentialsError) {
+            this.errorMessage.set('Email o contrasena incorrectos.');
+          } else if (error instanceof LoginValidationError) {
+            this.errorMessage.set(error.message);
+          } else {
+            this.errorMessage.set(
+              'No se ha podido iniciar sesion. Intentalo de nuevo.',
+            );
+          }
+        },
+      });
   }
 
   showEmailError(): boolean {
@@ -78,10 +86,16 @@ export class LoginComponent {
   }
 
   showPasswordError(): boolean {
-    return this.submitted() && this.form().password.length === 0;
+    return this.submitted() && !this.isPasswordValid(this.form().password);
   }
 
   private isEmailValid(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  private isPasswordValid(password: string): boolean {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,}$/.test(
+      password,
+    );
   }
 }

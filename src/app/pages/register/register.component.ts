@@ -5,9 +5,9 @@ import { RouterLink } from '@angular/router';
 import {
   AuthService,
   EmailAlreadyRegisteredError,
-} from "../../services/auth.service";
-import { UsuarioResponseDto } from "../../models/auth.model";
-
+} from '../../services/auth.service';
+import { UsuarioResponseDto } from '../../models/auth.model';
+import { finalize } from 'rxjs';
 
 interface RegisterForm {
   nombre: string;
@@ -39,7 +39,7 @@ export class RegisterComponent {
   readonly createdUser = signal<UsuarioResponseDto | null>(null);
 
   readonly passwordsMatch = computed(
-    () => this.form().password === this.form().repeatPassword
+    () => this.form().password === this.form().repeatPassword,
   );
 
   readonly canSubmit = computed(() => {
@@ -47,12 +47,15 @@ export class RegisterComponent {
     return (
       value.nombre.trim().length >= 2 &&
       this.isEmailValid(value.email) &&
-      value.password.length >= 8 &&
+      this.isPasswordValid(value.password) &&
       this.passwordsMatch()
     );
   });
 
-  updateField<K extends keyof RegisterForm>(field: K, value: RegisterForm[K]): void {
+  updateField<K extends keyof RegisterForm>(
+    field: K,
+    value: RegisterForm[K],
+  ): void {
     this.form.update((current) => ({ ...current, [field]: value }));
     this.errorMessage.set('');
   }
@@ -68,26 +71,34 @@ export class RegisterComponent {
 
     this.loading.set(true);
 
-    try {
-      const { nombre, email, password } = this.form();
-      const user = this.authService.register({ nombre, email, password });
-      this.createdUser.set(user);
-      this.form.set({
-        nombre: '',
-        email: '',
-        password: '',
-        repeatPassword: '',
+    const { nombre, email, password } = this.form();
+
+    this.authService
+      .register({ nombre, email, password })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (user) => {
+          this.createdUser.set(user);
+          this.form.set({
+            nombre: '',
+            email: '',
+            password: '',
+            repeatPassword: '',
+          });
+          this.submitted.set(false);
+        },
+        error: (error) => {
+          if (error instanceof EmailAlreadyRegisteredError) {
+            this.errorMessage.set(
+              'Ese email ya esta registrado. Prueba con otro o inicia sesion.',
+            );
+          } else {
+            this.errorMessage.set(
+              'No se ha podido crear la cuenta. Intentalo de nuevo.',
+            );
+          }
+        },
       });
-      this.submitted.set(false);
-    } catch (error) {
-      if (error instanceof EmailAlreadyRegisteredError) {
-        this.errorMessage.set('Ese email ya esta registrado. Prueba con otro o inicia sesion.');
-      } else {
-        this.errorMessage.set('No se ha podido crear la cuenta. Intentalo de nuevo.');
-      }
-    } finally {
-      this.loading.set(false);
-    }
   }
 
   showNameError(): boolean {
@@ -99,7 +110,7 @@ export class RegisterComponent {
   }
 
   showPasswordError(): boolean {
-    return this.submitted() && this.form().password.length < 8;
+    return this.submitted() && !this.isPasswordValid(this.form().password);
   }
 
   showRepeatPasswordError(): boolean {
@@ -108,5 +119,11 @@ export class RegisterComponent {
 
   private isEmailValid(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  private isPasswordValid(password: string): boolean {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,}$/.test(
+      password,
+    );
   }
 }

@@ -26,7 +26,9 @@
             (ngModelChange)="updateField('nombre', $event)"
             [class.invalid]="showNameError()"
           />
-          <span class="field-error" *ngIf="showNameError()">Introduce al menos 2 caracteres.</span>
+          <span class="field-error" *ngIf="showNameError()"
+            >Introduce al menos 2 caracteres.</span
+          >
         </label>
 
         <label>
@@ -39,7 +41,9 @@
             (ngModelChange)="updateField('email', $event)"
             [class.invalid]="showEmailError()"
           />
-          <span class="field-error" *ngIf="showEmailError()">Introduce un email valido.</span>
+          <span class="field-error" *ngIf="showEmailError()"
+            >Introduce un email valido.</span
+          >
         </label>
 
         <label>
@@ -52,7 +56,10 @@
             (ngModelChange)="updateField('password', $event)"
             [class.invalid]="showPasswordError()"
           />
-          <span class="field-error" *ngIf="showPasswordError()">La contraseña debe tener al menos 8 caracteres.</span>
+          <span class="field-error" *ngIf="showPasswordError()">
+            La contrasena debe tener al menos 8 caracteres, una mayuscula, una
+            minuscula, un numero y un simbolo.
+          </span>
         </label>
 
         <label>
@@ -65,18 +72,20 @@
             (ngModelChange)="updateField('repeatPassword', $event)"
             [class.invalid]="showRepeatPasswordError()"
           />
-          <span class="field-error" *ngIf="showRepeatPasswordError()">Las contraseñas no coinciden.</span>
+          <span class="field-error" *ngIf="showRepeatPasswordError()"
+            >Las contraseñas no coinciden.</span
+          >
         </label>
 
         <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
 
         <p class="form-success" *ngIf="createdUser() as user">
           Cuenta creada correctamente para {{ user.email }}. Rol asignado:
-          {{ user.roles.join(', ') }}.
+          {{ user.roles.join(", ") }}.
         </p>
 
         <button type="submit" class="submit-button" [disabled]="loading()">
-          {{ loading() ? 'Creando cuenta...' : 'Continuar' }}
+          {{ loading() ? "Creando cuenta..." : "Continuar" }}
         </button>
       </form>
     </section>

@@ -18,11 +18,7 @@ export interface UsuarioResponseDto {
 }
 
 export interface LoginResponseDto {
-  idUsuario: number;
-  nombre: string;
-  email: string;
-  activo: boolean;
-  roles: string[];
+  token: string;
 }
 
 export interface PasswordRecoveryRequestDto {

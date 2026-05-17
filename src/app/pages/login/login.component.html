@@ -26,7 +26,9 @@
             (ngModelChange)="updateField('email', $event)"
             [class.invalid]="showEmailError()"
           />
-          <span class="field-error" *ngIf="showEmailError()">Introduce un email valido.</span>
+          <span class="field-error" *ngIf="showEmailError()"
+            >Introduce un email valido.</span
+          >
         </label>
 
         <label>
@@ -39,17 +41,19 @@
             (ngModelChange)="updateField('password', $event)"
             [class.invalid]="showPasswordError()"
           />
-          <span class="field-error" *ngIf="showPasswordError()">Introduce tu contrasena.</span>
+          <span class="field-error" *ngIf="showPasswordError()"
+            >Introduce tu contraseña válida.</span
+          >
         </label>
 
         <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
 
-        <p class="form-success" *ngIf="loggedUser() as user">
-          Sesion iniciada correctamente. Bienvenido, {{ user.nombre }}.
+        <p class="form-success" *ngIf="loggedUser()">
+          Sesion iniciada correctamente.
         </p>
 
         <button type="submit" class="submit-button" [disabled]="loading()">
-          {{ loading() ? 'Entrando...' : 'Continuar' }}
+          {{ loading() ? "Entrando..." : "Continuar" }}
         </button>
 
         <div class="login-links">

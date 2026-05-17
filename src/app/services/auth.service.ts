@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 
 import {
   LoginRequestDto,
@@ -38,12 +38,19 @@ export class UserNotFoundError extends Error {
   }
 }
 
+export class LoginValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = '/api/auth';
+  private readonly tokenStorageKey = 'auth_token';
 
   private readonly users = signal<StoredUser[]>([
     {
@@ -65,57 +72,79 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.authenticatedUser() !== null);
 
   register(request: RegistroRequestDto): Observable<UsuarioResponseDto> {
-  const body: RegistroRequestDto = {
-    nombre: request.nombre.trim(),
-    email: request.email.trim().toLowerCase(),
-    password: request.password,
-  };
+    const body: RegistroRequestDto = {
+      nombre: request.nombre.trim(),
+      email: request.email.trim().toLowerCase(),
+      password: request.password,
+    };
 
-  return this.http
-    .post<UsuarioResponseDto>(`${this.apiUrl}/register`, body)
-    .pipe(
+    return this.http
+      .post<UsuarioResponseDto>(`${this.apiUrl}/register`, body)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          const message = error.error?.message ?? '';
+
+          if (
+            error.status === 400 ||
+            error.status === 404 ||
+            message.toLowerCase().includes('email')
+          ) {
+            return throwError(
+              () => new EmailAlreadyRegisteredError(body.email),
+            );
+          }
+
+          return throwError(() => error);
+        }),
+      );
+  }
+
+  login(request: LoginRequestDto): Observable<LoginResponseDto> {
+    const body: LoginRequestDto = {
+      email: request.email.trim().toLowerCase(),
+      password: request.password,
+    };
+
+    return this.http.post<LoginResponseDto>(`${this.apiUrl}/login`, body).pipe(
+      tap((response) => {
+        localStorage.setItem(this.tokenStorageKey, response.token);
+        this.authenticatedUser.set(response);
+      }),
       catchError((error: HttpErrorResponse) => {
-        const message = error.error?.message ?? '';
+        const message = this.getErrorMessage(error);
 
-        if (
-          error.status === 400 ||
-          error.status === 404 ||
-          message.toLowerCase().includes('email')
-        ) {
-          return throwError(() => new EmailAlreadyRegisteredError(body.email));
+        if (error.status === 401) {
+          return throwError(() => new InvalidCredentialsError());
+        }
+
+        if (error.status === 400 && message) {
+          return throwError(() => new LoginValidationError(message));
         }
 
         return throwError(() => error);
-      })
+      }),
     );
-}
-
-  login(request: LoginRequestDto): LoginResponseDto {
-    const email = request.email.trim().toLowerCase();
-    const user = this.users().find((storedUser) => storedUser.email === email);
-
-    if (!user || user.passwordHash !== this.hashPassword(request.password)) {
-      throw new InvalidCredentialsError();
-    }
-
-    if (!user.activo) {
-      throw new InactiveUserError();
-    }
-
-    const response: LoginResponseDto = {
-      idUsuario: user.id,
-      nombre: user.nombre,
-      email: user.email,
-      activo: user.activo,
-      roles: user.roles,
-    };
-
-    this.authenticatedUser.set(response);
-    return response;
   }
 
   logout(): void {
+    localStorage.removeItem(this.tokenStorageKey);
     this.authenticatedUser.set(null);
+  }
+
+  private getErrorMessage(error: HttpErrorResponse): string {
+    if (typeof error.error === 'string') {
+      return error.error;
+    }
+
+    if (error.error?.message) {
+      return error.error.message;
+    }
+
+    if (error.error && typeof error.error === 'object') {
+      return Object.values(error.error).join(' ');
+    }
+
+    return '';
   }
 
   requestPasswordRecovery(request: PasswordRecoveryRequestDto): void {

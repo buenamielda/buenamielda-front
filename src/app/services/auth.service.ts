@@ -147,6 +147,47 @@ export class AuthService {
     return '';
   }
 
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenStorageKey);
+  }
+
+  getAuthenticatedUserId(): number | null {
+    const token = this.getToken();
+
+    if (!token) {
+      return null;
+    }
+
+    const payload = this.decodeTokenPayload(token);
+
+    const rawId =
+      payload?.['idUsuario'] ??
+      payload?.['usuarioId'] ??
+      payload?.['userId'] ??
+      payload?.['id'] ??
+      payload?.['sub'];
+    const id = Number(rawId);
+
+    return Number.isFinite(id) ? id : null;
+  }
+
+  private decodeTokenPayload(token: string): Record<string, unknown> | null {
+    try {
+      const [, payload] = token.split('.');
+
+      if (!payload) {
+        return null;
+      }
+
+      const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decodedPayload = atob(normalizedPayload);
+
+      return JSON.parse(decodedPayload);
+    } catch {
+      return null;
+    }
+  }
+
   requestPasswordRecovery(request: PasswordRecoveryRequestDto): void {
     const email = request.email.trim().toLowerCase();
     const user = this.users().find((storedUser) => storedUser.email === email);
@@ -168,5 +209,20 @@ export class AuthService {
 
   private hashPassword(password: string): string {
     return `mock-hash:${password}`;
+  }
+
+  getCurrentUserId(): number | null {
+    const token = this.getToken();
+
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return Number(payload.id);
+    } catch {
+      return null;
+    }
   }
 }

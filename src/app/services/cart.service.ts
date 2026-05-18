@@ -14,31 +14,30 @@ export interface CartItem {
   providedIn: 'root',
 })
 export class CartService {
+  readonly cartId = 1;
+
   private readonly cartItems = signal<CartItem[]>([]);
-
   readonly items = this.cartItems.asReadonly();
-
   readonly itemCount = computed(() =>
-    this.cartItems().reduce((total, item) => total + item.quantity, 0)
+    this.cartItems().reduce((total, item) => total + item.quantity, 0),
   );
 
   readonly subtotal = computed(() =>
     this.cartItems().reduce(
       (total, item) => total + item.product.precio * item.quantity,
-      0
-    )
+      0,
+    ),
   );
 
   add(
     product: Producto,
     quantity = 1,
-    purchaseMode: PurchaseMode = 'single'
+    purchaseMode: PurchaseMode = 'single',
   ): void {
     this.cartItems.update((items) => {
       const existing = items.find(
         (item) =>
-          item.product.id === product.id &&
-          item.purchaseMode === purchaseMode
+          item.product.id === product.id && item.purchaseMode === purchaseMode,
       );
 
       if (!existing) {
@@ -48,7 +47,7 @@ export class CartService {
       return items.map((item) =>
         item === existing
           ? { ...item, quantity: item.quantity + quantity }
-          : item
+          : item,
       );
     });
   }
@@ -65,16 +64,19 @@ export class CartService {
     this.cartItems.update((items) =>
       items.filter(
         (item) =>
-          item.product.id !== productId ||
-          item.purchaseMode !== purchaseMode
-      )
+          item.product.id !== productId || item.purchaseMode !== purchaseMode,
+      ),
     );
+  }
+
+  clear(): void {
+    this.cartItems.set([]);
   }
 
   private updateQuantity(
     productId: number,
     purchaseMode: PurchaseMode,
-    delta: number
+    delta: number,
   ): void {
     this.cartItems.update((items) =>
       items
@@ -88,7 +90,7 @@ export class CartService {
 
           return { ...item, quantity: Math.max(0, item.quantity + delta) };
         })
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   }
 }

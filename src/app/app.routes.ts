@@ -57,6 +57,14 @@ export const routes: Routes = [
       import('./pages/login/login.component').then((m) => m.LoginComponent),
     title: 'Iniciar sesion | Buena mielda',
   },
+   {
+    path: 'pedido-confirmado',
+    loadComponent: () =>
+      import('./pages/order-confirmation/order-confirmation.component').then(
+        (m) => m.OrderConfirmationComponent
+      ),
+    title: 'Pedido confirmado | Buena mielda',
+  },
   {
     path: '**',
     redirectTo: '',

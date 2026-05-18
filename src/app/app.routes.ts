@@ -39,7 +39,7 @@ export const routes: Routes = [
     path: 'registro',
     loadComponent: () =>
       import('./pages/register/register.component').then(
-        (m) => m.RegisterComponent
+        (m) => m.RegisterComponent,
       ),
     title: 'Crear cuenta | Buena mielda',
   },
@@ -57,13 +57,21 @@ export const routes: Routes = [
       import('./pages/login/login.component').then((m) => m.LoginComponent),
     title: 'Iniciar sesion | Buena mielda',
   },
-   {
+  {
     path: 'pedido-confirmado',
     loadComponent: () =>
       import('./pages/order-confirmation/order-confirmation.component').then(
-        (m) => m.OrderConfirmationComponent
+        (m) => m.OrderConfirmationComponent,
       ),
     title: 'Pedido confirmado | Buena mielda',
+  },
+  {
+    path: 'pago',
+    loadComponent: () =>
+      import('./pages/payment/payment.component').then(
+        (m) => m.PaymentComponent,
+      ),
+    title: 'Pago | Buena mielda',
   },
   {
     path: '**',

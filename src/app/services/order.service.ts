@@ -1,17 +1,12 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders,
-} from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, catchError, of, tap, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import {
   CrearPedidoRequestDto,
+  LineaPedidoResponseDto,
   PedidoResponseDto,
 } from '../models/order.model';
-import { AuthService } from './auth.service';
-import { CartService } from './cart.service';
+import { CartItem, CartService } from './cart.service';
 
 export class EmptyCartError extends Error {
   constructor() {
@@ -37,17 +32,40 @@ export class InsufficientStockError extends Error {
   }
 }
 
+export class OrderNotFoundError extends Error {
+  constructor() {
+    super('El pedido no existe.');
+  }
+}
+
+export class OrderOwnershipError extends Error {
+  constructor() {
+    super('El pedido no pertenece al usuario autenticado.');
+  }
+}
+
+export class OrderStateError extends Error {
+  constructor() {
+    super('El pedido no esta en un estado que permita el pago.');
+  }
+}
+
+export class PaymentAmountError extends Error {
+  constructor() {
+    super('El importe del pago no coincide con el total del pedido.');
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class OrderService {
-  private readonly http = inject(HttpClient);
   private readonly cartService = inject(CartService);
-  private readonly authService = inject(AuthService);
 
-  private readonly apiUrl = '/api/pedidos';
+  private readonly orders = signal<PedidoResponseDto[]>([]);
   private readonly lastCreatedOrder = signal<PedidoResponseDto | null>(null);
 
+  readonly allOrders = this.orders.asReadonly();
   readonly lastOrder = this.lastCreatedOrder.asReadonly();
 
   createFromCart(
@@ -71,28 +89,88 @@ export class OrderService {
       }
     }
 
-    const lineas = items.map((item, index) => ({
-      id: index + 1,
+    const lineas = items.map((item, index) =>
+      this.toOrderLine(item, index + 1),
+    );
+
+    const pedido: PedidoResponseDto = {
+      id: this.nextId(),
+      fechaPedido: new Date().toISOString(),
+      estado: 'PENDIENTE',
+      total: lineas.reduce((total, line) => total + line.subtotal, 0),
+      idUsuario: request.idUsuario,
+      lineas,
+    };
+
+    this.orders.update((orders) => [...orders, pedido]);
+    this.lastCreatedOrder.set(pedido);
+    this.cartService.clear();
+
+    return of(pedido);
+  }
+
+  getById(id: number): PedidoResponseDto | undefined {
+    return this.orders().find((order) => order.id === id);
+  }
+
+  updateStatus(id: number, estado: string): PedidoResponseDto {
+    const order = this.getById(id);
+
+    if (!order) {
+      throw new OrderNotFoundError();
+    }
+
+    const updatedOrder = { ...order, estado };
+
+    this.orders.update((orders) =>
+      orders.map((currentOrder) =>
+        currentOrder.id === id ? updatedOrder : currentOrder,
+      ),
+    );
+
+    this.lastCreatedOrder.set(updatedOrder);
+    return updatedOrder;
+  }
+
+  validatePayableOrder(
+    idPedido: number,
+    idUsuario: number,
+    importe: number,
+  ): PedidoResponseDto {
+    const order = this.getById(idPedido);
+
+    if (!order) {
+      throw new OrderNotFoundError();
+    }
+
+    if (order.idUsuario !== idUsuario) {
+      throw new OrderOwnershipError();
+    }
+
+    if (order.estado !== 'PENDIENTE') {
+      throw new OrderStateError();
+    }
+
+    if (Number(order.total.toFixed(2)) !== Number(importe.toFixed(2))) {
+      throw new PaymentAmountError();
+    }
+
+    return order;
+  }
+
+  private toOrderLine(item: CartItem, lineId: number): LineaPedidoResponseDto {
+    return {
+      id: lineId,
       cantidad: item.quantity,
       idProducto: item.product.id,
       nombreProducto: item.product.nombre,
       precioUnitario: item.product.precio,
       subtotal: item.product.precio * item.quantity,
       imagenProducto: item.product.imagenUrl,
-    }));
-
-    const pedido: PedidoResponseDto = {
-      id: Date.now(),
-      fechaPedido: new Date().toISOString(),
-      estado: 'PENDIENTE',
-      total: lineas.reduce((total, linea) => total + linea.subtotal, 0),
-      idUsuario: request.idUsuario,
-      lineas,
     };
+  }
 
-    this.lastCreatedOrder.set(pedido);
-    this.cartService.clear();
-
-    return of(pedido);
+  private nextId(): number {
+    return Math.max(0, ...this.orders().map((order) => order.id)) + 1;
   }
 }

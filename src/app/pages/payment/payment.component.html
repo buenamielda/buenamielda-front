@@ -1,0 +1,185 @@
+<main class="payment-page">
+  <div class="container-lg px-3 px-lg-4">
+    <section class="payment-empty" *ngIf="!order()">
+      <h1>No hay pedido pendiente de pago</h1>
+      <p>Confirma primero tu carrito para generar un pedido pendiente.</p>
+      <a routerLink="/carrito" class="primary-button">Volver al carrito</a>
+    </section>
+
+    <section class="payment-layout" *ngIf="order() as currentOrder">
+      <div class="payment-main">
+        <nav class="checkout-steps" aria-label="Progreso del checkout">
+          <span>Carro</span>
+          <span>Detalles</span>
+          <span>Envio</span>
+          <strong>Pago</strong>
+        </nav>
+
+        <section class="info-box">
+          <div>
+            <span>Pedido</span>
+            <strong>#{{ currentOrder.id }} - {{ currentOrder.estado }}</strong>
+          </div>
+          <div>
+            <span>Envio</span>
+            <strong>Envio estandar - GRATIS</strong>
+          </div>
+        </section>
+
+        <form class="payment-form" (ngSubmit)="pay()" novalidate>
+          <section class="form-section">
+            <h1>Metodo de pago</h1>
+
+            <div class="payment-method">
+              <span class="radio-dot"></span>
+              <strong>Tarjeta de credito</strong>
+            </div>
+
+            <label>
+              Numero de la tarjeta
+              <input
+                type="text"
+                inputmode="numeric"
+                autocomplete="cc-number"
+                [ngModel]="form().cardNumber"
+                name="cardNumber"
+                (ngModelChange)="updateField('cardNumber', $event)"
+                [class.invalid]="showCardNumberError()"
+              />
+              <span class="field-error" *ngIf="showCardNumberError()">
+                Introduce una tarjeta valida.
+              </span>
+            </label>
+
+            <label>
+              Titular de la tarjeta
+              <input
+                type="text"
+                autocomplete="cc-name"
+                [ngModel]="form().cardHolder"
+                name="cardHolder"
+                (ngModelChange)="updateField('cardHolder', $event)"
+                [class.invalid]="showHolderError()"
+              />
+              <span class="field-error" *ngIf="showHolderError()">
+                Introduce el titular.
+              </span>
+            </label>
+
+            <div class="form-row">
+              <label>
+                Fecha de caducidad
+                <input
+                  type="text"
+                  placeholder="MM/AA"
+                  autocomplete="cc-exp"
+                  [ngModel]="form().expiryDate"
+                  name="expiryDate"
+                  (ngModelChange)="updateField('expiryDate', $event)"
+                  [class.invalid]="showExpiryError()"
+                />
+                <span class="field-error" *ngIf="showExpiryError()">
+                  Fecha no valida.
+                </span>
+              </label>
+
+              <label>
+                CVV
+                <input
+                  type="password"
+                  inputmode="numeric"
+                  autocomplete="cc-csc"
+                  [ngModel]="form().cvv"
+                  name="cvv"
+                  (ngModelChange)="updateField('cvv', $event)"
+                  [class.invalid]="showCvvError()"
+                />
+                <span class="field-error" *ngIf="showCvvError()">
+                  CVV no valido.
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section billing-section">
+            <h2>Direccion de facturacion</h2>
+
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="billing"
+                [ngModel]="form().billingSameAsShipping"
+                [value]="true"
+                (ngModelChange)="updateField('billingSameAsShipping', $event)"
+              />
+              Usar la misma que la de envio
+            </label>
+
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="billing"
+                [ngModel]="form().billingSameAsShipping"
+                [value]="false"
+                (ngModelChange)="updateField('billingSameAsShipping', $event)"
+              />
+              Usar una direccion diferente para la facturacion
+            </label>
+          </section>
+
+          <p class="form-error" *ngIf="errorMessage()">
+            {{ errorMessage() }}
+          </p>
+
+          <div class="payment-actions">
+            <a routerLink="/carrito" class="back-link">Volver</a>
+            <button type="submit" class="primary-button" [disabled]="loading()">
+              {{ loading() ? "Procesando..." : "Pagar ahora" }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <aside class="summary-panel">
+        <div class="summary-products">
+          <article
+            class="summary-product"
+            *ngFor="let line of currentOrder.lineas"
+          >
+            <div class="product-thumb">
+              <img
+                [src]="line.imagenProducto || 'assets/images/miel-tomillo.svg'"
+                [alt]="line.nombreProducto"
+              />
+              <span>{{ line.cantidad }}</span>
+            </div>
+
+            <div>
+              <h2>{{ line.nombreProducto }}&reg;</h2>
+              <p>
+                {{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}
+              </p>
+            </div>
+
+            <strong>{{ formatPrice(line.subtotal) }}</strong>
+          </article>
+        </div>
+
+        <div class="summary-totals">
+          <div>
+            <span>Subtotal</span>
+            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+          </div>
+          <div>
+            <span>Envio</span>
+            <strong>Envio gratuito</strong>
+          </div>
+          <div class="total-row">
+            <span>Total</span>
+            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+</main>

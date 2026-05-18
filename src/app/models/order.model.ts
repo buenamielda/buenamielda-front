@@ -21,3 +21,18 @@ export interface PedidoResponseDto {
   idUsuario: number;
   lineas: LineaPedidoResponseDto[];
 }
+
+export interface PagoRequestDto {
+  idPedido: number;
+  idUsuario: number;
+  importe: number;
+  metodoPago: string;
+}
+
+export interface PagoResponseDto {
+  id: number;
+  idPedido: number;
+  importe: number;
+  estado: string;
+  fechaPago: string;
+}

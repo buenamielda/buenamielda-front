@@ -1,13 +1,13 @@
 $brand-dark: #272727;
-$brand-brown: #2C1810;
-$brand-gold: #E6AC00;
-$brand-soft: #F0EAE0;
-$font-serif: 'Georgia', 'Times New Roman', serif;
+$brand-brown: #2c1810;
+$brand-gold: #e6ac00;
+$brand-soft: #f0eae0;
+$font-serif: "Georgia", "Times New Roman", serif;
 
 .order-page {
   min-height: 760px;
-  padding: 4rem 0 6rem;
   background: #fff;
+  padding-bottom: 6rem;
 }
 
 .finish-layout {
@@ -15,6 +15,7 @@ $font-serif: 'Georgia', 'Times New Roman', serif;
   grid-template-columns: minmax(0, 1fr) 520px;
   gap: 3rem;
   align-items: start;
+  padding: 4.8rem 0 0;
 }
 
 .finish-main,
@@ -68,7 +69,7 @@ h1 {
 .summary-panel {
   min-height: 560px;
   padding: 3rem 2.8rem;
-  background: #F8F5F0;
+  background: #f8f5f0;
 }
 
 .summary-product {
@@ -98,38 +99,41 @@ h1 {
 
 .product-thumb {
   position: relative;
-  width: 86px;
-  height: 86px;
-  border-radius: 8px;
+  width: 84px;
+  height: 84px;
+  border-radius: 10px;
   background: $brand-soft;
 
   img {
     width: 100%;
     height: 100%;
+    display: block;
     object-fit: contain;
+    border-radius: 10px;
   }
 
   span {
     position: absolute;
-    top: -9px;
-    right: -9px;
-    width: 27px;
-    height: 27px;
+    top: -7px;
+    right: -7px;
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
     background: $brand-gold;
     color: #fff;
     font-family: $font-serif;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    text-align: center;
-    line-height: 27px;
   }
 }
 
 .summary-totals {
   display: grid;
   gap: 1rem;
-  padding-top: 1rem;
+  padding-top: 2rem;
 
   div {
     display: flex;
@@ -141,9 +145,10 @@ h1 {
 }
 
 .total-row {
-  padding-top: 1.2rem;
-  border-top: 1px solid rgba($brand-brown, 0.12);
-  font-size: 1.35rem;
+  margin-top: 1.2rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba($brand-brown, 0.1);
+  font-size: 1.25rem !important;
   font-weight: 700;
 }
 

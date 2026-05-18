@@ -17,13 +17,12 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 .checkout-layout {
   display: grid;
-  grid-template-columns: minmax(420px, 1fr) minmax(430px, 530px);
-  gap: 5rem;
-}
-
-.checkout-main {
+  grid-template-columns: minmax(0, 1fr) 520px;
+  gap: 3rem;
+  align-items: start;
   padding: 4.8rem 0 0;
 }
+
 
 .checkout-steps {
   display: flex;
@@ -199,44 +198,31 @@ $font-serif: "Georgia", "Times New Roman", serif;
 }
 
 .summary-panel {
-  min-height: 820px;
-  padding: 3.8rem 0 0 4rem;
-  border-left: 1px solid rgba($brand-brown, 0.1);
-  background: $brand-bg;
-}
-
-.summary-products {
-  display: grid;
-  gap: 1.25rem;
-  max-width: 410px;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid rgba($brand-brown, 0.1);
+  min-height: 560px;
+  padding: 3rem 2.8rem;
+  background: #f8f5f0;
 }
 
 .summary-product {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) 96px;
-  gap: 1.1rem;
-  align-items: start;
+  grid-template-columns: 86px minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding-bottom: 1.4rem;
+  margin-bottom: 1.4rem;
+  border-bottom: 1px solid rgba($brand-brown, 0.1);
 
   h2 {
-    margin: 0 0 0.35rem;
+    margin: 0 0 0.25rem;
     color: $brand-brown;
     font-family: $font-serif;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 700;
   }
 
-  p {
-    margin: 0;
-    color: rgba($brand-dark, 0.7);
-    font-family: $font-serif;
-    font-size: 0.9rem;
-  }
-
+  p,
   strong {
-    align-self: center;
-    justify-self: end;
+    margin: 0;
     color: $brand-dark;
     font-family: $font-serif;
   }
@@ -297,16 +283,14 @@ $font-serif: "Georgia", "Times New Roman", serif;
 .summary-totals {
   display: grid;
   gap: 1rem;
-  max-width: 410px;
   padding-top: 2rem;
 
   div {
     display: flex;
     justify-content: space-between;
-    gap: 2rem;
+    gap: 1rem;
     color: $brand-dark;
     font-family: $font-serif;
-    font-size: 0.95rem;
   }
 }
 

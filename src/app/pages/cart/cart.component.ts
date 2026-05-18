@@ -1,7 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-
+import { Component, inject, signal } from '@angular/core';
+import { RouterLink, Router } from '@angular/router';
+import { finalize } from 'rxjs';
+import {
+  AuthRequiredError,
+  EmptyCartError,
+  InactiveProductError,
+  InsufficientStockError,
+  OrderService,
+} from '../../services/order.service';
+import { AuthService } from '../../services/auth.service';
 import {
   CartItem,
   CartService,
@@ -17,10 +25,16 @@ import {
 })
 export class CartComponent {
   private readonly cartService = inject(CartService);
+  private readonly authService = inject(AuthService);
+  private readonly orderService = inject(OrderService);
+  private readonly router = inject(Router);
 
   readonly items = this.cartService.items;
   readonly subtotal = this.cartService.subtotal;
   readonly itemCount = this.cartService.itemCount;
+
+  readonly orderError = signal('');
+  readonly creatingOrder = signal(false);
 
   increaseQuantity(item: CartItem): void {
     this.cartService.increase(item.product.id, item.purchaseMode);
@@ -46,5 +60,45 @@ export class CartComponent {
 
   removeItem(item: CartItem): void {
     this.cartService.remove(item.product.id, item.purchaseMode);
+  }
+
+  confirmCart(): void {
+    this.orderError.set('');
+
+    const idUsuario = this.authService.getAuthenticatedUserId();
+
+    if (!idUsuario) {
+      this.orderError.set(
+        'Inicia sesion para confirmar el carrito y generar el pedido.',
+      );
+      return;
+    }
+
+    this.creatingOrder.set(true);
+
+    this.orderService
+      .createFromCart({
+        idUsuario,
+        idCarrito: this.cartService.cartId,
+      })
+      .pipe(finalize(() => this.creatingOrder.set(false)))
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/pedido-confirmado']);
+        },
+        error: (error) => {
+          if (
+            error instanceof AuthRequiredError ||
+            error instanceof EmptyCartError ||
+            error instanceof InactiveProductError ||
+            error instanceof InsufficientStockError
+          ) {
+            this.orderError.set(error.message);
+            return;
+          }
+
+          this.orderError.set('No se ha podido generar el pedido.');
+        },
+      });
   }
 }

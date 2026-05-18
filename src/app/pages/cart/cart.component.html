@@ -73,9 +73,21 @@
             <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <p>Los impuestos y el coste de envio se calcularan mas tarde.</p>
+          <p class="order-error" *ngIf="orderError()">{{ orderError() }}</p>
+      
+          <a routerLink="/login" class="login-warning" *ngIf="orderError()">
+            Ir a iniciar sesion
+          </a>
         </div>
 
-        <a routerLink="/checkout/datos" class="checkout-button">Comprar</a>
+        <button
+          type="button"
+          class="checkout-button"
+          (click)="confirmCart()"
+          [disabled]="creatingOrder()"
+        >
+          {{ creatingOrder() ? "Generando..." : "Confirmar carrito" }}
+        </button>
       </section>
     </ng-container>
   </div>

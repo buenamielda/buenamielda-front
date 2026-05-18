@@ -300,3 +300,30 @@ $font-serif: 'Georgia', 'Times New Roman', serif;
     }
   }
 }
+
+.checkout-button {
+  border: 0;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.72;
+  }
+}
+
+.order-error,
+.order-success {
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  text-align: left !important;
+}
+
+.order-error {
+  background: rgba(#9E3324, 0.08);
+  color: #7A241A !important;
+}
+
+.order-success {
+  background: rgba(#2E7D32, 0.08);
+  color: #256428 !important;
+}

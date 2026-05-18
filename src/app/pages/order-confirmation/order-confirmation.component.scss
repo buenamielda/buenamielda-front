@@ -156,3 +156,12 @@ h1 {
     min-height: auto;
   }
 }
+
+.receipt-link {
+  border: 0;
+  background: transparent;
+  color: $brand-gold;
+  font-family: $font-serif;
+  font-size: 1rem;
+  cursor: pointer;
+}

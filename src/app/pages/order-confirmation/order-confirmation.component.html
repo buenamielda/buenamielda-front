@@ -9,39 +9,48 @@
 
     <section class="finish-layout" *ngIf="order() as currentOrder">
       <div class="finish-main">
-        <h1>Pedido generado</h1>
-        <p class="order-number">NUMERO DE PEDIDO #{{ currentOrder.id }}</p>
-        <p class="thanks-copy">
-          Tu pedido se ha creado correctamente y queda pendiente de pago.
-        </p>
+        <div class="finish-message">
+          <h1>Pago confirmado</h1>
+          <p class="order-number">NUMERO DE PEDIDO #{{ currentOrder.id }}</p>
+      <p class="thanks-copy">
+        Gracias por comprar en Buena mielda. Las abejas estan trabajando
+        para preparar tu pedido. Revisa tu email para ver las actualizaciones
+        del envio.
+      </p>
+        </div>
 
-        <a routerLink="/productos" class="primary-link">Volver a comprar</a>
+        <div class="finish-actions">
+          <a routerLink="/productos" class="primary-link">Volver a comprar</a>
+          <button type="button" class="receipt-link" onclick="window.print()">
+            Imprimir recibo
+          </button>
+        </div>
       </div>
 
       <aside class="summary-panel">
-        <article class="summary-product" *ngFor="let line of currentOrder.lineas">
-          <div class="product-thumb">
-            <img
-              [src]="line.imagenProducto || 'assets/images/miel-tomillo.svg'"
-              [alt]="line.nombreProducto"
-            />
-            <span>{{ line.cantidad }}</span>
-          </div>
-
-          <div>
-            <h2>{{ line.nombreProducto }}&reg;</h2>
-            <p>{{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}</p>
-          </div>
-
-          <strong>{{ formatPrice(line.subtotal) }}</strong>
-        </article>
+        <div class="summary-products">
+          <article class="summary-product" *ngFor="let line of currentOrder.lineas">
+            <div class="product-thumb">
+              <img [src]="line.imagenProducto" [alt]="line.nombreProducto" />
+              <span>{{ line.cantidad }}</span>
+            </div>
+            <div>
+              <h2>{{ line.nombreProducto }}&reg;</h2>
+              <p>{{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}</p>
+            </div>
+            <strong>{{ formatPrice(line.subtotal) }}</strong>
+          </article>
+        </div>
 
         <div class="summary-totals">
           <div>
             <span>Subtotal</span>
             <strong>{{ formatPrice(currentOrder.total) }}</strong>
           </div>
-
+          <div>
+            <span>Envio</span>
+            <strong>Envio gratuito</strong>
+          </div>
           <div class="total-row">
             <span>Total</span>
             <strong>{{ formatPrice(currentOrder.total) }}</strong>

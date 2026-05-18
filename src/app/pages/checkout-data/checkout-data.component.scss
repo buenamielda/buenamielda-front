@@ -10,12 +10,12 @@ $font-serif: "Georgia", "Times New Roman", serif;
   background: #fff;
 }
 
-.payment-page {
+.checkout-data-page {
   min-height: 820px;
   padding: 0 0 5rem;
 }
 
-.payment-layout {
+.checkout-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 520px;
   gap: 3rem;
@@ -23,56 +23,29 @@ $font-serif: "Georgia", "Times New Roman", serif;
   padding: 4.8rem 0 0;
 }
 
+
 .checkout-steps {
   display: flex;
   gap: 1.35rem;
   margin-bottom: 3rem;
   color: $brand-brown;
   font-family: $font-serif;
+  font-size: 1rem;
 
   strong {
     color: $brand-gold;
   }
 }
 
-.info-box,
+.data-form {
+  max-width: 445px;
+}
+
 .form-section,
-.payment-empty {
+.checkout-empty {
   border: 1px solid rgba($brand-brown, 0.1);
   border-radius: 10px;
   background: #fff;
-}
-
-.info-box {
-  display: grid;
-  max-width: 445px;
-  margin-bottom: 2.3rem;
-
-  div {
-    display: grid;
-    grid-template-columns: 86px 1fr;
-    gap: 1rem;
-    padding: 0.85rem 1rem;
-    border-bottom: 1px solid rgba($brand-brown, 0.08);
-
-    &:last-child {
-      border-bottom: 0;
-    }
-  }
-
-  span,
-  strong {
-    font-family: $font-serif;
-    font-size: 0.9rem;
-  }
-
-  span {
-    color: rgba($brand-dark, 0.65);
-  }
-}
-
-.payment-form {
-  max-width: 445px;
 }
 
 .form-section {
@@ -83,7 +56,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
   h1,
   h2 {
-    margin: 0 0 0.35rem;
+    margin: 0;
     color: $brand-brown;
     font-family: $font-serif;
     font-size: 1.25rem;
@@ -91,23 +64,20 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
-.payment-method,
-.radio-option {
+.section-heading {
   display: flex;
-  gap: 0.8rem;
   align-items: center;
-  color: $brand-brown;
-  font-family: $font-serif;
+  justify-content: space-between;
+
+  a {
+    color: $brand-gold;
+    font-family: $font-serif;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
 }
 
-.radio-dot {
-  width: 16px;
-  height: 16px;
-  border: 5px solid $brand-gold;
-  border-radius: 50%;
-}
-
-.payment-form label {
+.data-form label {
   display: grid;
   gap: 0.45rem;
   color: $brand-dark;
@@ -115,14 +85,10 @@ $font-serif: "Georgia", "Times New Roman", serif;
   font-size: 0.92rem;
 }
 
-.payment-form .radio-option {
-  display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  gap: 0.8rem;
-  align-items: center;
-}
-
-.payment-form input {
+.data-form input,
+.data-form select,
+.data-form textarea,
+.discount-box input {
   width: 100%;
   min-height: 42px;
   padding: 0 0.9rem;
@@ -131,24 +97,31 @@ $font-serif: "Georgia", "Times New Roman", serif;
   background: $brand-bg;
   color: $brand-dark;
   font-family: $font-serif;
+  font-size: 0.95rem;
   outline: none;
-
-  &:focus {
-    border-color: rgba($brand-gold, 0.95);
-    box-shadow: 0 0 0 3px rgba($brand-gold, 0.12);
-  }
-
-  &.invalid {
-    border-color: #9e3324;
-  }
 }
 
-.payment-form .radio-option input {
-  width: 18px;
-  min-height: 18px;
-  margin: 0;
-  padding: 0;
-  accent-color: $brand-gold;
+.data-form textarea {
+  min-height: 82px;
+  padding-top: 0.75rem;
+  resize: vertical;
+}
+
+.data-form input:focus,
+.data-form select:focus,
+.data-form textarea:focus {
+  border-color: rgba($brand-gold, 0.95);
+  box-shadow: 0 0 0 3px rgba($brand-gold, 0.12);
+}
+
+.data-form .invalid {
+  border-color: #9e3324;
+}
+
+.field-error {
+  color: #9e3324;
+  font-family: $font-serif;
+  font-size: 0.82rem;
 }
 
 .form-row {
@@ -157,11 +130,25 @@ $font-serif: "Georgia", "Times New Roman", serif;
   gap: 0.9rem;
 }
 
-.field-error,
-.form-error {
-  color: #9e3324;
-  font-family: $font-serif;
-  font-size: 0.82rem;
+.three-cols {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.check-option {
+  display: grid !important;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 0.65rem !important;
+  align-items: center;
+  color: rgba($brand-dark, 0.72) !important;
+  font-size: 0.86rem !important;
+
+  input {
+    width: 18px;
+    min-height: 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: $brand-gold;
+  }
 }
 
 .form-error {
@@ -169,9 +156,12 @@ $font-serif: "Georgia", "Times New Roman", serif;
   padding: 0.8rem 1rem;
   border-radius: 8px;
   background: rgba(#9e3324, 0.08);
+  color: #7a241a;
+  font-family: $font-serif;
+  font-size: 0.92rem;
 }
 
-.payment-actions {
+.checkout-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -186,7 +176,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 .primary-button {
   display: inline-flex;
-  min-width: 166px;
+  min-width: 223px;
   min-height: 40px;
   align-items: center;
   justify-content: center;
@@ -196,13 +186,14 @@ $font-serif: "Georgia", "Times New Roman", serif;
   background: $brand-gold;
   color: #fff;
   font-family: $font-serif;
+  font-size: 1.05rem;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
 
-  &:disabled {
-    cursor: progress;
-    opacity: 0.72;
+  &:hover {
+    background: #c8860a;
+    color: #fff;
   }
 }
 
@@ -270,6 +261,24 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
+.discount-box {
+  display: grid;
+  grid-template-columns: 1fr 112px;
+  gap: 0.75rem;
+  max-width: 410px;
+  padding: 1.8rem 0;
+  border-bottom: 1px solid rgba($brand-brown, 0.1);
+
+  button {
+    min-height: 42px;
+    border: 0;
+    border-radius: 8px;
+    background: $brand-gold;
+    color: #fff;
+    font-family: $font-serif;
+    font-weight: 700;
+  }
+}
 
 .summary-totals {
   display: grid;
@@ -279,7 +288,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
   div {
     display: flex;
     justify-content: space-between;
-    gap: 2rem;
+    gap: 1rem;
     color: $brand-dark;
     font-family: $font-serif;
   }
@@ -293,7 +302,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
   font-weight: 700;
 }
 
-.payment-empty {
+.checkout-empty {
   max-width: 620px;
   margin: 5rem auto 0;
   padding: 3rem 2rem;
@@ -314,22 +323,27 @@ $font-serif: "Georgia", "Times New Roman", serif;
 }
 
 @media (max-width: 991.98px) {
-  .payment-layout {
+  .checkout-layout {
     grid-template-columns: 1fr;
+    gap: 3rem;
   }
 
   .summary-panel {
     min-height: auto;
+    padding: 2rem;
+    border-left: 0;
   }
 }
 
 @media (max-width: 575.98px) {
   .form-row,
+  .three-cols,
+  .discount-box,
   .summary-product {
     grid-template-columns: 1fr;
   }
 
-  .payment-actions {
+  .checkout-actions {
     align-items: stretch;
     flex-direction: column;
   }

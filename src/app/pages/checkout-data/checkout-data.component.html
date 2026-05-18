@@ -1,0 +1,208 @@
+<main class="checkout-data-page">
+  <div class="container-lg px-3 px-lg-4">
+    <section class="checkout-empty" *ngIf="!order()">
+      <h1>No hay pedido pendiente</h1>
+      <p>Confirma primero tu carrito para introducir los datos de envio.</p>
+      <a routerLink="/carrito" class="primary-button">Volver al carrito</a>
+    </section>
+
+    <section class="checkout-layout" *ngIf="order() as currentOrder">
+      <div class="checkout-main">
+        <nav class="checkout-steps">
+          <span>Carro</span>
+          <strong>Detalles</strong>
+          <span>Envio</span>
+          <span>Pago</span>
+        </nav>
+
+        <form class="data-form" (ngSubmit)="continueToPayment()" novalidate>
+          <section class="form-section">
+            <div class="section-heading">
+              <h1>Contacto</h1>
+              <a routerLink="/login">Login</a>
+            </div>
+
+            <label>
+              Email
+              <input
+                type="email"
+                [ngModel]="form().email"
+                name="email"
+                (ngModelChange)="updateField('email', $event)"
+                [class.invalid]="showEmailError()"
+              />
+              <span class="field-error" *ngIf="showEmailError()"
+                >Introduce un email valido.</span
+              >
+            </label>
+
+            <label class="check-option">
+              <input
+                type="checkbox"
+                [ngModel]="form().newsletter"
+                name="newsletter"
+                (ngModelChange)="updateField('newsletter', $event)"
+              />
+              Suscribirme al boletin de Buena mielda para obtener novedades.
+            </label>
+          </section>
+
+          <section class="form-section">
+            <h2>Direccion de envio</h2>
+
+            <div class="form-row">
+              <label>
+                Nombre
+                <input
+                  type="text"
+                  [ngModel]="form().nombre"
+                  name="nombre"
+                  (ngModelChange)="updateField('nombre', $event)"
+                  [class.invalid]="showRequiredError('nombre')"
+                />
+              </label>
+
+              <label>
+                Apellidos
+                <input
+                  type="text"
+                  [ngModel]="form().apellidos"
+                  name="apellidos"
+                  (ngModelChange)="updateField('apellidos', $event)"
+                  [class.invalid]="showRequiredError('apellidos')"
+                />
+              </label>
+            </div>
+
+            <label>
+              Direccion de envio
+              <input
+                type="text"
+                [ngModel]="form().direccion"
+                name="direccion"
+                (ngModelChange)="updateField('direccion', $event)"
+                [class.invalid]="showRequiredError('direccion')"
+              />
+            </label>
+
+            <label>
+              Observaciones
+              <textarea
+                rows="3"
+                [ngModel]="form().observaciones"
+                name="observaciones"
+                (ngModelChange)="updateField('observaciones', $event)"
+              ></textarea>
+            </label>
+
+            <div class="form-row three-cols">
+              <label>
+                Ciudad
+                <input
+                  type="text"
+                  [ngModel]="form().ciudad"
+                  name="ciudad"
+                  (ngModelChange)="updateField('ciudad', $event)"
+                  [class.invalid]="showRequiredError('ciudad')"
+                />
+              </label>
+
+              <label>
+                Codigo postal
+                <input
+                  type="text"
+                  [ngModel]="form().codigoPostal"
+                  name="codigoPostal"
+                  (ngModelChange)="updateField('codigoPostal', $event)"
+                  [class.invalid]="showRequiredError('codigoPostal')"
+                />
+              </label>
+
+              <label>
+                Poblacion
+                <input
+                  type="text"
+                  [ngModel]="form().poblacion"
+                  name="poblacion"
+                  (ngModelChange)="updateField('poblacion', $event)"
+                  [class.invalid]="showRequiredError('poblacion')"
+                />
+              </label>
+            </div>
+
+            <label>
+              Pais
+              <select
+                [ngModel]="form().pais"
+                name="pais"
+                (ngModelChange)="updateField('pais', $event)"
+              >
+                <option value="Espana">Espana</option>
+                <option value="Portugal">Portugal</option>
+                <option value="Francia">Francia</option>
+              </select>
+            </label>
+
+            <label class="check-option">
+              <input
+                type="checkbox"
+                [ngModel]="form().guardarDatos"
+                name="guardarDatos"
+                (ngModelChange)="updateField('guardarDatos', $event)"
+              />
+              Guardar esta informacion para el futuro
+            </label>
+          </section>
+
+          <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+          <div class="checkout-actions">
+            <a routerLink="/carrito" class="back-link">Volver al carro</a>
+            <button type="submit" class="primary-button">
+              Continuar al pago
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <aside class="summary-panel">
+        <div class="summary-products">
+          <article
+            class="summary-product"
+            *ngFor="let line of currentOrder.lineas"
+          >
+            <div class="product-thumb">
+              <img
+                [src]="line.imagenProducto || 'assets/images/miel-tomillo.svg'"
+                [alt]="line.nombreProducto"
+              />
+              <span>{{ line.cantidad }}</span>
+            </div>
+            <div>
+              <h2>{{ line.nombreProducto }}&reg;</h2>
+              <p>
+                {{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}
+              </p>
+            </div>
+            <strong>{{ formatPrice(line.subtotal) }}</strong>
+          </article>
+        </div>
+
+        <div class="summary-totals">
+          <div>
+            <span>Subtotal</span>
+            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+          </div>
+          <div>
+            <span>Envio</span>
+            <strong>Se calculara en el siguiente paso</strong>
+          </div>
+          <div class="total-row">
+            <span>Total</span>
+            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </div>
+</main>

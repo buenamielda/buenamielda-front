@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
+import { CheckoutService } from '../../services/checkout.service';
 import {
   OrderNotFoundError,
   OrderOwnershipError,
@@ -34,11 +35,15 @@ interface PaymentForm {
 })
 export class PaymentComponent {
   private readonly authService = inject(AuthService);
+  private readonly checkoutService = inject(CheckoutService);
+
   private readonly orderService = inject(OrderService);
   private readonly paymentService = inject(PaymentService);
   private readonly router = inject(Router);
 
   readonly order = this.orderService.lastOrder;
+  readonly shippingData = this.checkoutService.data;
+
   readonly submitted = signal(false);
   readonly loading = signal(false);
   readonly errorMessage = signal('');
@@ -75,15 +80,28 @@ export class PaymentComponent {
     this.errorMessage.set('');
 
     const order = this.order();
+
+    if (!this.authService.hasActiveSession()) {
+      this.errorMessage.set('Inicia sesion para poder pagar el pedido.');
+      return;
+    }
+    
     const idUsuario = this.authService.getAuthenticatedUserId();
+
+    if (!idUsuario) {
+      this.errorMessage.set(
+        'No se ha podido identificar el usuario autenticado.',
+      );
+      return;
+    }
 
     if (!order) {
       this.errorMessage.set('No hay ningun pedido pendiente de pago.');
       return;
     }
 
-    if (!idUsuario) {
-      this.errorMessage.set('Inicia sesion para poder pagar el pedido.');
+    if (!this.shippingData()) {
+      this.errorMessage.set('Introduce primero los datos de envio.');
       return;
     }
 
@@ -143,5 +161,15 @@ export class PaymentComponent {
 
   formatPrice(price: number): string {
     return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  }
+
+  shippingAddress(): string {
+    const data = this.shippingData();
+
+    if (!data) {
+      return 'Direccion pendiente';
+    }
+
+    return `${data.direccion}, ${data.codigoPostal}, ${data.ciudad}`;
   }
 }

@@ -63,13 +63,18 @@ export class CartComponent {
   }
 
   confirmCart(): void {
-    this.orderError.set('');
+    if (!this.authService.hasActiveSession()) {
+      this.orderError.set(
+        'Inicia sesion para confirmar el carrito y generar el pedido.',
+      );
+      return;
+    }
 
     const idUsuario = this.authService.getAuthenticatedUserId();
 
     if (!idUsuario) {
       this.orderError.set(
-        'Inicia sesion para confirmar el carrito y generar el pedido.',
+        'No se ha podido identificar el usuario autenticado.',
       );
       return;
     }
@@ -84,7 +89,7 @@ export class CartComponent {
       .pipe(finalize(() => this.creatingOrder.set(false)))
       .subscribe({
         next: () => {
-          this.router.navigate(['/pedido-confirmado']);
+          this.router.navigate(['/checkout/datos']);
         },
         error: (error) => {
           if (

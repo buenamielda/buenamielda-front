@@ -151,6 +151,13 @@ export class AuthService {
     return localStorage.getItem(this.tokenStorageKey);
   }
 
+  hasActiveSession(): boolean {
+    return (
+      this.authenticatedUser() !== null &&
+      this.getAuthenticatedUserId() !== null
+    );
+  }
+
   getAuthenticatedUserId(): number | null {
     const token = this.getToken();
 
@@ -169,6 +176,16 @@ export class AuthService {
     const id = Number(rawId);
 
     return Number.isFinite(id) ? id : null;
+  }
+
+  getAuthenticatedEmail(): string {
+    const token = this.getToken();
+    const payload = token ? this.decodeTokenPayload(token) : null;
+
+    const email =
+      payload?.['email'] ?? payload?.['sub'] ?? payload?.['username'] ?? '';
+
+    return typeof email === 'string' ? email : '';
   }
 
   private decodeTokenPayload(token: string): Record<string, unknown> | null {

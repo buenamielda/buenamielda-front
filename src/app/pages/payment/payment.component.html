@@ -17,6 +17,10 @@
 
         <section class="info-box">
           <div>
+            <span>Contacto</span>
+            <strong>{{ shippingData()?.email || "Pendiente" }}</strong>
+          </div>
+          <div>
             <span>Pedido</span>
             <strong>#{{ currentOrder.id }} - {{ currentOrder.estado }}</strong>
           </div>

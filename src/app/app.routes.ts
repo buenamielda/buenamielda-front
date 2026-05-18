@@ -74,6 +74,14 @@ export const routes: Routes = [
     title: 'Pago | Buena mielda',
   },
   {
+    path: 'checkout/datos',
+    loadComponent: () =>
+      import('./pages/checkout-data/checkout-data.component').then(
+        (m) => m.CheckoutDataComponent,
+      ),
+    title: 'Datos de envio | Buena mielda',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

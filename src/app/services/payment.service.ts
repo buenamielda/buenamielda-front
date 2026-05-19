@@ -39,7 +39,7 @@ export class PaymentService {
     };
 
     this.payments.update((payments) => [...payments, payment]);
-    this.orderService.updateStatus(request.idPedido, 'PAGADO');
+    this.orderService.updateStatus(request.idPedido, { estado: 'PAGADO' });
 
     return of(payment);
   }

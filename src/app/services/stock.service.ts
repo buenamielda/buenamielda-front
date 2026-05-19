@@ -2,13 +2,13 @@ import { Injectable, inject } from '@angular/core';
 
 import { LineaPedidoResponseDto } from '../models/order.model';
 import {
-  ActualizarStockRequestDto,
+  ListadoStockResponseDto,
   ProductoStockResponseDto,
   ValidarStockRequestDto,
   ValidarStockResponseDto,
 } from '../models/stock.model';
-import { OrderNotFoundError, OrderService } from './order.service';
 import { ProductCatalogService } from './product-catalog.service';
+import { Producto } from '../models/product.model';
 
 export class StockProductNotFoundError extends Error {
   constructor(productName: string) {
@@ -32,8 +32,25 @@ export class InsufficientStockError extends Error {
   providedIn: 'root',
 })
 export class StockService {
-  private readonly orderService = inject(OrderService);
   private readonly productCatalog = inject(ProductCatalogService);
+
+  getAllProductStocks(): ListadoStockResponseDto {
+    return {
+      productos: this.productCatalog
+        .todosLosProductos()
+        .map((producto) => this.toStockResponse(producto)),
+    };
+  }
+
+  getProductStockById(idProducto: number): ProductoStockResponseDto {
+    const producto = this.productCatalog.obtenerPorId(idProducto);
+
+    if (!producto) {
+      throw new StockProductNotFoundError(`ID ${idProducto}`);
+    }
+
+    return this.toStockResponse(producto);
+  }
 
   validateStock(request: ValidarStockRequestDto): ValidarStockResponseDto {
     const product = this.productCatalog.obtenerPorId(request.idProducto);
@@ -79,18 +96,6 @@ export class StockService {
     return response;
   }
 
-  updateStockForOrder(
-    request: ActualizarStockRequestDto,
-  ): ProductoStockResponseDto[] {
-    const order = this.orderService.getById(request.idPedido);
-
-    if (!order) {
-      throw new OrderNotFoundError();
-    }
-
-    return this.updateStockForLines(order.lineas);
-  }
-
   updateStockForLines(
     lineas: LineaPedidoResponseDto[],
   ): ProductoStockResponseDto[] {
@@ -112,12 +117,22 @@ export class StockService {
     updatedProducts.forEach(({ product, nextStock }) => {
       this.productCatalog.actualizarStockLocal(product.id, nextStock);
     });
-
     return updatedProducts.map(({ product, nextStock }) => ({
       idProducto: product.id,
       nombre: product.nombre,
+      precio: product.precio,
       stock: nextStock,
       activo: product.activo,
     }));
+  }
+
+  private toStockResponse(producto: Producto): ProductoStockResponseDto {
+    return {
+      idProducto: producto.id,
+      nombre: producto.nombre,
+      precio: producto.precio,
+      stock: producto.stock,
+      activo: producto.activo,
+    };
   }
 }

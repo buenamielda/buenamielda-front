@@ -5,8 +5,6 @@ import { finalize } from 'rxjs';
 import {
   AuthRequiredError,
   EmptyCartError,
-  InactiveProductError,
-  InsufficientStockError,
   OrderService,
 } from '../../services/order.service';
 import { AuthService } from '../../services/auth.service';
@@ -15,6 +13,10 @@ import {
   CartService,
   PurchaseMode,
 } from '../../services/cart.service';
+import {
+  InactiveStockProductError,
+  InsufficientStockError,
+} from '../../services/stock.service';
 
 @Component({
   selector: 'app-cart',
@@ -95,7 +97,7 @@ export class CartComponent {
           if (
             error instanceof AuthRequiredError ||
             error instanceof EmptyCartError ||
-            error instanceof InactiveProductError ||
+            error instanceof InactiveStockProductError ||
             error instanceof InsufficientStockError
           ) {
             this.orderError.set(error.message);

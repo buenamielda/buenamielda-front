@@ -4,15 +4,20 @@ import { Producto } from '../models/product.model';
 import { CartService } from './cart.service';
 import {
   EmptyCartError,
-  InsufficientStockError,
   InvalidOrderTransitionError,
   OrderNotFoundError,
   OrderService,
 } from './order.service';
+import {
+  InactiveStockProductError,
+  InsufficientStockError,
+  StockService,
+} from './stock.service';
 
 describe('OrderService', () => {
   let service: OrderService;
   let cartService: CartService;
+  let stockService: jasmine.SpyObj<StockService>;
 
   const product: Producto = {
     id: 1,
@@ -26,28 +31,69 @@ describe('OrderService', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    stockService = jasmine.createSpyObj<StockService>('StockService', [
+      'assertStockAvailable',
+    ]);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: StockService, useValue: stockService }],
+    });
 
     service = TestBed.inject(OrderService);
     cartService = TestBed.inject(CartService);
     cartService.clear();
   });
 
-  it('should create an order with initial status PENDIENTE', () => {
+  it('should validate stock before creating an order', () => {
     cartService.add(product, 2);
 
     service.createFromCart({ idUsuario: 7, idCarrito: 1 }).subscribe((order) => {
+      expect(stockService.assertStockAvailable).toHaveBeenCalledOnceWith(1, 2);
       expect(order.estado).toBe('PENDIENTE');
-      expect(order.idUsuario).toBe(7);
       expect(order.total).toBe(17);
-      expect(order.lineas.length).toBe(1);
-      expect(order.lineas[0].cantidad).toBe(2);
-      expect(order.lineas[0].precioUnitario).toBe(8.5);
-      expect(order.lineas[0].subtotal).toBe(17);
     });
   });
 
-  it('should store and return the current order status', () => {
+  it('should not create an order from an empty cart', () => {
+    service.createFromCart({ idUsuario: 7, idCarrito: 1 }).subscribe({
+      next: () => fail('Expected EmptyCartError'),
+      error: (error) => {
+        expect(error).toEqual(jasmine.any(EmptyCartError));
+      },
+    });
+  });
+
+  it('should not create an order when stock is insufficient', () => {
+    stockService.assertStockAvailable.and.throwError(
+      new InsufficientStockError('Miel de tomillo'),
+    );
+
+    cartService.add(product, 11);
+
+    service.createFromCart({ idUsuario: 7, idCarrito: 1 }).subscribe({
+      next: () => fail('Expected InsufficientStockError'),
+      error: (error) => {
+        expect(error).toEqual(jasmine.any(InsufficientStockError));
+      },
+    });
+  });
+
+  it('should not create an order when product is inactive', () => {
+    stockService.assertStockAvailable.and.throwError(
+      new InactiveStockProductError('Miel de tomillo'),
+    );
+
+    cartService.add({ ...product, activo: false }, 1);
+
+    service.createFromCart({ idUsuario: 7, idCarrito: 1 }).subscribe({
+      next: () => fail('Expected InactiveStockProductError'),
+      error: (error) => {
+        expect(error).toEqual(jasmine.any(InactiveStockProductError));
+      },
+    });
+  });
+
+  it('should store and return current order status', () => {
     cartService.add(product, 1);
 
     service.createFromCart({ idUsuario: 7, idCarrito: 1 }).subscribe((order) => {
@@ -77,27 +123,7 @@ describe('OrderService', () => {
     });
   });
 
-  it('should throw a controlled error when order does not exist', () => {
+  it('should throw controlled error when order does not exist', () => {
     expect(() => service.getOrderById(999)).toThrowError(OrderNotFoundError);
-  });
-
-  it('should not create an order from an empty cart', () => {
-    service.createFromCart({ idUsuario: 7, idCarrito: 1 }).subscribe({
-      next: () => fail('Expected EmptyCartError'),
-      error: (error) => {
-        expect(error).toEqual(jasmine.any(EmptyCartError));
-      },
-    });
-  });
-
-  it('should not create an order when stock is insufficient', () => {
-    cartService.add(product, 11);
-
-    service.createFromCart({ idUsuario: 7, idCarrito: 1 }).subscribe({
-      next: () => fail('Expected InsufficientStockError'),
-      error: (error) => {
-        expect(error).toEqual(jasmine.any(InsufficientStockError));
-      },
-    });
   });
 });

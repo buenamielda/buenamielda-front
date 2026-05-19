@@ -4,7 +4,7 @@ import { Producto } from '../models/product.model';
 import { CartService } from './cart.service';
 import { OrderService, OrderStateError } from './order.service';
 import { PaymentFailedError, PaymentService } from './payment.service';
-import { StockService } from './stock.service';
+import { InsufficientStockError, StockService } from './stock.service';
 
 describe('PaymentService', () => {
   let paymentService: PaymentService;
@@ -25,7 +25,8 @@ describe('PaymentService', () => {
 
   beforeEach(() => {
     stockService = jasmine.createSpyObj<StockService>('StockService', [
-      'updateStockForOrder',
+      'assertStockAvailable',
+      'updateStockForLines',
     ]);
 
     TestBed.configureTestingModule({
@@ -38,7 +39,7 @@ describe('PaymentService', () => {
     cartService.clear();
   });
 
-  it('should update order status to PAGADO after successful payment', () => {
+  it('should validate and update stock after successful payment', () => {
     cartService.add(product, 2);
 
     orderService
@@ -53,10 +54,57 @@ describe('PaymentService', () => {
           })
           .subscribe((payment) => {
             expect(payment.estado).toBe('ACEPTADO');
-            expect(stockService.updateStockForOrder).toHaveBeenCalledOnceWith({
-              idPedido: order.id,
-            });
+            expect(stockService.updateStockForLines).toHaveBeenCalledOnceWith(
+              order.lineas,
+            );
             expect(orderService.getOrderStatus(order.id)).toBe('PAGADO');
+          });
+      });
+  });
+
+  it('should not complete payment if stock validation fails during payment', () => {
+    stockService.updateStockForLines.and.throwError(
+      new InsufficientStockError('Miel de tomillo'),
+    );
+
+    cartService.add(product, 2);
+
+    orderService
+      .createFromCart({ idUsuario: 7, idCarrito: 1 })
+      .subscribe((order) => {
+        expect(() =>
+          paymentService.payOrder({
+            idPedido: order.id,
+            idUsuario: 7,
+            importe: order.total,
+            metodoPago: 'TARJETA',
+          }),
+        ).toThrowError(InsufficientStockError);
+
+        expect(orderService.getOrderStatus(order.id)).toBe('PENDIENTE');
+      });
+  });
+
+  it('should not update stock when payment provider fails', () => {
+    cartService.add(product, 1);
+
+    orderService
+      .createFromCart({ idUsuario: 7, idCarrito: 1 })
+      .subscribe((order) => {
+        paymentService
+          .payOrder({
+            idPedido: order.id,
+            idUsuario: 7,
+            importe: order.total,
+            metodoPago: 'SIMULATED_FAIL',
+          })
+          .subscribe({
+            next: () => fail('Expected PaymentFailedError'),
+            error: (error) => {
+              expect(error).toEqual(jasmine.any(PaymentFailedError));
+              expect(stockService.updateStockForLines).not.toHaveBeenCalled();
+              expect(orderService.getOrderStatus(order.id)).toBe('PENDIENTE');
+            },
           });
       });
   });
@@ -85,31 +133,7 @@ describe('PaymentService', () => {
           }),
         ).toThrowError(OrderStateError);
 
-        expect(stockService.updateStockForOrder).toHaveBeenCalledTimes(1);
-      });
-  });
-
-  it('should keep order as PENDIENTE and not update stock when payment fails', () => {
-    cartService.add(product, 1);
-
-    orderService
-      .createFromCart({ idUsuario: 7, idCarrito: 1 })
-      .subscribe((order) => {
-        paymentService
-          .payOrder({
-            idPedido: order.id,
-            idUsuario: 7,
-            importe: order.total,
-            metodoPago: 'SIMULATED_FAIL',
-          })
-          .subscribe({
-            next: () => fail('Expected PaymentFailedError'),
-            error: (error) => {
-              expect(error).toEqual(jasmine.any(PaymentFailedError));
-              expect(stockService.updateStockForOrder).not.toHaveBeenCalled();
-              expect(orderService.getOrderStatus(order.id)).toBe('PENDIENTE');
-            },
-          });
+        expect(stockService.updateStockForLines).toHaveBeenCalledTimes(1);
       });
   });
 });

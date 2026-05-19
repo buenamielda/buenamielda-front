@@ -3,6 +3,7 @@ import { Observable, of, throwError } from 'rxjs';
 
 import { PagoRequestDto, PagoResponseDto } from '../models/order.model';
 import { OrderService } from './order.service';
+import { StockService } from './stock.service';
 
 export class PaymentFailedError extends Error {
   constructor() {
@@ -15,6 +16,7 @@ export class PaymentFailedError extends Error {
 })
 export class PaymentService {
   private readonly orderService = inject(OrderService);
+  private readonly stockService = inject(StockService);
   private readonly payments = signal<PagoResponseDto[]>([]);
 
   readonly allPayments = this.payments.asReadonly();
@@ -38,6 +40,7 @@ export class PaymentService {
       fechaPago: new Date().toISOString(),
     };
 
+    this.stockService.updateStockForOrder({ idPedido: request.idPedido });
     this.payments.update((payments) => [...payments, payment]);
     this.orderService.updateStatus(request.idPedido, { estado: 'PAGADO' });
 

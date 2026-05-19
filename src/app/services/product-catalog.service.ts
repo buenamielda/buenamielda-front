@@ -128,6 +128,26 @@ export class ProductCatalogService {
     });
   }
 
+  actualizarStockLocal(id: number, stock: number): void {
+  this.productosSignal.update((productos) =>
+    productos.map((producto) =>
+      producto.id === id
+        ? { ...producto, stock: Math.max(0, stock) }
+        : producto,
+    ),
+  );
+}
+
+descontarStockLocal(id: number, cantidad: number): void {
+  this.productosSignal.update((productos) =>
+    productos.map((producto) =>
+      producto.id === id
+        ? { ...producto, stock: Math.max(0, producto.stock - cantidad) }
+        : producto,
+    ),
+  );
+}
+
   private toRequestDto(producto: ProductoPayload) {
     return {
       nombre: producto.nombre.trim(),

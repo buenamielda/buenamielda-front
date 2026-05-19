@@ -82,6 +82,14 @@ export const routes: Routes = [
     title: 'Datos de envio | Buena mielda',
   },
   {
+    path: 'checkout/envio',
+    loadComponent: () =>
+      import('./pages/checkout-shipping/checkout-shipping.component').then(
+        (m) => m.CheckoutShippingComponent,
+      ),
+    title: 'Metodo de envio | Buena mielda',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

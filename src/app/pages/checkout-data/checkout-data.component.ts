@@ -82,7 +82,7 @@ export class CheckoutDataComponent {
     }
 
     this.checkoutService.saveShippingData(this.form());
-    this.router.navigate(['/pago']);
+    this.router.navigate(['/checkout/envio']);
   }
 
   showRequiredError(field: keyof ShippingData): boolean {

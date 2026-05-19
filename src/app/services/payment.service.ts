@@ -40,7 +40,8 @@ export class PaymentService {
       fechaPago: new Date().toISOString(),
     };
 
-    this.stockService.updateStockForOrder({ idPedido: request.idPedido });
+    const order = this.orderService.getOrderById(request.idPedido);
+    this.stockService.updateStockForLines(order.lineas);
     this.payments.update((payments) => [...payments, payment]);
     this.orderService.updateStatus(request.idPedido, { estado: 'PAGADO' });
 

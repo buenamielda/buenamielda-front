@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 
+import { LineaPedidoResponseDto } from '../models/order.model';
 import {
   ActualizarStockRequestDto,
   ProductoStockResponseDto,
+  ValidarStockRequestDto,
+  ValidarStockResponseDto,
 } from '../models/stock.model';
-import { LineaPedidoResponseDto } from '../models/order.model';
 import { OrderNotFoundError, OrderService } from './order.service';
 import { ProductCatalogService } from './product-catalog.service';
 
@@ -14,9 +16,15 @@ export class StockProductNotFoundError extends Error {
   }
 }
 
-export class StockWouldBeNegativeError extends Error {
+export class InactiveStockProductError extends Error {
   constructor(productName: string) {
-    super(`El stock de "${productName}" no puede quedar por debajo de cero.`);
+    super(`El producto "${productName}" no esta activo.`);
+  }
+}
+
+export class InsufficientStockError extends Error {
+  constructor(productName: string) {
+    super(`No hay stock suficiente para "${productName}".`);
   }
 }
 
@@ -26,6 +34,50 @@ export class StockWouldBeNegativeError extends Error {
 export class StockService {
   private readonly orderService = inject(OrderService);
   private readonly productCatalog = inject(ProductCatalogService);
+
+  validateStock(request: ValidarStockRequestDto): ValidarStockResponseDto {
+    const product = this.productCatalog.obtenerPorId(request.idProducto);
+
+    if (!product) {
+      throw new StockProductNotFoundError(`ID ${request.idProducto}`);
+    }
+
+    const disponible =
+      product.activo &&
+      product.stock > 0 &&
+      request.cantidadSolicitada > 0 &&
+      product.stock >= request.cantidadSolicitada;
+
+    return {
+      idProducto: product.id,
+      nombreProducto: product.nombre,
+      stockDisponible: product.stock,
+      cantidadSolicitada: request.cantidadSolicitada,
+      disponible,
+    };
+  }
+
+  assertStockAvailable(
+    idProducto: number,
+    cantidadSolicitada: number,
+  ): ValidarStockResponseDto {
+    const response = this.validateStock({
+      idProducto,
+      cantidadSolicitada,
+    });
+
+    if (!response.disponible) {
+      const product = this.productCatalog.obtenerPorId(idProducto);
+
+      if (!product?.activo) {
+        throw new InactiveStockProductError(response.nombreProducto);
+      }
+
+      throw new InsufficientStockError(response.nombreProducto);
+    }
+
+    return response;
+  }
 
   updateStockForOrder(
     request: ActualizarStockRequestDto,
@@ -49,16 +101,11 @@ export class StockService {
         throw new StockProductNotFoundError(line.nombreProducto);
       }
 
-      const nextStock = product.stock - line.cantidad;
-
-      if (nextStock < 0) {
-        throw new StockWouldBeNegativeError(product.nombre);
-      }
+      this.assertStockAvailable(line.idProducto, line.cantidad);
 
       return {
         product,
-        line,
-        nextStock,
+        nextStock: product.stock - line.cantidad,
       };
     });
 

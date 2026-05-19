@@ -9,6 +9,7 @@ import {
   PedidoResponseDto,
 } from '../models/order.model';
 import { CartItem, CartService } from './cart.service';
+import { StockService } from './stock.service';
 
 export class EmptyCartError extends Error {
   constructor() {
@@ -19,18 +20,6 @@ export class EmptyCartError extends Error {
 export class AuthRequiredError extends Error {
   constructor() {
     super('Inicia sesion para confirmar el carrito.');
-  }
-}
-
-export class InactiveProductError extends Error {
-  constructor(productName: string) {
-    super(`El producto "${productName}" ya no esta activo.`);
-  }
-}
-
-export class InsufficientStockError extends Error {
-  constructor(productName: string) {
-    super(`No hay stock suficiente para "${productName}".`);
   }
 }
 
@@ -75,6 +64,7 @@ export class PaymentAmountError extends Error {
 })
 export class OrderService {
   private readonly cartService = inject(CartService);
+  private readonly stockService = inject(StockService);
 
   private readonly allowedStatuses: PedidoEstado[] = [
     'PENDIENTE',
@@ -110,14 +100,10 @@ export class OrderService {
     }
 
     for (const item of items) {
-      if (!item.product.activo) {
-        return throwError(() => new InactiveProductError(item.product.nombre));
-      }
-
-      if (item.product.stock < item.quantity) {
-        return throwError(
-          () => new InsufficientStockError(item.product.nombre),
-        );
+      try {
+        this.stockService.assertStockAvailable(item.product.id, item.quantity);
+      } catch (error) {
+        return throwError(() => error);
       }
     }
 

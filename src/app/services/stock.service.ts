@@ -62,17 +62,6 @@ export class StockService {
       };
     });
 
-    console.log(
-      '[Stock actualizado]',
-      updatedProducts.map(({ product, line, nextStock }) => ({
-        idProducto: product.id,
-        nombre: product.nombre,
-        stockAnterior: product.stock,
-        cantidadDescontada: line.cantidad,
-        stockNuevo: nextStock,
-      })),
-    );
-
     updatedProducts.forEach(({ product, nextStock }) => {
       this.productCatalog.actualizarStockLocal(product.id, nextStock);
     });

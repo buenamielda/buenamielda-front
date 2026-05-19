@@ -5,8 +5,13 @@ export interface ActualizarStockRequestDto {
 export interface ProductoStockResponseDto {
   idProducto: number;
   nombre: string;
+  precio: number;
   stock: number;
   activo: boolean;
+}
+
+export interface ListadoStockResponseDto {
+  productos: ProductoStockResponseDto[];
 }
 
 export interface ValidarStockRequestDto {

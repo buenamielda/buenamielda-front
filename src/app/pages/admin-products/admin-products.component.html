@@ -23,6 +23,98 @@
       </div>
     </header>
 
+    <section class="stock-panel">
+      <div class="stock-heading">
+        <div>
+          <p class="admin-kicker">Stock</p>
+          <h2>Consulta de disponibilidad</h2>
+          <p>
+            Revisa las unidades disponibles de todos los productos o consulta un
+            producto concreto por identificador.
+          </p>
+        </div>
+
+        <div class="stock-summary">
+          <article>
+            <strong>{{ lowStockCount() }}</strong>
+            <span>Stock bajo</span>
+          </article>
+          <article>
+            <strong>{{ outOfStockCount() }}</strong>
+            <span>Sin stock</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="stock-tools">
+        <label>
+          Buscar en stock
+          <input
+            type="search"
+            placeholder="Nombre, id o estado"
+            [ngModel]="busquedaStock()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="busquedaStock.set($event)"
+          />
+        </label>
+
+        <form class="stock-lookup" (ngSubmit)="consultarStockPorId()">
+          <label>
+            Consultar por ID
+            <input
+              type="number"
+              min="1"
+              placeholder="Ej. 1"
+              [ngModel]="stockLookupId()"
+              name="stockLookupId"
+              (ngModelChange)="stockLookupId.set($event)"
+            />
+          </label>
+          <button type="submit">Consultar</button>
+        </form>
+      </div>
+
+      <p class="stock-error" *ngIf="stockLookupError()">
+        {{ stockLookupError() }}
+      </p>
+
+      <article class="selected-stock" *ngIf="selectedStock() as stock">
+        <div>
+          <span>Producto #{{ stock.idProducto }}</span>
+          <h3>{{ stock.nombre }}</h3>
+        </div>
+        <strong>{{ formatearPrecio(stock.precio) }}</strong>
+        <strong>{{ stock.stock }} uds.</strong>
+        <span class="status-pill" [class.off]="!stock.activo">
+          {{ stock.activo ? "Activo" : "Inactivo" }}
+        </span>
+      </article>
+
+      <div class="stock-table" aria-label="Listado de stock de productos">
+        <div class="stock-row stock-row-header">
+          <span>ID</span>
+          <span>Producto</span>
+          <span>Precio</span>
+          <span>Stock</span>
+          <span>Estado</span>
+        </div>
+
+        <div
+          class="stock-row"
+          *ngFor="let product of filteredStockProducts()"
+          [class.stock-alert]="product.stock === 0"
+        >
+          <span>#{{ product.idProducto }}</span>
+          <strong>{{ product.nombre }}</strong>
+          <span>{{ formatearPrecio(product.precio) }}</span>
+          <span>{{ product.stock }} uds.</span>
+          <span class="status-pill" [class.off]="!product.activo">
+            {{ product.activo ? "Activo" : "Inactivo" }}
+          </span>
+        </div>
+      </div>
+    </section>
+
     <section class="admin-layout">
       <form class="product-form" (ngSubmit)="guardarProducto()">
         <div class="form-heading">

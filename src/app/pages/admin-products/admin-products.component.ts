@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 
 import { Producto, ProductoPayload } from '../../models/product.model';
 import { ProductCatalogService } from '../../services/product-catalog.service';
+import { ProductoStockResponseDto } from '../../models/stock.model';
+import {
+  StockProductNotFoundError,
+  StockService,
+} from '../../services/stock.service';
 
 interface FormularioProducto {
   nombre: string;
@@ -27,6 +32,7 @@ interface FormularioProducto {
 })
 export class AdminProductsComponent implements OnInit {
   private readonly catalogoProductos = inject(ProductCatalogService);
+  private readonly stockService = inject(StockService);
 
   readonly productos = this.catalogoProductos.todosLosProductos;
   readonly error = this.catalogoProductos.error;
@@ -34,6 +40,10 @@ export class AdminProductsComponent implements OnInit {
   readonly editingId = signal<number | null>(null);
   readonly busqueda = signal('');
   readonly form = signal<FormularioProducto>(this.formularioVacio());
+  readonly busquedaStock = signal('');
+  readonly stockLookupId = signal<number | null>(null);
+  readonly stockLookupError = signal('');
+  readonly selectedStock = signal<ProductoStockResponseDto | null>(null);
 
   readonly productosFiltrados = computed(() => {
     const textoBusqueda = this.busqueda().trim().toLowerCase();
@@ -43,25 +53,57 @@ export class AdminProductsComponent implements OnInit {
     }
 
     return this.productos().filter((producto) =>
-      [
-        producto.nombre,
-        producto.nombreCategoria,
-        producto.descripcion ?? '',
-      ]
+      [producto.nombre, producto.nombreCategoria, producto.descripcion ?? '']
         .join(' ')
         .toLowerCase()
-        .includes(textoBusqueda)
+        .includes(textoBusqueda),
     );
   });
 
   readonly totalProductos = computed(() => this.productos().length);
 
   readonly totalActivos = computed(
-    () => this.productos().filter((producto) => producto.activo).length
+    () => this.productos().filter((producto) => producto.activo).length,
   );
 
   readonly totalInactivos = computed(
-    () => this.productos().filter((producto) => !producto.activo).length
+    () => this.productos().filter((producto) => !producto.activo).length,
+  );
+
+  readonly stockProducts = computed(
+    () => this.stockService.getAllProductStocks().productos,
+  );
+
+  readonly filteredStockProducts = computed(() => {
+    const textoBusqueda = this.busquedaStock().trim().toLowerCase();
+
+    if (!textoBusqueda) {
+      return this.stockProducts();
+    }
+
+    return this.stockProducts().filter((producto) =>
+      [
+        producto.idProducto.toString(),
+        producto.nombre,
+        producto.activo ? 'activo' : 'inactivo',
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(textoBusqueda),
+    );
+  });
+
+  readonly lowStockCount = computed(
+    () =>
+      this.stockProducts().filter(
+        (producto) =>
+          producto.activo && producto.stock > 0 && producto.stock <= 3,
+      ).length,
+  );
+
+  readonly outOfStockCount = computed(
+    () =>
+      this.stockProducts().filter((producto) => producto.stock === 0).length,
   );
 
   ngOnInit(): void {
@@ -70,7 +112,7 @@ export class AdminProductsComponent implements OnInit {
 
   cambiarCampo<K extends keyof FormularioProducto>(
     campo: K,
-    valor: FormularioProducto[K]
+    valor: FormularioProducto[K],
   ): void {
     this.form.update((actual) => ({ ...actual, [campo]: valor }));
   }
@@ -98,7 +140,8 @@ export class AdminProductsComponent implements OnInit {
 
   editarProducto(producto: Producto): void {
     const idCategoria =
-      producto.idCategoria ?? this.resolverIdCategoria(producto.nombreCategoria);
+      producto.idCategoria ??
+      this.resolverIdCategoria(producto.nombreCategoria);
 
     this.editingId.set(producto.id);
 
@@ -121,29 +164,53 @@ export class AdminProductsComponent implements OnInit {
     this.form.set(this.formularioVacio());
   }
 
- alternarEstadoProducto(producto: Producto): void {
-  this.catalogoProductos.actualizarEstadoProducto(
-    producto.id,
-    !producto.activo
-  );
-}
+  alternarEstadoProducto(producto: Producto): void {
+    this.catalogoProductos.actualizarEstadoProducto(
+      producto.id,
+      !producto.activo,
+    );
+  }
 
   borrarProducto(producto: Producto): void {
-  const confirmado = window.confirm(
-    `¿Quieres borrar "${producto.nombre}"? El producto dejará de aparecer en el sistema.`
-  );
+    const confirmado = window.confirm(
+      `¿Quieres borrar "${producto.nombre}"? El producto dejará de aparecer en el sistema.`,
+    );
 
-  if (confirmado) {
-    this.catalogoProductos.borrarProducto(producto.id);
+    if (confirmado) {
+      this.catalogoProductos.borrarProducto(producto.id);
 
-    if (this.editingId() === producto.id) {
-      this.reiniciarFormulario();
+      if (this.editingId() === producto.id) {
+        this.reiniciarFormulario();
+      }
     }
   }
-}
 
   cambiarBusqueda(valor: string): void {
     this.busqueda.set(valor);
+  }
+
+  consultarStockPorId(): void {
+    const id = this.stockLookupId();
+
+    if (!id || id <= 0) {
+      this.selectedStock.set(null);
+      this.stockLookupError.set(
+        'Introduce un identificador de producto valido.',
+      );
+      return;
+    }
+
+    try {
+      this.selectedStock.set(this.stockService.getProductStockById(id));
+      this.stockLookupError.set('');
+    } catch (error) {
+      this.selectedStock.set(null);
+      this.stockLookupError.set(
+        error instanceof StockProductNotFoundError
+          ? error.message
+          : 'No se ha podido consultar el stock del producto.',
+      );
+    }
   }
 
   formatearPrecio(precio: number): string {
@@ -166,7 +233,7 @@ export class AdminProductsComponent implements OnInit {
   }
 
   private convertirFormularioAPayload(
-    form: FormularioProducto
+    form: FormularioProducto,
   ): ProductoPayload {
     return {
       nombre: form.nombre.trim(),

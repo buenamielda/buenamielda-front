@@ -1,10 +1,10 @@
 $brand-dark: #272727;
-$brand-brown: #2C1810;
-$brand-mid: #5C3D2E;
-$brand-gold: #E6AC00;
-$brand-bg: #FAF7F2;
-$brand-soft: #F0EAE0;
-$font-serif: 'Georgia', 'Times New Roman', serif;
+$brand-brown: #2c1810;
+$brand-mid: #5c3d2e;
+$brand-gold: #e6ac00;
+$brand-bg: #faf7f2;
+$brand-soft: #f0eae0;
+$font-serif: "Georgia", "Times New Roman", serif;
 
 :host {
   display: block;
@@ -84,6 +84,180 @@ $font-serif: 'Georgia', 'Times New Roman', serif;
   grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
   gap: 1.5rem;
   align-items: start;
+}
+
+.stock-panel {
+  margin-bottom: 1.5rem;
+  padding: 1.35rem;
+  border: 1px solid rgba($brand-brown, 0.08);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba($brand-brown, 0.06);
+}
+
+.stock-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 1.25rem;
+
+  p:not(.admin-kicker) {
+    max-width: 680px;
+    margin: 0.45rem 0 0;
+    color: rgba($brand-dark, 0.68);
+    font-family: $font-serif;
+    line-height: 1.55;
+  }
+}
+
+.stock-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 104px);
+  gap: 0.75rem;
+
+  article {
+    min-height: 76px;
+    padding: 0.85rem;
+    border-radius: 10px;
+    background: $brand-bg;
+    text-align: center;
+  }
+
+  strong,
+  span {
+    display: block;
+    font-family: $font-serif;
+  }
+
+  strong {
+    color: $brand-gold;
+    font-size: 1.45rem;
+  }
+
+  span {
+    color: $brand-mid;
+    font-size: 0.85rem;
+  }
+}
+
+.stock-tools {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(260px, 420px);
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+
+  label {
+    display: grid;
+    gap: 0.45rem;
+    color: $brand-mid;
+    font-family: $font-serif;
+    font-size: 0.95rem;
+  }
+}
+
+.stock-lookup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+
+  button {
+    min-height: 42px;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 8px;
+    background: $brand-gold;
+    color: #fff;
+    font-family: $font-serif;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.stock-error {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  background: rgba(#8a2c1c, 0.08);
+  color: #8a2c1c;
+  font-family: $font-serif;
+}
+
+.selected-stock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba($brand-gold, 0.28);
+  border-radius: 10px;
+  background: rgba($brand-gold, 0.08);
+
+  span,
+  strong,
+  h3 {
+    font-family: $font-serif;
+  }
+
+  span:first-child {
+    display: block;
+    color: rgba($brand-dark, 0.62);
+    font-size: 0.86rem;
+  }
+
+  h3 {
+    margin: 0.15rem 0 0;
+    color: $brand-brown;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  strong {
+    color: $brand-dark;
+  }
+}
+
+.stock-table {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba($brand-brown, 0.08);
+  border-radius: 10px;
+}
+
+.stock-row {
+  display: grid;
+  grid-template-columns: 80px minmax(180px, 1fr) 110px 110px 110px;
+  gap: 1rem;
+  align-items: center;
+  min-height: 58px;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  color: rgba($brand-dark, 0.78);
+  font-family: $font-serif;
+
+  &:nth-child(odd):not(.stock-row-header) {
+    background: $brand-bg;
+  }
+
+  &.stock-alert {
+    background: rgba(#8a2c1c, 0.06);
+  }
+
+  strong {
+    min-width: 0;
+    color: $brand-brown;
+  }
+}
+
+.stock-row-header {
+  min-height: 46px;
+  background: $brand-soft;
+  color: $brand-mid;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .product-form,
@@ -292,15 +466,29 @@ textarea:focus {
     font-size: 0.85rem;
 
     &.danger {
-      color: #8A2C1C;
+      color: #8a2c1c;
     }
   }
 }
 
 @media (max-width: 991.98px) {
   .admin-header,
-  .admin-layout {
+  .admin-layout,
+  .stock-heading,
+  .stock-tools {
     grid-template-columns: 1fr;
+  }
+
+  .selected-stock {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stock-table {
+    overflow-x: auto;
+  }
+
+  .stock-row {
+    min-width: 620px;
   }
 
   .admin-stats {
@@ -323,10 +511,12 @@ textarea:focus {
 
 @media (max-width: 575.98px) {
   .form-row,
-  .admin-stats {
+  .admin-stats,
+  .stock-summary,
+  .stock-lookup,
+  .selected-stock {
     grid-template-columns: 1fr;
   }
-
   .list-toolbar {
     align-items: stretch;
     flex-direction: column;

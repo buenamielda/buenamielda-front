@@ -2,8 +2,10 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 
 import {
+  ActualizarEstadoPedidoRequestDto,
   CrearPedidoRequestDto,
   LineaPedidoResponseDto,
+  PedidoEstado,
   PedidoResponseDto,
 } from '../models/order.model';
 import { CartItem, CartService } from './cart.service';
@@ -50,6 +52,18 @@ export class OrderStateError extends Error {
   }
 }
 
+export class InvalidOrderStatusError extends Error {
+  constructor(estado: string) {
+    super(`El estado "${estado}" no es valido.`);
+  }
+}
+
+export class InvalidOrderTransitionError extends Error {
+  constructor(currentStatus: PedidoEstado, nextStatus: PedidoEstado) {
+    super(`No se puede cambiar un pedido de ${currentStatus} a ${nextStatus}.`);
+  }
+}
+
 export class PaymentAmountError extends Error {
   constructor() {
     super('El importe del pago no coincide con el total del pedido.');
@@ -61,6 +75,24 @@ export class PaymentAmountError extends Error {
 })
 export class OrderService {
   private readonly cartService = inject(CartService);
+
+  private readonly allowedStatuses: PedidoEstado[] = [
+    'PENDIENTE',
+    'PAGADO',
+    'EN_PREPARACION',
+    'ENVIADO',
+    'ENTREGADO',
+    'CANCELADO',
+  ];
+
+  private readonly allowedTransitions: Record<PedidoEstado, PedidoEstado[]> = {
+    PENDIENTE: ['PAGADO', 'CANCELADO'],
+    PAGADO: ['EN_PREPARACION', 'CANCELADO'],
+    EN_PREPARACION: ['ENVIADO', 'CANCELADO'],
+    ENVIADO: ['ENTREGADO'],
+    ENTREGADO: [],
+    CANCELADO: [],
+  };
 
   private readonly orders = signal<PedidoResponseDto[]>([]);
   private readonly lastCreatedOrder = signal<PedidoResponseDto | null>(null);
@@ -113,14 +145,40 @@ export class OrderService {
     return this.orders().find((order) => order.id === id);
   }
 
-  updateStatus(id: number, estado: string): PedidoResponseDto {
+  getOrderById(id: number): PedidoResponseDto {
     const order = this.getById(id);
 
     if (!order) {
       throw new OrderNotFoundError();
     }
 
-    const updatedOrder = { ...order, estado };
+    return order;
+  }
+
+  getOrderStatus(id: number): PedidoEstado {
+    return this.getOrderById(id).estado;
+  }
+
+  updateStatus(
+    id: number,
+    request: ActualizarEstadoPedidoRequestDto,
+  ): PedidoResponseDto {
+    const order = this.getOrderById(id);
+    const estado = request.estado;
+
+    if (!this.isValidStatus(estado)) {
+      throw new InvalidOrderStatusError(estado);
+    }
+
+    if (order.estado === estado) {
+      return order;
+    }
+
+    if (!this.canTransition(order.estado, estado)) {
+      throw new InvalidOrderTransitionError(order.estado, estado);
+    }
+
+    const updatedOrder: PedidoResponseDto = { ...order, estado };
 
     this.orders.update((orders) =>
       orders.map((currentOrder) =>
@@ -137,11 +195,7 @@ export class OrderService {
     idUsuario: number,
     importe: number,
   ): PedidoResponseDto {
-    const order = this.getById(idPedido);
-
-    if (!order) {
-      throw new OrderNotFoundError();
-    }
+    const order = this.getOrderById(idPedido);
 
     if (order.idUsuario !== idUsuario) {
       throw new OrderOwnershipError();
@@ -172,5 +226,16 @@ export class OrderService {
 
   private nextId(): number {
     return Math.max(0, ...this.orders().map((order) => order.id)) + 1;
+  }
+
+  private isValidStatus(estado: string): estado is PedidoEstado {
+    return this.allowedStatuses.includes(estado as PedidoEstado);
+  }
+
+  private canTransition(
+    currentStatus: PedidoEstado,
+    nextStatus: PedidoEstado,
+  ): boolean {
+    return this.allowedTransitions[currentStatus].includes(nextStatus);
   }
 }

@@ -3,6 +3,18 @@ export interface CrearPedidoRequestDto {
   idCarrito: number;
 }
 
+export type PedidoEstado =
+  | 'PENDIENTE'
+  | 'PAGADO'
+  | 'EN_PREPARACION'
+  | 'ENVIADO'
+  | 'ENTREGADO'
+  | 'CANCELADO';
+
+export interface ActualizarEstadoPedidoRequestDto {
+  estado: PedidoEstado;
+}
+
 export interface LineaPedidoResponseDto {
   id: number;
   cantidad: number;
@@ -16,7 +28,7 @@ export interface LineaPedidoResponseDto {
 export interface PedidoResponseDto {
   id: number;
   fechaPedido: string;
-  estado: string;
+  estado: PedidoEstado;
   total: number;
   idUsuario: number;
   lineas: LineaPedidoResponseDto[];

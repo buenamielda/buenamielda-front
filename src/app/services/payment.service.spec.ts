@@ -4,11 +4,13 @@ import { Producto } from '../models/product.model';
 import { CartService } from './cart.service';
 import { OrderService, OrderStateError } from './order.service';
 import { PaymentFailedError, PaymentService } from './payment.service';
+import { StockService } from './stock.service';
 
 describe('PaymentService', () => {
   let paymentService: PaymentService;
   let orderService: OrderService;
   let cartService: CartService;
+  let stockService: jasmine.SpyObj<StockService>;
 
   const product: Producto = {
     id: 1,
@@ -22,7 +24,13 @@ describe('PaymentService', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    stockService = jasmine.createSpyObj<StockService>('StockService', [
+      'updateStockForOrder',
+    ]);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: StockService, useValue: stockService }],
+    });
 
     paymentService = TestBed.inject(PaymentService);
     orderService = TestBed.inject(OrderService);
@@ -45,6 +53,9 @@ describe('PaymentService', () => {
           })
           .subscribe((payment) => {
             expect(payment.estado).toBe('ACEPTADO');
+            expect(stockService.updateStockForOrder).toHaveBeenCalledOnceWith({
+              idPedido: order.id,
+            });
             expect(orderService.getOrderStatus(order.id)).toBe('PAGADO');
           });
       });
@@ -73,10 +84,12 @@ describe('PaymentService', () => {
             metodoPago: 'TARJETA',
           }),
         ).toThrowError(OrderStateError);
+
+        expect(stockService.updateStockForOrder).toHaveBeenCalledTimes(1);
       });
   });
 
-  it('should keep order as PENDIENTE when payment fails', () => {
+  it('should keep order as PENDIENTE and not update stock when payment fails', () => {
     cartService.add(product, 1);
 
     orderService
@@ -93,6 +106,7 @@ describe('PaymentService', () => {
             next: () => fail('Expected PaymentFailedError'),
             error: (error) => {
               expect(error).toEqual(jasmine.any(PaymentFailedError));
+              expect(stockService.updateStockForOrder).not.toHaveBeenCalled();
               expect(orderService.getOrderStatus(order.id)).toBe('PENDIENTE');
             },
           });

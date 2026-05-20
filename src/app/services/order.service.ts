@@ -173,16 +173,8 @@ export class OrderService {
     return updatedOrder;
   }
 
-  validatePayableOrder(
-    idPedido: number,
-    idUsuario: number,
-    importe: number,
-  ): PedidoResponseDto {
+  validatePayableOrder(idPedido: number, importe: number): PedidoResponseDto {
     const order = this.getOrderById(idPedido);
-
-    if (order.idUsuario !== idUsuario) {
-      throw new OrderOwnershipError();
-    }
 
     if (order.estado !== 'CREADO' && order.estado !== 'PENDIENTE') {
       throw new OrderStateError();

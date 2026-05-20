@@ -1,139 +1,144 @@
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
-import { Producto } from '../models/product.model';
-import { CartService } from './cart.service';
 import { OrderService, OrderStateError } from './order.service';
 import { PaymentFailedError, PaymentService } from './payment.service';
-import { InsufficientStockError, StockService } from './stock.service';
 
 describe('PaymentService', () => {
   let paymentService: PaymentService;
   let orderService: OrderService;
-  let cartService: CartService;
-  let stockService: jasmine.SpyObj<StockService>;
+  let httpMock: HttpTestingController;
 
-  const product: Producto = {
-    id: 1,
-    nombre: 'Miel de tomillo',
-    descripcion: 'Miel natural',
-    precio: 8.5,
-    stock: 10,
-    imagenUrl: 'assets/images/miel-tomillo.svg',
-    activo: true,
-    nombreCategoria: 'Miel',
+  const apiOrder = {
+    idPedido: 5,
+    fechaPedido: '2026-05-20T12:00:00',
+    estado: 'CREADO',
+    total: 17,
+    idUsuario: 7,
+    lineas: [
+      {
+        idLineaPedido: 1,
+        cantidad: 2,
+        idProducto: 1,
+        nombreProducto: 'Miel de tomillo',
+        precioUnitario: 8.5,
+        subtotal: 17,
+      },
+    ],
   };
 
   beforeEach(() => {
-    stockService = jasmine.createSpyObj<StockService>('StockService', [
-      'assertStockAvailable',
-      'updateStockForLines',
-    ]);
-
     TestBed.configureTestingModule({
-      providers: [{ provide: StockService, useValue: stockService }],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
 
     paymentService = TestBed.inject(PaymentService);
     orderService = TestBed.inject(OrderService);
-    cartService = TestBed.inject(CartService);
-    cartService.clear();
+    httpMock = TestBed.inject(HttpTestingController);
+
+    orderService.createFromCart().subscribe();
+    httpMock.expectOne('/api/pedidos').flush(apiOrder);
   });
 
-  it('should validate and update stock after successful payment', () => {
-    cartService.add(product, 2);
+  afterEach(() => {
+    httpMock.verify();
+  });
 
-    orderService
-      .createFromCart({ idUsuario: 7, idCarrito: 1 })
-      .subscribe((order) => {
-        paymentService
-          .payOrder({
-            idPedido: order.id,
-            idUsuario: 7,
-            importe: order.total,
-            metodoPago: 'TARJETA',
-          })
-          .subscribe((payment) => {
-            expect(payment.estado).toBe('ACEPTADO');
-            expect(stockService.updateStockForLines).toHaveBeenCalledOnceWith(
-              order.lineas,
-            );
-            expect(orderService.getOrderStatus(order.id)).toBe('PAGADO');
-          });
+  it('should call payment endpoint and create a local accepted payment', () => {
+    paymentService
+      .payOrder({
+        idPedido: 5,
+        importe: 17,
+        metodoPago: 'TARJETA',
+      })
+      .subscribe((payment) => {
+        expect(payment.idPedido).toBe(5);
+        expect(payment.importe).toBe(17);
+        expect(payment.estado).toBe('ACEPTADO');
+        expect(orderService.getOrderStatus(5)).toBe('PAGADO');
       });
+
+    const request = httpMock.expectOne('/api/pedidos/pagar');
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toBeNull();
+
+    request.flush(null);
   });
 
-  it('should not complete payment if stock validation fails during payment', () => {
-    stockService.updateStockForLines.and.throwError(
-      new InsufficientStockError('Miel de tomillo'),
+  it('should not call backend when simulated payment provider fails', () => {
+    paymentService
+      .payOrder({
+        idPedido: 5,
+        importe: 17,
+        metodoPago: 'SIMULATED_FAIL',
+      })
+      .subscribe({
+        next: () => fail('Expected PaymentFailedError'),
+        error: (error) => {
+          expect(error).toEqual(jasmine.any(PaymentFailedError));
+          expect(orderService.getOrderStatus(5)).toBe('CREADO');
+        },
+      });
+
+    httpMock.expectNone('/api/pedidos/pagar');
+  });
+
+  it('should map forbidden payment response to PaymentFailedError', () => {
+    paymentService
+      .payOrder({
+        idPedido: 5,
+        importe: 17,
+        metodoPago: 'TARJETA',
+      })
+      .subscribe({
+        next: () => fail('Expected PaymentFailedError'),
+        error: (error) => {
+          expect(error).toEqual(jasmine.any(PaymentFailedError));
+          expect(orderService.getOrderStatus(5)).toBe('CREADO');
+        },
+      });
+
+    httpMock.expectOne('/api/pedidos/pagar').flush(
+      {},
+      { status: 403, statusText: 'Forbidden' },
     );
-
-    cartService.add(product, 2);
-
-    orderService
-      .createFromCart({ idUsuario: 7, idCarrito: 1 })
-      .subscribe((order) => {
-        expect(() =>
-          paymentService.payOrder({
-            idPedido: order.id,
-            idUsuario: 7,
-            importe: order.total,
-            metodoPago: 'TARJETA',
-          }),
-        ).toThrowError(InsufficientStockError);
-
-        expect(orderService.getOrderStatus(order.id)).toBe('PENDIENTE');
-      });
   });
 
-  it('should not update stock when payment provider fails', () => {
-    cartService.add(product, 1);
+  it('should not allow paying an order twice locally', () => {
+    paymentService
+      .payOrder({
+        idPedido: 5,
+        importe: 17,
+        metodoPago: 'TARJETA',
+      })
+      .subscribe();
 
-    orderService
-      .createFromCart({ idUsuario: 7, idCarrito: 1 })
-      .subscribe((order) => {
-        paymentService
-          .payOrder({
-            idPedido: order.id,
-            idUsuario: 7,
-            importe: order.total,
-            metodoPago: 'SIMULATED_FAIL',
-          })
-          .subscribe({
-            next: () => fail('Expected PaymentFailedError'),
-            error: (error) => {
-              expect(error).toEqual(jasmine.any(PaymentFailedError));
-              expect(stockService.updateStockForLines).not.toHaveBeenCalled();
-              expect(orderService.getOrderStatus(order.id)).toBe('PENDIENTE');
-            },
-          });
-      });
+    httpMock.expectOne('/api/pedidos/pagar').flush(null);
+
+    expect(orderService.getOrderStatus(5)).toBe('PAGADO');
+
+    expect(() =>
+      paymentService.payOrder({
+        idPedido: 5,
+        importe: 17,
+        metodoPago: 'TARJETA',
+      }),
+    ).toThrowError(OrderStateError);
+
+    httpMock.expectNone('/api/pedidos/pagar');
   });
 
-  it('should not allow paying an order twice', () => {
-    cartService.add(product, 1);
+  it('should not allow paying with a wrong amount', () => {
+    expect(() =>
+      paymentService.payOrder({
+        idPedido: 5,
+        importe: 99,
+        metodoPago: 'TARJETA',
+      }),
+    ).toThrowError('El importe del pago no coincide con el total del pedido.');
 
-    orderService
-      .createFromCart({ idUsuario: 7, idCarrito: 1 })
-      .subscribe((order) => {
-        paymentService
-          .payOrder({
-            idPedido: order.id,
-            idUsuario: 7,
-            importe: order.total,
-            metodoPago: 'TARJETA',
-          })
-          .subscribe();
-
-        expect(() =>
-          paymentService.payOrder({
-            idPedido: order.id,
-            idUsuario: 7,
-            importe: order.total,
-            metodoPago: 'TARJETA',
-          }),
-        ).toThrowError(OrderStateError);
-
-        expect(stockService.updateStockForLines).toHaveBeenCalledTimes(1);
-      });
+    httpMock.expectNone('/api/pedidos/pagar');
   });
 });

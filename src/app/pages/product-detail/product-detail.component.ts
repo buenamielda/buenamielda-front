@@ -29,11 +29,11 @@ export class ProductDetailComponent implements OnInit {
   readonly error = this.productCatalog.error;
 
   readonly idProducto = computed(() =>
-    Number(this.route.snapshot.paramMap.get('id'))
+    Number(this.route.snapshot.paramMap.get('id')),
   );
 
   readonly producto = computed<Producto | undefined>(() =>
-    this.productCatalog.obtenerPorId(this.idProducto())
+    this.productCatalog.obtenerPorId(this.idProducto()),
   );
 
   readonly total = computed(() => {
@@ -76,8 +76,16 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    this.cartService.add(producto, this.cantidad(), this.modoCompra());
-    this.router.navigate(['/carrito']);
+    this.cartService
+      .add(producto, this.cantidad(), this.modoCompra())
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/carrito']);
+        },
+        error: () => {
+          this.router.navigate(['/login']);
+        },
+      });
   }
 
   formatearPrecio(precio: number): string {

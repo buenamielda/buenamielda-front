@@ -32,7 +32,6 @@ export interface PedidoResponseDto {
 
 export interface PagoRequestDto {
   idPedido: number;
-  idUsuario: number;
   importe: number;
   metodoPago: string;
 }

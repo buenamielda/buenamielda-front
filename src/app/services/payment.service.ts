@@ -1,9 +1,9 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
 
 import { PagoRequestDto, PagoResponseDto } from '../models/order.model';
 import { OrderService } from './order.service';
-import { StockService } from './stock.service';
 
 export class PaymentFailedError extends Error {
   constructor() {
@@ -15,37 +15,45 @@ export class PaymentFailedError extends Error {
   providedIn: 'root',
 })
 export class PaymentService {
+  private readonly http = inject(HttpClient);
   private readonly orderService = inject(OrderService);
-  private readonly stockService = inject(StockService);
+  private readonly apiUrl = '/api/pedidos/pagar';
+
   private readonly payments = signal<PagoResponseDto[]>([]);
 
   readonly allPayments = this.payments.asReadonly();
 
   payOrder(request: PagoRequestDto): Observable<PagoResponseDto> {
-    this.orderService.validatePayableOrder(
-      request.idPedido,
-      request.idUsuario,
-      request.importe,
-    );
+    this.orderService.validatePayableOrder(request.idPedido, request.importe);
 
     if (request.metodoPago === 'SIMULATED_FAIL') {
       return throwError(() => new PaymentFailedError());
     }
 
-    const payment: PagoResponseDto = {
+    return this.http.post<void>(this.apiUrl, null).pipe(
+      map(() => this.createLocalPayment(request)),
+      tap((payment) => {
+        this.payments.update((payments) => [...payments, payment]);
+        this.orderService.updateStatus(request.idPedido, { estado: 'PAGADO' });
+      }),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 || error.status === 403) {
+          return throwError(() => new PaymentFailedError());
+        }
+
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  private createLocalPayment(request: PagoRequestDto): PagoResponseDto {
+    return {
       id: this.nextId(),
       idPedido: request.idPedido,
       importe: request.importe,
       estado: 'ACEPTADO',
       fechaPago: new Date().toISOString(),
     };
-
-    const order = this.orderService.getOrderById(request.idPedido);
-    this.stockService.updateStockForLines(order.lineas);
-    this.payments.update((payments) => [...payments, payment]);
-    this.orderService.updateStatus(request.idPedido, { estado: 'PAGADO' });
-
-    return of(payment);
   }
 
   private nextId(): number {

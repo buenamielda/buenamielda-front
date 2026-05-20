@@ -85,15 +85,6 @@ export class PaymentComponent {
       this.errorMessage.set('Inicia sesion para poder pagar el pedido.');
       return;
     }
-    
-    const idUsuario = this.authService.getAuthenticatedUserId();
-
-    if (!idUsuario) {
-      this.errorMessage.set(
-        'No se ha podido identificar el usuario autenticado.',
-      );
-      return;
-    }
 
     if (!order) {
       this.errorMessage.set('No hay ningun pedido pendiente de pago.');
@@ -115,7 +106,6 @@ export class PaymentComponent {
     this.paymentService
       .payOrder({
         idPedido: order.id,
-        idUsuario,
         importe: order.total,
         metodoPago: 'TARJETA',
       })

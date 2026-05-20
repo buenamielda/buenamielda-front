@@ -239,7 +239,7 @@ export class AdminProductsComponent implements OnInit {
       nombre: form.nombre.trim(),
       descripcion: form.descripcion.trim(),
       precio: Number(form.precio) || 0,
-      stock: Number(form.stock) || 1,
+      stock: Math.max(0, Number(form.stock) || 0),
       imagenUrl: form.imagenUrl.trim() || 'assets/images/miel-tomillo.svg',
       idCategoria: Number(form.idCategoria) || 1,
       nombreCategoria: form.nombreCategoria,

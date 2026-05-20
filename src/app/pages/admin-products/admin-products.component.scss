@@ -304,6 +304,10 @@ h2 {
   gap: 0.85rem;
 }
 
+.three-cols {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 input,
 select,
 textarea {
@@ -511,6 +515,7 @@ textarea:focus {
 
 @media (max-width: 575.98px) {
   .form-row,
+  .three-cols,
   .admin-stats,
   .stock-summary,
   .stock-lookup,

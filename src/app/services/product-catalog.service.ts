@@ -129,31 +129,31 @@ export class ProductCatalogService {
   }
 
   actualizarStockLocal(id: number, stock: number): void {
-  this.productosSignal.update((productos) =>
-    productos.map((producto) =>
-      producto.id === id
-        ? { ...producto, stock: Math.max(0, stock) }
-        : producto,
-    ),
-  );
-}
+    this.productosSignal.update((productos) =>
+      productos.map((producto) =>
+        producto.id === id
+          ? { ...producto, stock: Math.max(0, stock) }
+          : producto,
+      ),
+    );
+  }
 
-descontarStockLocal(id: number, cantidad: number): void {
-  this.productosSignal.update((productos) =>
-    productos.map((producto) =>
-      producto.id === id
-        ? { ...producto, stock: Math.max(0, producto.stock - cantidad) }
-        : producto,
-    ),
-  );
-}
+  descontarStockLocal(id: number, cantidad: number): void {
+    this.productosSignal.update((productos) =>
+      productos.map((producto) =>
+        producto.id === id
+          ? { ...producto, stock: Math.max(0, producto.stock - cantidad) }
+          : producto,
+      ),
+    );
+  }
 
   private toRequestDto(producto: ProductoPayload) {
     return {
       nombre: producto.nombre.trim(),
       descripcion: producto.descripcion?.trim() ?? '',
       precio: Number(producto.precio) || 0,
-      stock: Number(producto.stock) > 0 ? Number(producto.stock) : 1,
+      stock: Math.max(0, Number(producto.stock) || 0),
       imagenUrl: producto.imagenUrl?.trim() || 'assets/images/miel-tomillo.svg',
       idCategoria:
         producto.idCategoria ||

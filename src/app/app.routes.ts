@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ProductGridComponent } from './shared/product/product.component';
+import { adminGuard } from './services/admin.guard';
 
 export const routes: Routes = [
   {
@@ -23,6 +24,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin/productos',
+    canActivate: [adminGuard],
     loadComponent: () =>
       import('./pages/admin-products/admin-products.component').then(
         (m) => m.AdminProductsComponent,

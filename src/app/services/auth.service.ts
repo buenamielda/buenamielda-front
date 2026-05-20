@@ -152,10 +152,7 @@ export class AuthService {
   }
 
   hasActiveSession(): boolean {
-    return (
-      this.authenticatedUser() !== null &&
-      this.getAuthenticatedUserId() !== null
-    );
+    return this.getToken() !== null && this.getAuthenticatedUserId() !== null;
   }
 
   getAuthenticatedUserId(): number | null {
@@ -196,10 +193,12 @@ export class AuthService {
         return null;
       }
 
-      const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
-      const decodedPayload = atob(normalizedPayload);
+      const normalizedPayload = payload
+        .replace(/-/g, '+')
+        .replace(/_/g, '/')
+        .padEnd(Math.ceil(payload.length / 4) * 4, '=');
 
-      return JSON.parse(decodedPayload);
+      return JSON.parse(atob(normalizedPayload));
     } catch {
       return null;
     }
@@ -241,5 +240,25 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  getAuthenticatedRoles(): string[] {
+    const token = this.getToken();
+    const payload = token ? this.decodeTokenPayload(token) : null;
+    const roles = payload?.['roles'];
+
+    if (!Array.isArray(roles)) {
+      return [];
+    }
+
+    return roles.map(String);
+  }
+
+  hasRole(role: string): boolean {
+    return this.getAuthenticatedRoles().includes(role);
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('ADMINISTRADOR');
   }
 }

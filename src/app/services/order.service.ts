@@ -250,4 +250,82 @@ export class OrderService {
   ): boolean {
     return this.allowedTransitions[currentStatus].includes(nextStatus);
   }
+
+  getOrderByIdFromApi(id: number): Observable<PedidoResponseDto> {
+    return this.http.get<PedidoApiResponseDto>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => this.mapApiOrder(response)),
+      tap((pedido) => {
+        this.upsertOrder(pedido);
+        this.lastCreatedOrder.set(pedido);
+      }),
+      catchError((error: HttpErrorResponse) => this.handleGetOrderError(error)),
+    );
+  }
+
+  updateStatusFromApi(
+    id: number,
+    request: ActualizarEstadoPedidoRequestDto,
+  ): Observable<PedidoResponseDto> {
+    const estado = request.estado;
+
+    if (!this.isValidStatus(estado)) {
+      return throwError(() => new InvalidOrderStatusError(estado));
+    }
+
+    return this.http
+      .patch<PedidoApiResponseDto>(`${this.apiUrl}/${id}/estado`, request)
+      .pipe(
+        map((response) => this.mapApiOrder(response)),
+        tap((pedido) => {
+          this.upsertOrder(pedido);
+          this.lastCreatedOrder.set(pedido);
+        }),
+        catchError((error: HttpErrorResponse) =>
+          this.handleUpdateStatusError(error),
+        ),
+      );
+  }
+
+  updateStatusLocal(
+    id: number,
+    request: ActualizarEstadoPedidoRequestDto,
+  ): PedidoResponseDto {
+    return this.updateStatus(id, request);
+  }
+
+  private upsertOrder(pedido: PedidoResponseDto): void {
+    this.orders.update((orders) => {
+      const exists = orders.some((order) => order.id === pedido.id);
+
+      if (!exists) {
+        return [...orders, pedido];
+      }
+
+      return orders.map((order) => (order.id === pedido.id ? pedido : order));
+    });
+  }
+
+  private handleGetOrderError(error: HttpErrorResponse): Observable<never> {
+    if (error.status === 401 || error.status === 403) {
+      return throwError(() => new AuthRequiredError());
+    }
+
+    if (error.status === 404) {
+      return throwError(() => new OrderNotFoundError());
+    }
+
+    return throwError(() => error);
+  }
+
+  private handleUpdateStatusError(error: HttpErrorResponse): Observable<never> {
+    if (error.status === 401 || error.status === 403) {
+      return throwError(() => new AuthRequiredError());
+    }
+
+    if (error.status === 404) {
+      return throwError(() => new OrderNotFoundError());
+    }
+
+    return throwError(() => error);
+  }
 }

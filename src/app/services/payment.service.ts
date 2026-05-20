@@ -34,7 +34,9 @@ export class PaymentService {
       map(() => this.createLocalPayment(request)),
       tap((payment) => {
         this.payments.update((payments) => [...payments, payment]);
-        this.orderService.updateStatus(request.idPedido, { estado: 'PAGADO' });
+        this.orderService.updateStatusLocal(request.idPedido, {
+          estado: 'PAGADO',
+        });
       }),
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401 || error.status === 403) {

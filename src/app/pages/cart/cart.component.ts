@@ -39,13 +39,16 @@ export class CartComponent {
   readonly creatingOrder = signal(false);
 
   increaseQuantity(item: CartItem): void {
-    this.cartService.increase(item.product.id, item.purchaseMode);
+    this.cartService.increase(item).subscribe();
   }
 
   decreaseQuantity(item: CartItem): void {
-    this.cartService.decrease(item.product.id, item.purchaseMode);
+    this.cartService.decrease(item).subscribe();
   }
 
+  removeItem(item: CartItem): void {
+    this.cartService.remove(item).subscribe();
+  }
   itemTotal(item: CartItem): number {
     return item.product.precio * item.quantity;
   }
@@ -58,10 +61,6 @@ export class CartComponent {
 
   formatPrice(precio: number): string {
     return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
-  }
-
-  removeItem(item: CartItem): void {
-    this.cartService.remove(item.product.id, item.purchaseMode);
   }
 
   confirmCart(): void {

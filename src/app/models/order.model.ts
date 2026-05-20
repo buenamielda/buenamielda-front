@@ -1,9 +1,5 @@
-export interface CrearPedidoRequestDto {
-  idUsuario: number;
-  idCarrito: number;
-}
-
 export type PedidoEstado =
+  | 'CREADO'
   | 'PENDIENTE'
   | 'PAGADO'
   | 'EN_PREPARACION'

@@ -1,15 +1,32 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
 
 import {
   ActualizarEstadoPedidoRequestDto,
-  CrearPedidoRequestDto,
   LineaPedidoResponseDto,
   PedidoEstado,
   PedidoResponseDto,
 } from '../models/order.model';
-import { CartItem, CartService } from './cart.service';
-import { StockService } from './stock.service';
+import { CartService } from './cart.service';
+
+interface PedidoApiResponseDto {
+  idPedido: number;
+  fechaPedido: string;
+  estado: string;
+  total: number;
+  idUsuario: number;
+  lineas: LineaPedidoApiResponseDto[];
+}
+
+interface LineaPedidoApiResponseDto {
+  idLineaPedido: number;
+  cantidad: number;
+  idProducto: number;
+  nombreProducto: string;
+  precioUnitario: number;
+  subtotal: number;
+}
 
 export class EmptyCartError extends Error {
   constructor() {
@@ -63,10 +80,12 @@ export class PaymentAmountError extends Error {
   providedIn: 'root',
 })
 export class OrderService {
+  private readonly http = inject(HttpClient);
   private readonly cartService = inject(CartService);
-  private readonly stockService = inject(StockService);
+  private readonly apiUrl = '/api/pedidos';
 
   private readonly allowedStatuses: PedidoEstado[] = [
+    'CREADO',
     'PENDIENTE',
     'PAGADO',
     'EN_PREPARACION',
@@ -76,6 +95,7 @@ export class OrderService {
   ];
 
   private readonly allowedTransitions: Record<PedidoEstado, PedidoEstado[]> = {
+    CREADO: ['PAGADO', 'CANCELADO'],
     PENDIENTE: ['PAGADO', 'CANCELADO'],
     PAGADO: ['EN_PREPARACION', 'CANCELADO'],
     EN_PREPARACION: ['ENVIADO', 'CANCELADO'],
@@ -90,41 +110,18 @@ export class OrderService {
   readonly allOrders = this.orders.asReadonly();
   readonly lastOrder = this.lastCreatedOrder.asReadonly();
 
-  createFromCart(
-    request: CrearPedidoRequestDto,
-  ): Observable<PedidoResponseDto> {
-    const items = this.cartService.items();
-
-    if (items.length === 0) {
-      return throwError(() => new EmptyCartError());
-    }
-
-    for (const item of items) {
-      try {
-        this.stockService.assertStockAvailable(item.product.id, item.quantity);
-      } catch (error) {
-        return throwError(() => error);
-      }
-    }
-
-    const lineas = items.map((item, index) =>
-      this.toOrderLine(item, index + 1),
+  createFromCart(): Observable<PedidoResponseDto> {
+    return this.http.post<PedidoApiResponseDto>(this.apiUrl, null).pipe(
+      map((response) => this.mapApiOrder(response)),
+      tap((pedido) => {
+        this.orders.update((orders) => [...orders, pedido]);
+        this.lastCreatedOrder.set(pedido);
+        this.cartService.clear();
+      }),
+      catchError((error: HttpErrorResponse) =>
+        this.handleCreateOrderError(error),
+      ),
     );
-
-    const pedido: PedidoResponseDto = {
-      id: this.nextId(),
-      fechaPedido: new Date().toISOString(),
-      estado: 'PENDIENTE',
-      total: lineas.reduce((total, line) => total + line.subtotal, 0),
-      idUsuario: request.idUsuario,
-      lineas,
-    };
-
-    this.orders.update((orders) => [...orders, pedido]);
-    this.lastCreatedOrder.set(pedido);
-    this.cartService.clear();
-
-    return of(pedido);
   }
 
   getById(id: number): PedidoResponseDto | undefined {
@@ -187,7 +184,7 @@ export class OrderService {
       throw new OrderOwnershipError();
     }
 
-    if (order.estado !== 'PENDIENTE') {
+    if (order.estado !== 'CREADO' && order.estado !== 'PENDIENTE') {
       throw new OrderStateError();
     }
 
@@ -198,20 +195,57 @@ export class OrderService {
     return order;
   }
 
-  private toOrderLine(item: CartItem, lineId: number): LineaPedidoResponseDto {
+  private mapApiOrder(response: PedidoApiResponseDto): PedidoResponseDto {
     return {
-      id: lineId,
-      cantidad: item.quantity,
-      idProducto: item.product.id,
-      nombreProducto: item.product.nombre,
-      precioUnitario: item.product.precio,
-      subtotal: item.product.precio * item.quantity,
-      imagenProducto: item.product.imagenUrl,
+      id: response.idPedido,
+      fechaPedido: response.fechaPedido,
+      estado: response.estado as PedidoEstado,
+      total: Number(response.total),
+      idUsuario: response.idUsuario,
+      lineas: response.lineas.map((line) => this.mapApiLine(line)),
     };
   }
 
-  private nextId(): number {
-    return Math.max(0, ...this.orders().map((order) => order.id)) + 1;
+  private mapApiLine(line: LineaPedidoApiResponseDto): LineaPedidoResponseDto {
+    return {
+      id: line.idLineaPedido,
+      cantidad: line.cantidad,
+      idProducto: line.idProducto,
+      nombreProducto: line.nombreProducto,
+      precioUnitario: Number(line.precioUnitario),
+      subtotal: Number(line.subtotal),
+      imagenProducto: 'assets/images/placeholder.svg',
+    };
+  }
+
+  private handleCreateOrderError(error: HttpErrorResponse): Observable<never> {
+    const message = this.getErrorMessage(error).toLowerCase();
+
+    if (error.status === 401 || error.status === 403) {
+      return throwError(() => new AuthRequiredError());
+    }
+
+    if (error.status === 400 && message.includes('carrito')) {
+      return throwError(() => new EmptyCartError());
+    }
+
+    return throwError(() => error);
+  }
+
+  private getErrorMessage(error: HttpErrorResponse): string {
+    if (typeof error.error === 'string') {
+      return error.error;
+    }
+
+    if (error.error?.message) {
+      return error.error.message;
+    }
+
+    if (error.error && typeof error.error === 'object') {
+      return Object.values(error.error).join(' ');
+    }
+
+    return '';
   }
 
   private isValidStatus(estado: string): estado is PedidoEstado {

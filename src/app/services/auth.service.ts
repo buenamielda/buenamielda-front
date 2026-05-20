@@ -152,7 +152,13 @@ export class AuthService {
   }
 
   hasActiveSession(): boolean {
-    return this.getToken() !== null && this.getAuthenticatedUserId() !== null;
+    const token = this.getToken();
+
+    if (!token) {
+      return false;
+    }
+
+    return !this.isTokenExpired(token);
   }
 
   getAuthenticatedUserId(): number | null {
@@ -260,5 +266,16 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.hasRole('ADMINISTRADOR');
+  }
+
+  private isTokenExpired(token: string): boolean {
+    const payload = this.decodeTokenPayload(token);
+    const exp = payload?.['exp'];
+
+    if (typeof exp !== 'number') {
+      return false;
+    }
+
+    return Date.now() >= exp * 1000;
   }
 }

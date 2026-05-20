@@ -72,22 +72,9 @@ export class CartComponent {
       return;
     }
 
-    const idUsuario = this.authService.getAuthenticatedUserId();
-
-    if (!idUsuario) {
-      this.orderError.set(
-        'No se ha podido identificar el usuario autenticado.',
-      );
-      return;
-    }
-
     this.creatingOrder.set(true);
-
     this.orderService
-      .createFromCart({
-        idUsuario,
-        idCarrito: this.cartService.cartId,
-      })
+      .createFromCart()
       .pipe(finalize(() => this.creatingOrder.set(false)))
       .subscribe({
         next: () => {

@@ -1,14 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 
-import { LineaPedidoResponseDto } from '../models/order.model';
 import {
   ListadoStockResponseDto,
   ProductoStockResponseDto,
   ValidarStockRequestDto,
   ValidarStockResponseDto,
 } from '../models/stock.model';
-import { ProductCatalogService } from './product-catalog.service';
 import { Producto } from '../models/product.model';
+import { ProductCatalogService } from './product-catalog.service';
 
 export class StockProductNotFoundError extends Error {
   constructor(productName: string) {
@@ -94,36 +93,6 @@ export class StockService {
     }
 
     return response;
-  }
-
-  updateStockForLines(
-    lineas: LineaPedidoResponseDto[],
-  ): ProductoStockResponseDto[] {
-    const updatedProducts = lineas.map((line) => {
-      const product = this.productCatalog.obtenerPorId(line.idProducto);
-
-      if (!product) {
-        throw new StockProductNotFoundError(line.nombreProducto);
-      }
-
-      this.assertStockAvailable(line.idProducto, line.cantidad);
-
-      return {
-        product,
-        nextStock: product.stock - line.cantidad,
-      };
-    });
-
-    updatedProducts.forEach(({ product, nextStock }) => {
-      this.productCatalog.actualizarStockLocal(product.id, nextStock);
-    });
-    return updatedProducts.map(({ product, nextStock }) => ({
-      idProducto: product.id,
-      nombre: product.nombre,
-      precio: product.precio,
-      stock: nextStock,
-      activo: product.activo,
-    }));
   }
 
   private toStockResponse(producto: Producto): ProductoStockResponseDto {

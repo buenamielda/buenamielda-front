@@ -94,6 +94,9 @@
             Total: {{ formatearPrecio(total()) }}
           </p>
 
+          <p class="cart-error" *ngIf="cartError()">{{ cartError() }}</p>
+
+
           <button
             type="button"
             class="buy-button"

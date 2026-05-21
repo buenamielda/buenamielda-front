@@ -9,6 +9,7 @@ import {
   PedidoResponseDto,
 } from '../models/order.model';
 import { CartService } from './cart.service';
+import { ProductCatalogService } from './product-catalog.service';
 
 interface PedidoApiResponseDto {
   idPedido: number;
@@ -36,7 +37,7 @@ export class EmptyCartError extends Error {
 
 export class AuthRequiredError extends Error {
   constructor() {
-    super('Inicia sesion para confirmar el carrito.');
+    super('Inicia sesion para continuar.');
   }
 }
 
@@ -46,33 +47,9 @@ export class OrderNotFoundError extends Error {
   }
 }
 
-export class OrderOwnershipError extends Error {
-  constructor() {
-    super('El pedido no pertenece al usuario autenticado.');
-  }
-}
-
-export class OrderStateError extends Error {
-  constructor() {
-    super('El pedido no esta en un estado que permita el pago.');
-  }
-}
-
 export class InvalidOrderStatusError extends Error {
   constructor(estado: string) {
     super(`El estado "${estado}" no es valido.`);
-  }
-}
-
-export class InvalidOrderTransitionError extends Error {
-  constructor(currentStatus: PedidoEstado, nextStatus: PedidoEstado) {
-    super(`No se puede cambiar un pedido de ${currentStatus} a ${nextStatus}.`);
-  }
-}
-
-export class PaymentAmountError extends Error {
-  constructor() {
-    super('El importe del pago no coincide con el total del pedido.');
   }
 }
 
@@ -82,41 +59,20 @@ export class PaymentAmountError extends Error {
 export class OrderService {
   private readonly http = inject(HttpClient);
   private readonly cartService = inject(CartService);
+  private readonly productCatalog = inject(ProductCatalogService);
   private readonly apiUrl = '/api/pedidos';
 
-  private readonly allowedStatuses: PedidoEstado[] = [
-    'CREADO',
-    'PENDIENTE',
-    'PAGADO',
-    'EN_PREPARACION',
-    'ENVIADO',
-    'ENTREGADO',
-    'CANCELADO',
-  ];
-
-  private readonly allowedTransitions: Record<PedidoEstado, PedidoEstado[]> = {
-    CREADO: ['PAGADO', 'CANCELADO'],
-    PENDIENTE: ['PAGADO', 'CANCELADO'],
-    PAGADO: ['EN_PREPARACION', 'CANCELADO'],
-    EN_PREPARACION: ['ENVIADO', 'CANCELADO'],
-    ENVIADO: ['ENTREGADO'],
-    ENTREGADO: [],
-    CANCELADO: [],
-  };
-
-  private readonly orders = signal<PedidoResponseDto[]>([]);
   private readonly lastCreatedOrder = signal<PedidoResponseDto | null>(null);
 
-  readonly allOrders = this.orders.asReadonly();
   readonly lastOrder = this.lastCreatedOrder.asReadonly();
 
   createFromCart(): Observable<PedidoResponseDto> {
     return this.http.post<PedidoApiResponseDto>(this.apiUrl, null).pipe(
       map((response) => this.mapApiOrder(response)),
       tap((pedido) => {
-        this.orders.update((orders) => [...orders, pedido]);
         this.lastCreatedOrder.set(pedido);
         this.cartService.clear();
+        this.productCatalog.cargarProductos();
       }),
       catchError((error: HttpErrorResponse) =>
         this.handleCreateOrderError(error),
@@ -124,67 +80,31 @@ export class OrderService {
     );
   }
 
-  getById(id: number): PedidoResponseDto | undefined {
-    return this.orders().find((order) => order.id === id);
+  getOrderByIdFromApi(id: number): Observable<PedidoResponseDto> {
+    return this.http.get<PedidoApiResponseDto>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => this.mapApiOrder(response)),
+      tap((pedido) => this.lastCreatedOrder.set(pedido)),
+      catchError((error: HttpErrorResponse) => this.handleGetOrderError(error)),
+    );
   }
 
-  getOrderById(id: number): PedidoResponseDto {
-    const order = this.getById(id);
-
-    if (!order) {
-      throw new OrderNotFoundError();
-    }
-
-    return order;
-  }
-
-  getOrderStatus(id: number): PedidoEstado {
-    return this.getOrderById(id).estado;
-  }
-
-  updateStatus(
+  updateStatusFromApi(
     id: number,
     request: ActualizarEstadoPedidoRequestDto,
-  ): PedidoResponseDto {
-    const order = this.getOrderById(id);
-    const estado = request.estado;
-
-    if (!this.isValidStatus(estado)) {
-      throw new InvalidOrderStatusError(estado);
+  ): Observable<PedidoResponseDto> {
+    if (!this.isValidStatus(request.estado)) {
+      return throwError(() => new InvalidOrderStatusError(request.estado));
     }
 
-    if (order.estado === estado) {
-      return order;
-    }
-
-    if (!this.canTransition(order.estado, estado)) {
-      throw new InvalidOrderTransitionError(order.estado, estado);
-    }
-
-    const updatedOrder: PedidoResponseDto = { ...order, estado };
-
-    this.orders.update((orders) =>
-      orders.map((currentOrder) =>
-        currentOrder.id === id ? updatedOrder : currentOrder,
-      ),
-    );
-
-    this.lastCreatedOrder.set(updatedOrder);
-    return updatedOrder;
-  }
-
-  validatePayableOrder(idPedido: number, importe: number): PedidoResponseDto {
-    const order = this.getOrderById(idPedido);
-
-    if (order.estado !== 'CREADO' && order.estado !== 'PENDIENTE') {
-      throw new OrderStateError();
-    }
-
-    if (Number(order.total.toFixed(2)) !== Number(importe.toFixed(2))) {
-      throw new PaymentAmountError();
-    }
-
-    return order;
+    return this.http
+      .patch<PedidoApiResponseDto>(`${this.apiUrl}/${id}/estado`, request)
+      .pipe(
+        map((response) => this.mapApiOrder(response)),
+        tap((pedido) => this.lastCreatedOrder.set(pedido)),
+        catchError((error: HttpErrorResponse) =>
+          this.handleUpdateStatusError(error),
+        ),
+      );
   }
 
   private mapApiOrder(response: PedidoApiResponseDto): PedidoResponseDto {
@@ -199,6 +119,8 @@ export class OrderService {
   }
 
   private mapApiLine(line: LineaPedidoApiResponseDto): LineaPedidoResponseDto {
+    const producto = this.productCatalog.obtenerPorId(line.idProducto);
+
     return {
       id: line.idLineaPedido,
       cantidad: line.cantidad,
@@ -206,7 +128,7 @@ export class OrderService {
       nombreProducto: line.nombreProducto,
       precioUnitario: Number(line.precioUnitario),
       subtotal: Number(line.subtotal),
-      imagenProducto: 'assets/images/placeholder.svg',
+      imagenProducto: producto?.imagenUrl || 'assets/images/placeholder.svg',
     };
   }
 
@@ -217,92 +139,11 @@ export class OrderService {
       return throwError(() => new AuthRequiredError());
     }
 
-    if (error.status === 400 && message.includes('carrito')) {
+    if (message.includes('carrito')) {
       return throwError(() => new EmptyCartError());
     }
 
     return throwError(() => error);
-  }
-
-  private getErrorMessage(error: HttpErrorResponse): string {
-    if (typeof error.error === 'string') {
-      return error.error;
-    }
-
-    if (error.error?.message) {
-      return error.error.message;
-    }
-
-    if (error.error && typeof error.error === 'object') {
-      return Object.values(error.error).join(' ');
-    }
-
-    return '';
-  }
-
-  private isValidStatus(estado: string): estado is PedidoEstado {
-    return this.allowedStatuses.includes(estado as PedidoEstado);
-  }
-
-  private canTransition(
-    currentStatus: PedidoEstado,
-    nextStatus: PedidoEstado,
-  ): boolean {
-    return this.allowedTransitions[currentStatus].includes(nextStatus);
-  }
-
-  getOrderByIdFromApi(id: number): Observable<PedidoResponseDto> {
-    return this.http.get<PedidoApiResponseDto>(`${this.apiUrl}/${id}`).pipe(
-      map((response) => this.mapApiOrder(response)),
-      tap((pedido) => {
-        this.upsertOrder(pedido);
-        this.lastCreatedOrder.set(pedido);
-      }),
-      catchError((error: HttpErrorResponse) => this.handleGetOrderError(error)),
-    );
-  }
-
-  updateStatusFromApi(
-    id: number,
-    request: ActualizarEstadoPedidoRequestDto,
-  ): Observable<PedidoResponseDto> {
-    const estado = request.estado;
-
-    if (!this.isValidStatus(estado)) {
-      return throwError(() => new InvalidOrderStatusError(estado));
-    }
-
-    return this.http
-      .patch<PedidoApiResponseDto>(`${this.apiUrl}/${id}/estado`, request)
-      .pipe(
-        map((response) => this.mapApiOrder(response)),
-        tap((pedido) => {
-          this.upsertOrder(pedido);
-          this.lastCreatedOrder.set(pedido);
-        }),
-        catchError((error: HttpErrorResponse) =>
-          this.handleUpdateStatusError(error),
-        ),
-      );
-  }
-
-  updateStatusLocal(
-    id: number,
-    request: ActualizarEstadoPedidoRequestDto,
-  ): PedidoResponseDto {
-    return this.updateStatus(id, request);
-  }
-
-  private upsertOrder(pedido: PedidoResponseDto): void {
-    this.orders.update((orders) => {
-      const exists = orders.some((order) => order.id === pedido.id);
-
-      if (!exists) {
-        return [...orders, pedido];
-      }
-
-      return orders.map((order) => (order.id === pedido.id ? pedido : order));
-    });
   }
 
   private handleGetOrderError(error: HttpErrorResponse): Observable<never> {
@@ -327,5 +168,33 @@ export class OrderService {
     }
 
     return throwError(() => error);
+  }
+
+  private getErrorMessage(error: HttpErrorResponse): string {
+    if (typeof error.error === 'string') {
+      return error.error;
+    }
+
+    if (error.error?.message) {
+      return error.error.message;
+    }
+
+    if (error.error && typeof error.error === 'object') {
+      return Object.values(error.error).join(' ');
+    }
+
+    return '';
+  }
+
+  private isValidStatus(estado: string): estado is PedidoEstado {
+    return [
+      'CREADO',
+      'PENDIENTE',
+      'PAGADO',
+      'EN_PREPARACION',
+      'ENVIADO',
+      'ENTREGADO',
+      'CANCELADO',
+    ].includes(estado);
   }
 }

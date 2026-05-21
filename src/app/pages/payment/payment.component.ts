@@ -6,13 +6,8 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { CheckoutService } from '../../services/checkout.service';
-import {
-  OrderNotFoundError,
-  OrderOwnershipError,
-  OrderService,
-  OrderStateError,
-  PaymentAmountError,
-} from '../../services/order.service';
+import { OrderService } from '../../services/order.service';
+
 import {
   PaymentFailedError,
   PaymentService,
@@ -104,24 +99,14 @@ export class PaymentComponent {
     this.loading.set(true);
 
     this.paymentService
-      .payOrder({
-        idPedido: order.id,
-        importe: order.total,
-        metodoPago: 'TARJETA',
-      })
+      .payOrder()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
           this.router.navigate(['/pedido-confirmado']);
         },
         error: (error) => {
-          if (
-            error instanceof OrderNotFoundError ||
-            error instanceof OrderOwnershipError ||
-            error instanceof OrderStateError ||
-            error instanceof PaymentAmountError ||
-            error instanceof PaymentFailedError
-          ) {
+          if (error instanceof PaymentFailedError) {
             this.errorMessage.set(error.message);
             return;
           }

@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
+import { ProductCatalogService } from './product-catalog.service';
 
 import {
   ActualizarEstadoPedidoRequestDto,
@@ -83,6 +84,7 @@ export class OrderService {
   private readonly http = inject(HttpClient);
   private readonly cartService = inject(CartService);
   private readonly apiUrl = '/api/pedidos';
+  private readonly productCatalog = inject(ProductCatalogService);
 
   private readonly allowedStatuses: PedidoEstado[] = [
     'CREADO',
@@ -117,6 +119,7 @@ export class OrderService {
         this.orders.update((orders) => [...orders, pedido]);
         this.lastCreatedOrder.set(pedido);
         this.cartService.clear();
+        this.productCatalog.cargarProductos();
       }),
       catchError((error: HttpErrorResponse) =>
         this.handleCreateOrderError(error),

@@ -119,6 +119,8 @@ export class OrderService {
   }
 
   private mapApiLine(line: LineaPedidoApiResponseDto): LineaPedidoResponseDto {
+    const producto = this.productCatalog.obtenerPorId(line.idProducto);
+
     return {
       id: line.idLineaPedido,
       cantidad: line.cantidad,
@@ -126,7 +128,7 @@ export class OrderService {
       nombreProducto: line.nombreProducto,
       precioUnitario: Number(line.precioUnitario),
       subtotal: Number(line.subtotal),
-      imagenProducto: 'assets/images/placeholder.svg',
+      imagenProducto: producto?.imagenUrl || 'assets/images/placeholder.svg',
     };
   }
 

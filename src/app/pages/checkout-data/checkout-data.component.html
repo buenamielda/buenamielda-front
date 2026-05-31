@@ -53,9 +53,19 @@
               <p>{{ address.pais }} &middot; {{ address.telefono }}</p>
             </div>
 
-            <span class="primary-address" *ngIf="address.principal">
-              Principal
-            </span>
+            <div class="saved-address-actions">
+              <span class="primary-address" *ngIf="address.principal">
+                Principal
+              </span>
+
+              <button
+                type="button"
+                class="address-action"
+                (click)="editAddress(address)"
+              >
+                Modificar
+              </button>
+            </div>
           </article>
         </section>
 
@@ -91,8 +101,24 @@
           </section>
 
           <section class="form-section">
-            <h2>Direccion de envio</h2>
+            <div class="section-heading">
+              <h2>
+                {{
+                  editingAddressId() === null
+                    ? "Nueva direccion"
+                    : "Modificar direccion"
+                }}
+              </h2>
 
+              <button
+                type="button"
+                class="address-action"
+                *ngIf="editingAddressId() !== null"
+                (click)="cancelEditing()"
+              >
+                Cancelar
+              </button>
+            </div>
             <label>
               Nombre del destinatario
               <input
@@ -237,7 +263,13 @@
               class="primary-button"
               [disabled]="savingAddress()"
             >
-              {{ savingAddress() ? "Guardando..." : "Guardar direccion" }}
+              {{
+                savingAddress()
+                  ? "Guardando..."
+                  : editingAddressId() === null
+                    ? "Guardar direccion"
+                    : "Actualizar direccion"
+              }}
             </button>
           </div>
         </form>

@@ -65,6 +65,19 @@
               >
                 Modificar
               </button>
+              <button
+                type="button"
+                class="address-action danger"
+                *ngIf="!address.principal"
+                [disabled]="deletingAddressId() === address.id"
+                (click)="deleteAddress(address)"
+              >
+                {{
+                  deletingAddressId() === address.id
+                    ? "Eliminando..."
+                    : "Eliminar"
+                }}
+              </button>
             </div>
           </article>
         </section>

@@ -1,7 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 
-import { ShippingAddress } from '../models/shipping-address.model';
+import {
+  CreateShippingAddressRequest,
+  ShippingAddress,
+} from '../models/shipping-address.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +35,19 @@ export class ShippingAddressService {
         this.loading.set(false);
       },
     });
+  }
+
+  createAddress(
+    request: CreateShippingAddressRequest,
+  ): Observable<ShippingAddress> {
+    return this.http.post<ShippingAddress>(this.apiUrl, request).pipe(
+      tap((createdAddress) => {
+        this.addressesState.update((addresses) => [
+          ...addresses,
+          createdAddress,
+        ]);
+      }),
+    );
   }
 
   private getErrorMessage(error: HttpErrorResponse): string {

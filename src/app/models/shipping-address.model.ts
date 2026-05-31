@@ -10,3 +10,14 @@ export interface ShippingAddress {
   principal: boolean;
   activa: boolean;
 }
+
+export interface CreateShippingAddressRequest {
+  nombreDestinatario: string;
+  telefono: string;
+  direccion: string;
+  codigoPostal: string;
+  localidad: string;
+  provincia: string;
+  pais: string;
+  principal: boolean;
+}

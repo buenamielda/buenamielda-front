@@ -6,7 +6,6 @@ import { Router, RouterLink } from '@angular/router';
 import { ShippingData } from '../../models/checkout.model';
 import { AuthService } from '../../services/auth.service';
 import { CheckoutService } from '../../services/checkout.service';
-import { OrderService } from '../../services/order.service';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -19,16 +18,14 @@ import { CartService } from '../../services/cart.service';
 export class CheckoutDataComponent {
   private readonly authService = inject(AuthService);
   private readonly checkoutService = inject(CheckoutService);
-  private readonly orderService = inject(OrderService);
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
 
-  readonly order = this.orderService.lastOrder;
   readonly submitted = signal(false);
   readonly errorMessage = signal('');
-  
-readonly items = this.cartService.items;
-readonly subtotal = this.cartService.subtotal;
+
+  readonly items = this.cartService.items;
+  readonly subtotal = this.cartService.subtotal;
 
   readonly form = signal<ShippingData>({
     email: this.authService.getAuthenticatedEmail(),

@@ -1,4 +1,4 @@
-import { Component, signal, HostListener, inject } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,6 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -29,20 +30,33 @@ import { CartService } from '../../services/cart.service';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   private readonly cartService = inject(CartService);
+  private readonly authService = inject(AuthService);
 
   mobileMenuOpen = signal(false);
-  dropdownOpen   = signal(false);
-  scrolled       = signal(false);
-  cartCount      = this.cartService.itemCount;
+  dropdownOpen = signal(false);
+  scrolled = signal(false);
+  cartCount = this.cartService.itemCount;
 
   apiculturaLinks = [
     { label: 'Guía del apicultor', route: '/aprende/guia' },
     { label: 'Tipos de colmenas', route: '/aprende/colmenas' },
-    { label: 'Temporadas',        route: '/aprende/temporadas' },
-    { label: 'Primeros pasos',    route: '/aprende/primeros-pasos' },
+    { label: 'Temporadas', route: '/aprende/temporadas' },
+    { label: 'Primeros pasos', route: '/aprende/primeros-pasos' },
   ];
+
+  ngOnInit(): void {
+    if (!this.authService.hasActiveSession()) {
+      return;
+    }
+
+    this.cartService.loadCart().subscribe({
+      error: () => {
+        this.cartService.clear();
+      },
+    });
+  }
 
   @HostListener('window:scroll')
   onScroll() {
@@ -58,7 +72,7 @@ export class NavbarComponent {
   }
 
   toggleDropdown() {
-    this.dropdownOpen.update(v => !v);
+    this.dropdownOpen.update((v) => !v);
   }
 
   closeDropdown() {
@@ -66,7 +80,7 @@ export class NavbarComponent {
   }
 
   toggleMobileMenu() {
-    this.mobileMenuOpen.update(v => !v);
+    this.mobileMenuOpen.update((v) => !v);
   }
 
   closeMobileMenu() {

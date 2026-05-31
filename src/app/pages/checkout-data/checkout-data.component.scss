@@ -464,3 +464,17 @@ $font-serif: "Georgia", "Times New Roman", serif;
     text-decoration: underline;
   }
 }
+
+.address-action.danger {
+  color: #9e3324;
+
+  &:hover {
+    color: #7a241a;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    text-decoration: none;
+  }
+}

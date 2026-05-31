@@ -73,6 +73,16 @@ export class ShippingAddressService {
     );
   }
 
+  deleteAddress(id: number): Observable<void> {
+  return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+    tap(() => {
+      this.addressesState.update((addresses) =>
+        addresses.filter((address) => address.id !== id),
+      );
+    }),
+  );
+}
+
   private getErrorMessage(error: HttpErrorResponse): string {
     if (
       typeof error.error === 'object' &&

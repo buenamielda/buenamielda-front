@@ -145,6 +145,6 @@ export class PaymentComponent {
       return 'Direccion pendiente';
     }
 
-    return `${data.direccion}, ${data.codigoPostal}, ${data.ciudad}`;
+return `${data.direccion}, ${data.codigoPostal}, ${data.localidad}`;
   }
 }

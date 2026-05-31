@@ -59,11 +59,10 @@
           </article>
         </section>
 
-        <form class="data-form" (ngSubmit)="continueToPayment()" novalidate>
+        <form class="data-form" (ngSubmit)="saveAddress()" novalidate>
           <section class="form-section">
             <div class="section-heading">
               <h1>Contacto</h1>
-              <a routerLink="/login">Login</a>
             </div>
 
             <label>
@@ -75,9 +74,9 @@
                 (ngModelChange)="updateField('email', $event)"
                 [class.invalid]="showEmailError()"
               />
-              <span class="field-error" *ngIf="showEmailError()"
-                >Introduce un email valido.</span
-              >
+              <span class="field-error" *ngIf="showEmailError()">
+                Introduce un email valido.
+              </span>
             </label>
 
             <label class="check-option">
@@ -94,29 +93,39 @@
           <section class="form-section">
             <h2>Direccion de envio</h2>
 
-            <div class="form-row">
-              <label>
-                Nombre
-                <input
-                  type="text"
-                  [ngModel]="form().nombre"
-                  name="nombre"
-                  (ngModelChange)="updateField('nombre', $event)"
-                  [class.invalid]="showRequiredError('nombre')"
-                />
-              </label>
+            <label>
+              Nombre del destinatario
+              <input
+                type="text"
+                [ngModel]="form().nombreDestinatario"
+                name="nombreDestinatario"
+                (ngModelChange)="updateField('nombreDestinatario', $event)"
+                [class.invalid]="showAddressFieldError('nombreDestinatario')"
+              />
+              <span
+                class="field-error"
+                *ngIf="showAddressFieldError('nombreDestinatario')"
+              >
+                {{ showAddressFieldError("nombreDestinatario") }}
+              </span>
+            </label>
 
-              <label>
-                Apellidos
-                <input
-                  type="text"
-                  [ngModel]="form().apellidos"
-                  name="apellidos"
-                  (ngModelChange)="updateField('apellidos', $event)"
-                  [class.invalid]="showRequiredError('apellidos')"
-                />
-              </label>
-            </div>
+            <label>
+              Telefono
+              <input
+                type="tel"
+                [ngModel]="form().telefono"
+                name="telefono"
+                (ngModelChange)="updateField('telefono', $event)"
+                [class.invalid]="showAddressFieldError('telefono')"
+              />
+              <span
+                class="field-error"
+                *ngIf="showAddressFieldError('telefono')"
+              >
+                {{ showAddressFieldError("telefono") }}
+              </span>
+            </label>
 
             <label>
               Direccion de envio
@@ -125,32 +134,17 @@
                 [ngModel]="form().direccion"
                 name="direccion"
                 (ngModelChange)="updateField('direccion', $event)"
-                [class.invalid]="showRequiredError('direccion')"
+                [class.invalid]="showAddressFieldError('direccion')"
               />
+              <span
+                class="field-error"
+                *ngIf="showAddressFieldError('direccion')"
+              >
+                {{ showAddressFieldError("direccion") }}
+              </span>
             </label>
 
-            <label>
-              Observaciones
-              <textarea
-                rows="3"
-                [ngModel]="form().observaciones"
-                name="observaciones"
-                (ngModelChange)="updateField('observaciones', $event)"
-              ></textarea>
-            </label>
-
-            <div class="form-row three-cols">
-              <label>
-                Ciudad
-                <input
-                  type="text"
-                  [ngModel]="form().ciudad"
-                  name="ciudad"
-                  (ngModelChange)="updateField('ciudad', $event)"
-                  [class.invalid]="showRequiredError('ciudad')"
-                />
-              </label>
-
+            <div class="form-row">
               <label>
                 Codigo postal
                 <input
@@ -158,52 +152,92 @@
                   [ngModel]="form().codigoPostal"
                   name="codigoPostal"
                   (ngModelChange)="updateField('codigoPostal', $event)"
-                  [class.invalid]="showRequiredError('codigoPostal')"
+                  [class.invalid]="showAddressFieldError('codigoPostal')"
                 />
+                <span
+                  class="field-error"
+                  *ngIf="showAddressFieldError('codigoPostal')"
+                >
+                  {{ showAddressFieldError("codigoPostal") }}
+                </span>
               </label>
 
               <label>
-                Poblacion
+                Localidad
                 <input
                   type="text"
-                  [ngModel]="form().poblacion"
-                  name="poblacion"
-                  (ngModelChange)="updateField('poblacion', $event)"
-                  [class.invalid]="showRequiredError('poblacion')"
+                  [ngModel]="form().localidad"
+                  name="localidad"
+                  (ngModelChange)="updateField('localidad', $event)"
+                  [class.invalid]="showAddressFieldError('localidad')"
                 />
+                <span
+                  class="field-error"
+                  *ngIf="showAddressFieldError('localidad')"
+                >
+                  {{ showAddressFieldError("localidad") }}
+                </span>
               </label>
             </div>
 
-            <label>
-              Pais
-              <select
-                [ngModel]="form().pais"
-                name="pais"
-                (ngModelChange)="updateField('pais', $event)"
-              >
-                <option value="Espana">Espana</option>
-                <option value="Portugal">Portugal</option>
-                <option value="Francia">Francia</option>
-              </select>
-            </label>
+            <div class="form-row">
+              <label>
+                Provincia
+                <input
+                  type="text"
+                  [ngModel]="form().provincia"
+                  name="provincia"
+                  (ngModelChange)="updateField('provincia', $event)"
+                  [class.invalid]="showAddressFieldError('provincia')"
+                />
+                <span
+                  class="field-error"
+                  *ngIf="showAddressFieldError('provincia')"
+                >
+                  {{ showAddressFieldError("provincia") }}
+                </span>
+              </label>
+
+              <label>
+                Pais
+                <select
+                  [ngModel]="form().pais"
+                  name="pais"
+                  (ngModelChange)="updateField('pais', $event)"
+                  [class.invalid]="showAddressFieldError('pais')"
+                >
+                  <option value="Espana">Espana</option>
+                  <option value="Portugal">Portugal</option>
+                  <option value="Francia">Francia</option>
+                </select>
+              </label>
+            </div>
 
             <label class="check-option">
               <input
                 type="checkbox"
-                [ngModel]="form().guardarDatos"
-                name="guardarDatos"
-                (ngModelChange)="updateField('guardarDatos', $event)"
+                [ngModel]="form().principal"
+                name="principal"
+                (ngModelChange)="updateField('principal', $event)"
               />
-              Guardar esta informacion para el futuro
+              Utilizar como direccion principal
             </label>
           </section>
 
           <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+          <p class="form-success" *ngIf="successMessage()">
+            {{ successMessage() }}
+          </p>
 
           <div class="checkout-actions">
             <a routerLink="/carrito" class="back-link">Volver al carro</a>
-            <button type="submit" class="primary-button">
-              Continuar al envío
+
+            <button
+              type="submit"
+              class="primary-button"
+              [disabled]="savingAddress()"
+            >
+              {{ savingAddress() ? "Guardando..." : "Guardar direccion" }}
             </button>
           </div>
         </form>

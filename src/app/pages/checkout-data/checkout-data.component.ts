@@ -1,13 +1,24 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { ShippingData } from '../../models/checkout.model';
+import { CreateShippingAddressRequest } from '../../models/shipping-address.model';
 import { AuthService } from '../../services/auth.service';
-import { CheckoutService } from '../../services/checkout.service';
 import { CartService } from '../../services/cart.service';
+import { CheckoutService } from '../../services/checkout.service';
 import { ShippingAddressService } from '../../services/shipping-address.service';
+
+type AddressField =
+  | 'nombreDestinatario'
+  | 'telefono'
+  | 'direccion'
+  | 'codigoPostal'
+  | 'localidad'
+  | 'provincia'
+  | 'pais';
 
 @Component({
   selector: 'app-checkout-data',
@@ -22,9 +33,12 @@ export class CheckoutDataComponent implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
 
-  readonly submitted = signal(false);
-  readonly errorMessage = signal('');
   readonly shippingAddressService = inject(ShippingAddressService);
+
+  readonly submitted = signal(false);
+  readonly savingAddress = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
 
   readonly items = this.cartService.items;
   readonly subtotal = this.cartService.subtotal;
@@ -35,29 +49,26 @@ export class CheckoutDataComponent implements OnInit {
   readonly form = signal<ShippingData>({
     email: this.authService.getAuthenticatedEmail(),
     newsletter: false,
-    nombre: '',
-    apellidos: '',
+    nombreDestinatario: '',
+    telefono: '',
     direccion: '',
-    observaciones: '',
-    ciudad: '',
     codigoPostal: '',
-    poblacion: '',
+    localidad: '',
+    provincia: '',
     pais: 'Espana',
-    guardarDatos: true,
+    principal: false,
   });
 
   readonly canSubmit = computed(() => {
-    const value = this.form();
-
     return (
-      this.isEmailValid(value.email) &&
-      value.nombre.trim().length >= 2 &&
-      value.apellidos.trim().length >= 2 &&
-      value.direccion.trim().length >= 5 &&
-      value.ciudad.trim().length >= 2 &&
-      value.codigoPostal.trim().length >= 4 &&
-      value.poblacion.trim().length >= 2 &&
-      value.pais.trim().length >= 2
+      this.isEmailValid(this.form().email) &&
+      !this.getAddressFieldError('nombreDestinatario') &&
+      !this.getAddressFieldError('telefono') &&
+      !this.getAddressFieldError('direccion') &&
+      !this.getAddressFieldError('codigoPostal') &&
+      !this.getAddressFieldError('localidad') &&
+      !this.getAddressFieldError('provincia') &&
+      !this.getAddressFieldError('pais')
     );
   });
 
@@ -76,39 +87,88 @@ export class CheckoutDataComponent implements OnInit {
   ): void {
     this.form.update((current) => ({ ...current, [field]: value }));
     this.errorMessage.set('');
+    this.successMessage.set('');
   }
 
-  continueToPayment(): void {
+  saveAddress(): void {
     this.submitted.set(true);
     this.errorMessage.set('');
+    this.successMessage.set('');
 
     if (!this.authService.hasActiveSession()) {
-      this.errorMessage.set('Inicia sesion para continuar con la compra.');
+      this.router.navigate(['/login']);
       return;
     }
 
     if (!this.canSubmit()) {
-      this.errorMessage.set('Revisa los datos de envio antes de continuar.');
+      this.errorMessage.set('Revisa los campos indicados antes de continuar.');
       return;
     }
 
-    this.checkoutService.saveShippingData(this.form());
-    this.router.navigate(['/checkout/envio']);
-  }
+    const value = this.form();
 
-  showRequiredError(field: keyof ShippingData): boolean {
-    const value = this.form()[field];
-    return (
-      this.submitted() && typeof value === 'string' && value.trim().length === 0
-    );
+    const request: CreateShippingAddressRequest = {
+      nombreDestinatario: value.nombreDestinatario.trim(),
+      telefono: value.telefono.trim(),
+      direccion: value.direccion.trim(),
+      codigoPostal: value.codigoPostal.trim(),
+      localidad: value.localidad.trim(),
+      provincia: value.provincia.trim(),
+      pais: value.pais.trim(),
+      principal: value.principal,
+    };
+
+    this.savingAddress.set(true);
+
+    this.shippingAddressService.createAddress(request).subscribe({
+      next: () => {
+        this.checkoutService.saveShippingData(value);
+        this.shippingAddressService.loadAddresses();
+        this.savingAddress.set(false);
+        this.submitted.set(false);
+        this.successMessage.set('Direccion guardada correctamente.');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.savingAddress.set(false);
+        this.errorMessage.set(
+          error.error?.message ?? 'No ha sido posible guardar la direccion.',
+        );
+      },
+    });
   }
 
   showEmailError(): boolean {
     return this.submitted() && !this.isEmailValid(this.form().email);
   }
 
+  showAddressFieldError(field: AddressField): string {
+    return this.submitted() ? this.getAddressFieldError(field) : '';
+  }
+
   formatPrice(price: number): string {
     return price.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  }
+
+  private getAddressFieldError(field: AddressField): string {
+    const value = this.form()[field].trim();
+
+    if (field === 'telefono' && !/^\+?[0-9]{7,15}$/.test(value)) {
+      return 'Introduce un telefono valido de entre 7 y 15 cifras.';
+    }
+
+    if (field === 'codigoPostal' && !/^[0-9]{5}$/.test(value)) {
+      return 'Introduce un codigo postal de 5 cifras.';
+    }
+
+    if (value.length < 2) {
+      return 'Este campo es obligatorio.';
+    }
+
+    if (field === 'direccion' && value.length < 5) {
+      return 'Introduce una direccion valida.';
+    }
+
+    return '';
   }
 
   private isEmailValid(email: string): boolean {

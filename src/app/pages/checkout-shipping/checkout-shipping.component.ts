@@ -24,7 +24,7 @@ export class CheckoutShippingComponent {
       return 'Direccion pendiente';
     }
 
-    return `${data.direccion}, ${data.codigoPostal}, ${data.ciudad}`;
+    return `${data.direccion}, ${data.codigoPostal}, ${data.localidad}`;
   }
 
   formatPrice(price: number): string {

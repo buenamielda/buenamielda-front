@@ -1,13 +1,12 @@
 export interface ShippingData {
   email: string;
   newsletter: boolean;
-  nombre: string;
-  apellidos: string;
+  nombreDestinatario: string;
+  telefono: string;
   direccion: string;
-  observaciones: string;
-  ciudad: string;
   codigoPostal: string;
-  poblacion: string;
+  localidad: string;
+  provincia: string;
   pais: string;
-  guardarDatos: boolean;
+  principal: boolean;
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -7,6 +7,7 @@ import { ShippingData } from '../../models/checkout.model';
 import { AuthService } from '../../services/auth.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { CartService } from '../../services/cart.service';
+import { ShippingAddressService } from '../../services/shipping-address.service';
 
 @Component({
   selector: 'app-checkout-data',
@@ -15,7 +16,7 @@ import { CartService } from '../../services/cart.service';
   templateUrl: './checkout-data.component.html',
   styleUrl: './checkout-data.component.scss',
 })
-export class CheckoutDataComponent {
+export class CheckoutDataComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly checkoutService = inject(CheckoutService);
   private readonly cartService = inject(CartService);
@@ -23,9 +24,13 @@ export class CheckoutDataComponent {
 
   readonly submitted = signal(false);
   readonly errorMessage = signal('');
+  readonly shippingAddressService = inject(ShippingAddressService);
 
   readonly items = this.cartService.items;
   readonly subtotal = this.cartService.subtotal;
+  readonly addresses = this.shippingAddressService.addresses;
+  readonly addressesLoading = this.shippingAddressService.loading;
+  readonly addressesError = this.shippingAddressService.errorMessage;
 
   readonly form = signal<ShippingData>({
     email: this.authService.getAuthenticatedEmail(),
@@ -55,6 +60,15 @@ export class CheckoutDataComponent {
       value.pais.trim().length >= 2
     );
   });
+
+  ngOnInit(): void {
+    if (!this.authService.hasActiveSession()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.shippingAddressService.loadAddresses();
+  }
 
   updateField<K extends keyof ShippingData>(
     field: K,

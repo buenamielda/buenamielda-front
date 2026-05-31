@@ -9,6 +9,56 @@
           <span>Pago</span>
         </nav>
 
+        <section class="saved-addresses">
+          <div class="saved-addresses-heading">
+            <h1>Mis direcciones guardadas</h1>
+
+            <button
+              type="button"
+              class="reload-addresses"
+              (click)="shippingAddressService.loadAddresses()"
+              *ngIf="addressesError()"
+            >
+              Reintentar
+            </button>
+          </div>
+
+          <p class="addresses-message" *ngIf="addressesLoading()">
+            Cargando direcciones...
+          </p>
+
+          <p class="form-error" *ngIf="addressesError()">
+            {{ addressesError() }}
+          </p>
+
+          <p
+            class="addresses-message"
+            *ngIf="
+              !addressesLoading() &&
+              !addressesError() &&
+              addresses().length === 0
+            "
+          >
+            Todavia no tienes direcciones guardadas.
+          </p>
+
+          <article class="saved-address" *ngFor="let address of addresses()">
+            <div>
+              <h2>{{ address.nombre }}</h2>
+              <p>{{ address.direccion }}</p>
+              <p>
+                {{ address.codigoPostal }} {{ address.localidad }},
+                {{ address.provincia }}
+              </p>
+              <p>{{ address.pais }} &middot; {{ address.telefono }}</p>
+            </div>
+
+            <span class="primary-address" *ngIf="address.principal">
+              Principal
+            </span>
+          </article>
+        </section>
+
         <form class="data-form" (ngSubmit)="continueToPayment()" novalidate>
           <section class="form-section">
             <div class="section-heading">
@@ -161,13 +211,12 @@
 
       <aside class="summary-panel">
         <div class="summary-products">
-          <article
-            class="summary-product"
-            *ngFor="let item of items()"
-          >
+          <article class="summary-product" *ngFor="let item of items()">
             <div class="product-thumb">
               <img
-                [src]="item.product.imagenUrl|| 'assets/images/miel-tomillo.svg'"
+                [src]="
+                  item.product.imagenUrl || 'assets/images/miel-tomillo.svg'
+                "
                 [alt]="item.product.nombre"
               />
               <span>{{ item.quantity }}</span>
@@ -178,7 +227,9 @@
                 {{ item.quantity }} x {{ formatPrice(item.product.precio) }}
               </p>
             </div>
-            <strong>{{ formatPrice(item.quantity * item.product.precio) }}</strong>
+            <strong>{{
+              formatPrice(item.quantity * item.product.precio)
+            }}</strong>
           </article>
         </div>
 

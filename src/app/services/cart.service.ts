@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
 import { Producto } from '../models/product.model';
+import { ProductCatalogService } from './product-catalog.service';
 
 export type PurchaseMode = 'single' | 'subscription';
 
@@ -25,6 +26,7 @@ interface CarritoLineaResponseDto {
 interface CarritoResponseDto {
   id: number;
   fechaCreacion: string;
+  fechaModificacion: string;
   estado: string;
   idUsuario: number;
   nombreUsuario: string;
@@ -32,20 +34,12 @@ interface CarritoResponseDto {
   total: number;
 }
 
-interface CarritoLineaCreateRequestDto {
-  idProducto: number;
-  cantidad: number;
-}
-
-interface CarritoLineaUpdateRequestDto {
-  cantidad: number;
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
   private readonly http = inject(HttpClient);
+  private readonly productCatalog = inject(ProductCatalogService);
   private readonly apiUrl = '/api/carrito';
 
   private readonly cartItems = signal<CartItem[]>([]);
@@ -63,12 +57,29 @@ export class CartService {
     ),
   );
 
+  loadCart(): Observable<CarritoResponseDto | null> {
+    return this.http.get<CarritoResponseDto | null>(this.apiUrl).pipe(
+      tap((carrito) => {
+        if (!carrito) {
+          this.cartItems.set([]);
+          return;
+        }
+
+        this.syncFromApi(carrito);
+      }),
+    );
+  }
+
+  verifyCart(): Observable<void> {
+    return this.http.get<void>(`${this.apiUrl}/verificar`);
+  }
+
   add(
     product: Producto,
     quantity = 1,
     purchaseMode: PurchaseMode = 'single',
   ): Observable<CarritoResponseDto> {
-    const body: CarritoLineaCreateRequestDto = {
+    const body = {
       idProducto: product.id,
       cantidad: quantity,
     };
@@ -91,6 +102,7 @@ export class CartService {
   remove(item: CartItem): Observable<void> {
     if (!item.lineId) {
       this.removeLocal(item.product.id, item.purchaseMode);
+
       return new Observable<void>((observer) => {
         observer.next();
         observer.complete();
@@ -119,7 +131,8 @@ export class CartService {
             observer.next({
               id: 0,
               fechaCreacion: '',
-              estado: 'ACTIVO',
+              fechaModificacion: '',
+              estado: 'Activo',
               idUsuario: 0,
               nombreUsuario: '',
               lineas: [],
@@ -136,23 +149,21 @@ export class CartService {
       return this.add(item.product, 1, item.purchaseMode);
     }
 
-    const body: CarritoLineaUpdateRequestDto = {
-      cantidad: quantity,
-    };
-
     return this.http
-      .put<CarritoResponseDto>(`${this.apiUrl}/lineas/${item.lineId}`, body)
+      .put<CarritoResponseDto>(`${this.apiUrl}/lineas/${item.lineId}`, {
+        cantidad: quantity,
+      })
       .pipe(
         tap((carrito) => {
-          this.syncFromApi(carrito, item.product, item.purchaseMode);
+          this.syncFromApi(carrito);
         }),
       );
   }
 
   private syncFromApi(
     carrito: CarritoResponseDto,
-    changedProduct: Producto,
-    purchaseMode: PurchaseMode,
+    changedProduct?: Producto,
+    purchaseMode: PurchaseMode = 'single',
   ): void {
     this.cartItems.set(
       carrito.lineas.map((linea) => {
@@ -160,13 +171,22 @@ export class CartService {
           (item) => item.product.id === linea.idProducto,
         );
 
+        const catalogProduct = this.productCatalog.obtenerPorId(
+          linea.idProducto,
+        );
+
+        const product =
+          existing?.product ??
+          catalogProduct ??
+          (changedProduct?.id === linea.idProducto
+            ? changedProduct
+            : this.createProductFromCartLine(linea));
+
         return {
           lineId: linea.id,
           quantity: linea.cantidad,
           purchaseMode: existing?.purchaseMode ?? purchaseMode,
-          product:
-            existing?.product ??
-            this.createProductFromCartLine(linea, changedProduct),
+          product,
         };
       }),
     );
@@ -174,12 +194,7 @@ export class CartService {
 
   private createProductFromCartLine(
     linea: CarritoLineaResponseDto,
-    fallbackProduct: Producto,
   ): Producto {
-    if (fallbackProduct.id === linea.idProducto) {
-      return fallbackProduct;
-    }
-
     return {
       id: linea.idProducto,
       nombre: linea.nombreProducto,

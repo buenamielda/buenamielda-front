@@ -1,22 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-import {
-  AuthRequiredError,
-  EmptyCartError,
-  OrderService,
-} from '../../services/order.service';
+
 import { AuthService } from '../../services/auth.service';
 import {
   CartItem,
   CartService,
   PurchaseMode,
 } from '../../services/cart.service';
-import {
-  InactiveStockProductError,
-  InsufficientStockError,
-} from '../../services/stock.service';
 
 @Component({
   selector: 'app-cart',
@@ -25,10 +18,9 @@ import {
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
 })
-export class CartComponent {
+export class CartComponent implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly authService = inject(AuthService);
-  private readonly orderService = inject(OrderService);
   private readonly router = inject(Router);
 
   readonly items = this.cartService.items;
@@ -36,27 +28,47 @@ export class CartComponent {
   readonly itemCount = this.cartService.itemCount;
 
   readonly orderError = signal('');
-  readonly creatingOrder = signal(false);
+  readonly needsLogin = signal(false);
+  readonly verifyingCart = signal(false);
+
+  ngOnInit(): void {
+    if (this.authService.hasActiveSession()) {
+      this.refreshCart();
+    }
+  }
 
   increaseQuantity(item: CartItem): void {
-    this.cartService.increase(item).subscribe();
+    this.cartService.increase(item).subscribe({
+      error: (error: HttpErrorResponse) => {
+        this.orderError.set(this.getErrorMessage(error));
+      },
+    });
   }
 
   decreaseQuantity(item: CartItem): void {
-    this.cartService.decrease(item).subscribe();
+    this.cartService.decrease(item).subscribe({
+      error: (error: HttpErrorResponse) => {
+        this.orderError.set(this.getErrorMessage(error));
+      },
+    });
   }
 
   removeItem(item: CartItem): void {
-    this.cartService.remove(item).subscribe();
+    this.cartService.remove(item).subscribe({
+      error: (error: HttpErrorResponse) => {
+        this.orderError.set(this.getErrorMessage(error));
+      },
+    });
   }
+
   itemTotal(item: CartItem): number {
     return item.product.precio * item.quantity;
   }
 
   modeLabel(mode: PurchaseMode): string {
     return mode === 'subscription'
-      ? 'Suscripción cada 4 semanas'
-      : 'Compra única';
+      ? 'Suscripcion cada 4 semanas'
+      : 'Compra unica';
   }
 
   formatPrice(precio: number): string {
@@ -64,34 +76,56 @@ export class CartComponent {
   }
 
   confirmCart(): void {
+    this.orderError.set('');
+    this.needsLogin.set(false);
+
     if (!this.authService.hasActiveSession()) {
+      this.needsLogin.set(true);
       this.orderError.set(
-        'Inicia sesion para confirmar el carrito y generar el pedido.',
+        'Inicia sesion para confirmar el carrito y continuar con la compra.',
       );
       return;
     }
 
-    this.creatingOrder.set(true);
-    this.orderService
-      .createFromCart()
-      .pipe(finalize(() => this.creatingOrder.set(false)))
+    this.verifyingCart.set(true);
+
+    this.cartService
+      .verifyCart()
+      .pipe(finalize(() => this.verifyingCart.set(false)))
       .subscribe({
         next: () => {
           this.router.navigate(['/checkout/datos']);
         },
-        error: (error) => {
-          if (
-            error instanceof AuthRequiredError ||
-            error instanceof EmptyCartError ||
-            error instanceof InactiveStockProductError ||
-            error instanceof InsufficientStockError
-          ) {
-            this.orderError.set(error.message);
-            return;
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 401 || error.status === 403) {
+            this.needsLogin.set(true);
           }
 
-          this.orderError.set('No se ha podido generar el pedido.');
+          this.orderError.set(this.getErrorMessage(error));
+          this.refreshCart();
         },
       });
+  }
+
+  private refreshCart(): void {
+    this.cartService.loadCart().subscribe({
+      error: (error: HttpErrorResponse) => {
+        if (error.status !== 204) {
+          this.orderError.set(this.getErrorMessage(error));
+        }
+      },
+    });
+  }
+
+  private getErrorMessage(error: HttpErrorResponse): string {
+    if (typeof error.error === 'string') {
+      return error.error;
+    }
+
+    if (error.error?.message) {
+      return error.error.message;
+    }
+
+    return 'No se ha podido validar el carrito.';
   }
 }

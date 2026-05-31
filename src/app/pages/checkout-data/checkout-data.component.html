@@ -42,16 +42,29 @@
             Todavia no tienes direcciones guardadas.
           </p>
 
-          <article class="saved-address" *ngFor="let address of addresses()">
-            <div>
-              <h2>{{ address.nombre }}</h2>
-              <p>{{ address.direccion }}</p>
-              <p>
-                {{ address.codigoPostal }} {{ address.localidad }},
-                {{ address.provincia }}
-              </p>
-              <p>{{ address.pais }} &middot; {{ address.telefono }}</p>
-            </div>
+          <article
+            class="saved-address"
+            *ngFor="let address of addresses()"
+            [class.selected]="isShippingAddressSelected(address)"
+          >
+            <label class="address-choice">
+              <input
+                type="radio"
+                name="shippingAddress"
+                [checked]="isShippingAddressSelected(address)"
+                (change)="selectShippingAddress(address)"
+              />
+
+              <div>
+                <h2>{{ address.nombre }}</h2>
+                <p>{{ address.direccion }}</p>
+                <p>
+                  {{ address.codigoPostal }} {{ address.localidad }},
+                  {{ address.provincia }}
+                </p>
+                <p>{{ address.pais }} &middot; {{ address.telefono }}</p>
+              </div>
+            </label>
 
             <div class="saved-address-actions">
               <span class="primary-address" *ngIf="address.principal">
@@ -65,6 +78,7 @@
               >
                 Modificar
               </button>
+
               <button
                 type="button"
                 class="address-action danger"
@@ -286,6 +300,15 @@
             </button>
           </div>
         </form>
+        <div class="continue-checkout">
+          <button
+            type="button"
+            class="primary-button"
+            (click)="continueToShipping()"
+          >
+            Continuar al envio
+          </button>
+        </div>
       </div>
 
       <aside class="summary-panel">

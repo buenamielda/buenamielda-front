@@ -478,3 +478,29 @@ $font-serif: "Georgia", "Times New Roman", serif;
     text-decoration: none;
   }
 }
+.continue-checkout {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 445px;
+  padding-top: 1.25rem;
+}
+
+.saved-address.selected {
+  border-color: rgba($brand-gold, 0.85);
+  box-shadow: 0 0 0 3px rgba($brand-gold, 0.1);
+}
+
+.address-choice {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: start;
+  cursor: pointer;
+
+  input {
+    width: 16px;
+    height: 16px;
+    margin: 0.2rem 0 0;
+    accent-color: $brand-gold;
+  }
+}

@@ -7,6 +7,7 @@ import { ShippingData } from '../../models/checkout.model';
 import { AuthService } from '../../services/auth.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { OrderService } from '../../services/order.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-checkout-data',
@@ -19,11 +20,15 @@ export class CheckoutDataComponent {
   private readonly authService = inject(AuthService);
   private readonly checkoutService = inject(CheckoutService);
   private readonly orderService = inject(OrderService);
+  private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
 
   readonly order = this.orderService.lastOrder;
   readonly submitted = signal(false);
   readonly errorMessage = signal('');
+  
+readonly items = this.cartService.items;
+readonly subtotal = this.cartService.subtotal;
 
   readonly form = signal<ShippingData>({
     email: this.authService.getAuthenticatedEmail(),
@@ -68,11 +73,6 @@ export class CheckoutDataComponent {
 
     if (!this.authService.hasActiveSession()) {
       this.errorMessage.set('Inicia sesion para continuar con la compra.');
-      return;
-    }
-
-    if (!this.order()) {
-      this.errorMessage.set('No hay ningun pedido pendiente para completar.');
       return;
     }
 

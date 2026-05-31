@@ -1,12 +1,6 @@
 <main class="checkout-data-page">
   <div class="container-lg px-3 px-lg-4">
-    <section class="checkout-empty" *ngIf="!order()">
-      <h1>No hay pedido pendiente</h1>
-      <p>Confirma primero tu carrito para introducir los datos de envio.</p>
-      <a routerLink="/carrito" class="primary-button">Volver al carrito</a>
-    </section>
-
-    <section class="checkout-layout" *ngIf="order() as currentOrder">
+    <section class="checkout-layout">
       <div class="checkout-main">
         <nav class="checkout-steps">
           <span>Carro</span>
@@ -169,29 +163,29 @@
         <div class="summary-products">
           <article
             class="summary-product"
-            *ngFor="let line of currentOrder.lineas"
+            *ngFor="let item of items()"
           >
             <div class="product-thumb">
               <img
-                [src]="line.imagenProducto || 'assets/images/miel-tomillo.svg'"
-                [alt]="line.nombreProducto"
+                [src]="item.product.imagenUrl|| 'assets/images/miel-tomillo.svg'"
+                [alt]="item.product.nombre"
               />
-              <span>{{ line.cantidad }}</span>
+              <span>{{ item.quantity }}</span>
             </div>
             <div>
-              <h2>{{ line.nombreProducto }}&reg;</h2>
+              <h2>{{ item.product.nombre }}&reg;</h2>
               <p>
-                {{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}
+                {{ item.quantity }} x {{ formatPrice(item.product.precio) }}
               </p>
             </div>
-            <strong>{{ formatPrice(line.subtotal) }}</strong>
+            <strong>{{ formatPrice(item.quantity * item.product.precio) }}</strong>
           </article>
         </div>
 
         <div class="summary-totals">
           <div>
             <span>Subtotal</span>
-            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+            <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <div>
             <span>Envio</span>
@@ -199,7 +193,7 @@
           </div>
           <div class="total-row">
             <span>Total</span>
-            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+            <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
         </div>
       </aside>

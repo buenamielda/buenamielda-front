@@ -77,7 +77,8 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
-.data-form label {
+.data-form label,
+.contact-section label {
   display: grid;
   gap: 0.45rem;
   color: $brand-dark;
@@ -88,6 +89,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
 .data-form input,
 .data-form select,
 .data-form textarea,
+.contact-section input,
 .discount-box input {
   width: 100%;
   min-height: 42px;
@@ -109,12 +111,14 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 .data-form input:focus,
 .data-form select:focus,
-.data-form textarea:focus {
+.data-form textarea:focus,
+.contact-section input:focus {
   border-color: rgba($brand-gold, 0.95);
   box-shadow: 0 0 0 3px rgba($brand-gold, 0.12);
 }
 
-.data-form .invalid {
+.data-form .invalid,
+.contact-section .invalid {
   border-color: #9e3324;
 }
 
@@ -503,4 +507,64 @@ $font-serif: "Georgia", "Times New Roman", serif;
     margin: 0.2rem 0 0;
     accent-color: $brand-gold;
   }
+}
+
+.add-address-button {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $brand-gold;
+  font-family: $font-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    color: #c8860a;
+    text-decoration: underline;
+  }
+}
+
+.feedback-message {
+  max-width: 445px;
+}
+.contact-section {
+  max-width: 445px;
+}
+
+.collapse-address-button {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba($brand-brown, 0.16);
+  border-radius: 50%;
+  background: $brand-bg;
+  color: $brand-brown;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $brand-gold;
+    color: $brand-gold;
+  }
+}
+
+.save-address-action {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 445px;
+  margin-bottom: 1.25rem;
+}
+
+.checkout-navigation {
+  display: flex;
+  max-width: 445px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.25rem;
 }

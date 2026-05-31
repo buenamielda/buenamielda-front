@@ -40,6 +40,7 @@ export class CheckoutDataComponent implements OnInit {
 
   readonly submitted = signal(false);
   readonly savingAddress = signal(false);
+  readonly showAddressForm = signal(false);
   readonly editingAddressId = signal<number | null>(null);
   readonly deletingAddressId = signal<number | null>(null);
   readonly errorMessage = signal('');
@@ -50,6 +51,14 @@ export class CheckoutDataComponent implements OnInit {
   readonly addresses = this.shippingAddressService.addresses;
   readonly addressesLoading = this.shippingAddressService.loading;
   readonly addressesError = this.shippingAddressService.errorMessage;
+
+  readonly shouldDisplayAddressForm = computed(() => {
+    return (
+      this.editingAddressId() !== null ||
+      this.showAddressForm() ||
+      (!this.addressesLoading() && this.addresses().length === 0)
+    );
+  });
 
   readonly form = signal<ShippingData>({
     email: this.authService.getAuthenticatedEmail(),
@@ -140,6 +149,7 @@ export class CheckoutDataComponent implements OnInit {
         this.savingAddress.set(false);
         this.submitted.set(false);
         this.editingAddressId.set(null);
+        this.showAddressForm.set(false);
         this.resetAddressFields();
         this.successMessage.set(
           editingId === null
@@ -164,7 +174,29 @@ export class CheckoutDataComponent implements OnInit {
     return this.submitted() ? this.getAddressFieldError(field) : '';
   }
 
+  startCreatingAddress(): void {
+    this.editingAddressId.set(null);
+    this.submitted.set(false);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.resetAddressFields();
+    this.showAddressForm.set(true);
+  }
+
+  collapseAddressForm(): void {
+    if (this.addresses().length === 0) {
+      return;
+    }
+
+    this.editingAddressId.set(null);
+    this.showAddressForm.set(false);
+    this.submitted.set(false);
+    this.errorMessage.set('');
+    this.resetAddressFields();
+  }
+
   editAddress(address: ShippingAddress): void {
+    this.showAddressForm.set(true);
     this.editingAddressId.set(address.id);
     this.submitted.set(false);
     this.errorMessage.set('');
@@ -213,7 +245,7 @@ export class CheckoutDataComponent implements OnInit {
         }
 
         if (this.editingAddressId() === address.id) {
-          this.cancelEditing();
+          this.collapseAddressForm();
         }
 
         this.successMessage.set('Direccion eliminada correctamente.');
@@ -225,14 +257,6 @@ export class CheckoutDataComponent implements OnInit {
         );
       },
     });
-  }
-
-  cancelEditing(): void {
-    this.editingAddressId.set(null);
-    this.submitted.set(false);
-    this.errorMessage.set('');
-    this.successMessage.set('');
-    this.resetAddressFields();
   }
 
   private resetAddressFields(): void {

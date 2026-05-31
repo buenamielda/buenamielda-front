@@ -428,3 +428,50 @@ $font-serif: "Georgia", "Times New Roman", serif;
   font-family: $font-serif;
   cursor: pointer;
 }
+.new-address-form {
+  display: grid;
+  gap: 0.9rem;
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid rgba($brand-brown, 0.1);
+
+  h2 {
+    margin: 0;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.05rem;
+  }
+
+  label {
+    display: grid;
+    gap: 0.45rem;
+    color: $brand-dark;
+    font-family: $font-serif;
+    font-size: 0.92rem;
+  }
+
+  input {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 0.9rem;
+    border: 1px solid rgba($brand-brown, 0.16);
+    border-radius: 8px;
+    background: $brand-bg;
+    color: $brand-dark;
+    font-family: $font-serif;
+  }
+
+  .primary-button {
+    width: fit-content;
+  }
+}
+
+.form-success {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  background: rgba(#347a43, 0.1);
+  color: #286335;
+  font-family: $font-serif;
+  font-size: 0.92rem;
+}

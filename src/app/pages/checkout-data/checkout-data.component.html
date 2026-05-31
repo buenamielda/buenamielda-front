@@ -57,6 +57,113 @@
               Principal
             </span>
           </article>
+          <form class="new-address-form" (ngSubmit)="createAddress()">
+            <h2>Anadir una direccion</h2>
+
+            <label>
+              Nombre del destinatario
+              <input
+                type="text"
+                name="newAddressName"
+                [ngModel]="newAddressForm().nombreDestinatario"
+                (ngModelChange)="
+                  updateNewAddressField('nombreDestinatario', $event)
+                "
+              />
+            </label>
+
+            <label>
+              Telefono
+              <input
+                type="tel"
+                name="newAddressPhone"
+                [ngModel]="newAddressForm().telefono"
+                (ngModelChange)="updateNewAddressField('telefono', $event)"
+              />
+            </label>
+
+            <label>
+              Direccion
+              <input
+                type="text"
+                name="newAddressStreet"
+                [ngModel]="newAddressForm().direccion"
+                (ngModelChange)="updateNewAddressField('direccion', $event)"
+              />
+            </label>
+
+            <div class="form-row">
+              <label>
+                Codigo postal
+                <input
+                  type="text"
+                  name="newAddressPostalCode"
+                  [ngModel]="newAddressForm().codigoPostal"
+                  (ngModelChange)="
+                    updateNewAddressField('codigoPostal', $event)
+                  "
+                />
+              </label>
+
+              <label>
+                Localidad
+                <input
+                  type="text"
+                  name="newAddressTown"
+                  [ngModel]="newAddressForm().localidad"
+                  (ngModelChange)="updateNewAddressField('localidad', $event)"
+                />
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label>
+                Provincia
+                <input
+                  type="text"
+                  name="newAddressProvince"
+                  [ngModel]="newAddressForm().provincia"
+                  (ngModelChange)="updateNewAddressField('provincia', $event)"
+                />
+              </label>
+
+              <label>
+                Pais
+                <input
+                  type="text"
+                  name="newAddressCountry"
+                  [ngModel]="newAddressForm().pais"
+                  (ngModelChange)="updateNewAddressField('pais', $event)"
+                />
+              </label>
+            </div>
+
+            <label class="check-option">
+              <input
+                type="checkbox"
+                name="newAddressPrimary"
+                [ngModel]="newAddressForm().principal"
+                (ngModelChange)="updateNewAddressField('principal', $event)"
+              />
+              Utilizar como direccion principal
+            </label>
+
+            <p class="form-error" *ngIf="createAddressError()">
+              {{ createAddressError() }}
+            </p>
+
+            <p class="form-success" *ngIf="createAddressSuccess()">
+              {{ createAddressSuccess() }}
+            </p>
+
+            <button
+              type="submit"
+              class="primary-button"
+              [disabled]="creatingAddress()"
+            >
+              {{ creatingAddress() ? "Guardando..." : "Guardar direccion" }}
+            </button>
+          </form>
         </section>
 
         <form class="data-form" (ngSubmit)="continueToPayment()" novalidate>

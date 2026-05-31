@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { ShippingData } from '../../models/checkout.model';
 import { AuthService } from '../../services/auth.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { CartService } from '../../services/cart.service';
 import { ShippingAddressService } from '../../services/shipping-address.service';
+import { CreateShippingAddressRequest } from '../../models/shipping-address.model';
 
 @Component({
   selector: 'app-checkout-data',
@@ -24,6 +26,9 @@ export class CheckoutDataComponent implements OnInit {
 
   readonly submitted = signal(false);
   readonly errorMessage = signal('');
+  readonly creatingAddress = signal(false);
+  readonly createAddressError = signal('');
+  readonly createAddressSuccess = signal('');
   readonly shippingAddressService = inject(ShippingAddressService);
 
   readonly items = this.cartService.items;
@@ -31,6 +36,17 @@ export class CheckoutDataComponent implements OnInit {
   readonly addresses = this.shippingAddressService.addresses;
   readonly addressesLoading = this.shippingAddressService.loading;
   readonly addressesError = this.shippingAddressService.errorMessage;
+
+  readonly newAddressForm = signal<CreateShippingAddressRequest>({
+    nombreDestinatario: '',
+    telefono: '',
+    direccion: '',
+    codigoPostal: '',
+    localidad: '',
+    provincia: '',
+    pais: 'Espana',
+    principal: false,
+  });
 
   readonly form = signal<ShippingData>({
     email: this.authService.getAuthenticatedEmail(),
@@ -76,6 +92,65 @@ export class CheckoutDataComponent implements OnInit {
   ): void {
     this.form.update((current) => ({ ...current, [field]: value }));
     this.errorMessage.set('');
+  }
+
+  updateNewAddressField<K extends keyof CreateShippingAddressRequest>(
+    field: K,
+    value: CreateShippingAddressRequest[K],
+  ): void {
+    this.newAddressForm.update((current) => ({
+      ...current,
+      [field]: value,
+    }));
+
+    this.createAddressError.set('');
+    this.createAddressSuccess.set('');
+  }
+
+  createAddress(): void {
+    const address = this.newAddressForm();
+
+    this.createAddressError.set('');
+    this.createAddressSuccess.set('');
+
+    if (
+      address.nombreDestinatario.trim().length < 2 ||
+      !/^\+?[0-9]{7,15}$/.test(address.telefono.trim()) ||
+      address.direccion.trim().length < 5 ||
+      !/^[0-9]{5}$/.test(address.codigoPostal.trim()) ||
+      address.localidad.trim().length < 2 ||
+      address.provincia.trim().length < 2 ||
+      address.pais.trim().length < 2
+    ) {
+      this.createAddressError.set('Revisa los datos de la nueva direccion.');
+      return;
+    }
+
+    this.creatingAddress.set(true);
+
+    this.shippingAddressService.createAddress(address).subscribe({
+      next: () => {
+        this.creatingAddress.set(false);
+        this.createAddressSuccess.set('Direccion guardada correctamente.');
+
+        this.newAddressForm.set({
+          nombreDestinatario: '',
+          telefono: '',
+          direccion: '',
+          codigoPostal: '',
+          localidad: '',
+          provincia: '',
+          pais: 'Espana',
+          principal: false,
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.creatingAddress.set(false);
+        this.createAddressError.set(
+          error.error?.message ?? 'No ha sido posible guardar la direccion.',
+        );
+      },
+    });
   }
 
   continueToPayment(): void {

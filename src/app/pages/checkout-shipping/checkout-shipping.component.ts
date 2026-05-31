@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 import { CheckoutService } from '../../services/checkout.service';
-import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-checkout-shipping',
@@ -12,19 +14,26 @@ import { OrderService } from '../../services/order.service';
   styleUrl: './checkout-shipping.component.scss',
 })
 export class CheckoutShippingComponent {
+  private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
   private readonly checkoutService = inject(CheckoutService);
-  private readonly orderService = inject(OrderService);
 
-  readonly order = this.orderService.lastOrder;
-  readonly shippingData = this.checkoutService.data;
+  readonly address = this.checkoutService.address;
+  readonly items = this.cartService.items;
+  readonly subtotal = this.cartService.subtotal;
 
-  address(): string {
-    const data = this.shippingData();
-    if (!data) {
+  email(): string {
+    return this.authService.getAuthenticatedEmail() || 'Email pendiente';
+  }
+
+  formatAddress(): string {
+    const address = this.address();
+
+    if (!address) {
       return 'Direccion pendiente';
     }
 
-    return `${data.direccion}, ${data.codigoPostal}, ${data.localidad}`;
+    return `${address.direccion}, ${address.codigoPostal}, ${address.localidad}`;
   }
 
   formatPrice(price: number): string {

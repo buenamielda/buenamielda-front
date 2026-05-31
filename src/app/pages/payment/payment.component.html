@@ -1,12 +1,12 @@
 <main class="payment-page">
   <div class="container-lg px-3 px-lg-4">
-    <section class="payment-empty" *ngIf="!order()">
+    <section class="payment-empty" *ngIf="!address() || items().length === 0">
       <h1>No hay pedido pendiente de pago</h1>
       <p>Confirma primero tu carrito para generar un pedido pendiente.</p>
       <a routerLink="/carrito" class="primary-button">Volver al carrito</a>
     </section>
 
-    <section class="payment-layout" *ngIf="order() as currentOrder">
+    <section class="payment-layout" *ngIf="address() as selectedAddress">
       <div class="payment-main">
         <nav class="checkout-steps" aria-label="Progreso del checkout">
           <span>Carro</span>
@@ -18,11 +18,11 @@
         <section class="info-box">
           <div>
             <span>Contacto</span>
-            <strong>{{ shippingData()?.email || "Pendiente" }}</strong>
+            <strong>{{ email() }}</strong>
           </div>
           <div>
-            <span>Pedido</span>
-            <strong>#{{ currentOrder.id }} - {{ currentOrder.estado }}</strong>
+            <span>Direccion</span>
+            <strong>{{ shippingAddress() }}</strong>
           </div>
           <div>
             <span>Envio</span>
@@ -146,33 +146,34 @@
 
       <aside class="summary-panel">
         <div class="summary-products">
-          <article
-            class="summary-product"
-            *ngFor="let line of currentOrder.lineas"
-          >
+          <article class="summary-product" *ngFor="let item of items()">
             <div class="product-thumb">
               <img
-                [src]="line.imagenProducto || 'assets/images/miel-tomillo.svg'"
-                [alt]="line.nombreProducto"
+                [src]="
+                  item.product.imagenUrl || 'assets/images/miel-tomillo.svg'
+                "
+                [alt]="item.product.nombre"
               />
-              <span>{{ line.cantidad }}</span>
+              <span>{{ item.quantity }}</span>
             </div>
 
             <div>
-              <h2>{{ line.nombreProducto }}&reg;</h2>
+              <h2>{{ item.product.nombre }}&reg;</h2>
               <p>
-                {{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}
+                {{ item.quantity }} x {{ formatPrice(item.product.precio) }}
               </p>
             </div>
 
-            <strong>{{ formatPrice(line.subtotal) }}</strong>
+            <strong>{{
+              formatPrice(item.quantity * item.product.precio)
+            }}</strong>
           </article>
         </div>
 
         <div class="summary-totals">
           <div>
             <span>Subtotal</span>
-            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+            <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <div>
             <span>Envio</span>
@@ -180,7 +181,7 @@
           </div>
           <div class="total-row">
             <span>Total</span>
-            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+            <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
         </div>
       </aside>

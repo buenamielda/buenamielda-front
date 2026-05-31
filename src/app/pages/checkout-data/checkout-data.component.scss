@@ -443,3 +443,24 @@ $font-serif: "Georgia", "Times New Roman", serif;
   opacity: 0.65;
   cursor: wait;
 }
+
+.saved-address-actions {
+  display: grid;
+  justify-items: end;
+  gap: 0.55rem;
+}
+
+.address-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $brand-gold;
+  font-family: $font-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+
+  &:hover {
+    color: #c8860a;
+    text-decoration: underline;
+  }
+}

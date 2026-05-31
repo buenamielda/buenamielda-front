@@ -5,7 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { ShippingData } from '../../models/checkout.model';
-import { CreateShippingAddressRequest } from '../../models/shipping-address.model';
+import {
+  CreateShippingAddressRequest,
+  ShippingAddress,
+} from '../../models/shipping-address.model';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { CheckoutService } from '../../services/checkout.service';
@@ -37,6 +40,7 @@ export class CheckoutDataComponent implements OnInit {
 
   readonly submitted = signal(false);
   readonly savingAddress = signal(false);
+  readonly editingAddressId = signal<number | null>(null);
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
 
@@ -118,15 +122,28 @@ export class CheckoutDataComponent implements OnInit {
       principal: value.principal,
     };
 
+    const editingId = this.editingAddressId();
+
+    const saveRequest =
+      editingId === null
+        ? this.shippingAddressService.createAddress(request)
+        : this.shippingAddressService.updateAddress(editingId, request);
+
     this.savingAddress.set(true);
 
-    this.shippingAddressService.createAddress(request).subscribe({
+    saveRequest.subscribe({
       next: () => {
         this.checkoutService.saveShippingData(value);
         this.shippingAddressService.loadAddresses();
         this.savingAddress.set(false);
         this.submitted.set(false);
-        this.successMessage.set('Direccion guardada correctamente.');
+        this.editingAddressId.set(null);
+        this.resetAddressFields();
+        this.successMessage.set(
+          editingId === null
+            ? 'Direccion guardada correctamente.'
+            : 'Direccion actualizada correctamente.',
+        );
       },
       error: (error: HttpErrorResponse) => {
         this.savingAddress.set(false);
@@ -143,6 +160,47 @@ export class CheckoutDataComponent implements OnInit {
 
   showAddressFieldError(field: AddressField): string {
     return this.submitted() ? this.getAddressFieldError(field) : '';
+  }
+
+  editAddress(address: ShippingAddress): void {
+    this.editingAddressId.set(address.id);
+    this.submitted.set(false);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    this.form.update((current) => ({
+      ...current,
+      nombreDestinatario: address.nombre,
+      telefono: address.telefono,
+      direccion: address.direccion,
+      codigoPostal: address.codigoPostal,
+      localidad: address.localidad,
+      provincia: address.provincia,
+      pais: address.pais,
+      principal: address.principal,
+    }));
+  }
+
+  cancelEditing(): void {
+    this.editingAddressId.set(null);
+    this.submitted.set(false);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.resetAddressFields();
+  }
+
+  private resetAddressFields(): void {
+    this.form.update((current) => ({
+      ...current,
+      nombreDestinatario: '',
+      telefono: '',
+      direccion: '',
+      codigoPostal: '',
+      localidad: '',
+      provincia: '',
+      pais: 'Espana',
+      principal: false,
+    }));
   }
 
   formatPrice(price: number): string {

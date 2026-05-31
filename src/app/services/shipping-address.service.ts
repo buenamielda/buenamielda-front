@@ -50,6 +50,29 @@ export class ShippingAddressService {
     );
   }
 
+  updateAddress(
+    id: number,
+    request: CreateShippingAddressRequest,
+  ): Observable<ShippingAddress> {
+    return this.http.put<ShippingAddress>(`${this.apiUrl}/${id}`, request).pipe(
+      tap((updatedAddress) => {
+        this.addressesState.update((addresses) =>
+          addresses.map((address) => {
+            if (address.id === updatedAddress.id) {
+              return updatedAddress;
+            }
+
+            if (updatedAddress.principal) {
+              return { ...address, principal: false };
+            }
+
+            return address;
+          }),
+        );
+      }),
+    );
+  }
+
   private getErrorMessage(error: HttpErrorResponse): string {
     if (
       typeof error.error === 'object' &&

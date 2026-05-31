@@ -9,6 +9,36 @@
           <span>Pago</span>
         </nav>
 
+         <section class="form-section contact-section">
+          <div class="section-heading">
+            <h1>Contacto</h1>
+          </div>
+
+          <label>
+            Email
+            <input
+              type="email"
+              [ngModel]="form().email"
+              name="email"
+              (ngModelChange)="updateField('email', $event)"
+              [class.invalid]="showEmailError()"
+            />
+            <span class="field-error" *ngIf="showEmailError()">
+              Introduce un email valido.
+            </span>
+          </label>
+
+          <label class="check-option">
+            <input
+              type="checkbox"
+              [ngModel]="form().newsletter"
+              name="newsletter"
+              (ngModelChange)="updateField('newsletter', $event)"
+            />
+            Suscribirme al boletin de Buena mielda para obtener novedades.
+          </label>
+        </section>
+
         <section class="saved-addresses">
           <div class="saved-addresses-heading">
             <h1>Mis direcciones guardadas</h1>
@@ -42,16 +72,29 @@
             Todavia no tienes direcciones guardadas.
           </p>
 
-          <article class="saved-address" *ngFor="let address of addresses()">
-            <div>
-              <h2>{{ address.nombre }}</h2>
-              <p>{{ address.direccion }}</p>
-              <p>
-                {{ address.codigoPostal }} {{ address.localidad }},
-                {{ address.provincia }}
-              </p>
-              <p>{{ address.pais }} &middot; {{ address.telefono }}</p>
-            </div>
+          <article
+            class="saved-address"
+            *ngFor="let address of addresses()"
+            [class.selected]="isShippingAddressSelected(address)"
+          >
+            <label class="address-choice">
+              <input
+                type="radio"
+                name="shippingAddress"
+                [checked]="isShippingAddressSelected(address)"
+                (change)="selectShippingAddress(address)"
+              />
+
+              <div>
+                <h2>{{ address.nombre }}</h2>
+                <p>{{ address.direccion }}</p>
+                <p>
+                  {{ address.codigoPostal }} {{ address.localidad }},
+                  {{ address.provincia }}
+                </p>
+                <p>{{ address.pais }} &middot; {{ address.telefono }}</p>
+              </div>
+            </label>
 
             <div class="saved-address-actions">
               <span class="primary-address" *ngIf="address.principal">
@@ -65,6 +108,7 @@
               >
                 Modificar
               </button>
+
               <button
                 type="button"
                 class="address-action danger"
@@ -80,39 +124,30 @@
               </button>
             </div>
           </article>
+          <button
+            type="button"
+            class="add-address-button"
+            *ngIf="addresses().length > 0 && !shouldDisplayAddressForm()"
+            (click)="startCreatingAddress()"
+          >
+            + Anadir nueva direccion de envio
+          </button>
         </section>
 
-        <form class="data-form" (ngSubmit)="saveAddress()" novalidate>
-          <section class="form-section">
-            <div class="section-heading">
-              <h1>Contacto</h1>
-            </div>
+        <p class="form-error feedback-message" *ngIf="errorMessage()">
+          {{ errorMessage() }}
+        </p>
 
-            <label>
-              Email
-              <input
-                type="email"
-                [ngModel]="form().email"
-                name="email"
-                (ngModelChange)="updateField('email', $event)"
-                [class.invalid]="showEmailError()"
-              />
-              <span class="field-error" *ngIf="showEmailError()">
-                Introduce un email valido.
-              </span>
-            </label>
+        <p class="form-success feedback-message" *ngIf="successMessage()">
+          {{ successMessage() }}
+        </p>
 
-            <label class="check-option">
-              <input
-                type="checkbox"
-                [ngModel]="form().newsletter"
-                name="newsletter"
-                (ngModelChange)="updateField('newsletter', $event)"
-              />
-              Suscribirme al boletin de Buena mielda para obtener novedades.
-            </label>
-          </section>
-
+        <form
+          class="data-form"
+          *ngIf="shouldDisplayAddressForm()"
+          (ngSubmit)="saveAddress()"
+          novalidate
+        >
           <section class="form-section">
             <div class="section-heading">
               <h2>
@@ -125,13 +160,16 @@
 
               <button
                 type="button"
-                class="address-action"
-                *ngIf="editingAddressId() !== null"
-                (click)="cancelEditing()"
+                class="collapse-address-button"
+                *ngIf="addresses().length > 0"
+                (click)="collapseAddressForm()"
+                aria-label="Plegar formulario de direccion"
+                title="Plegar formulario"
               >
-                Cancelar
+                &#8722;
               </button>
             </div>
+
             <label>
               Nombre del destinatario
               <input
@@ -243,7 +281,6 @@
                   [ngModel]="form().pais"
                   name="pais"
                   (ngModelChange)="updateField('pais', $event)"
-                  [class.invalid]="showAddressFieldError('pais')"
                 >
                   <option value="Espana">Espana</option>
                   <option value="Portugal">Portugal</option>
@@ -263,14 +300,7 @@
             </label>
           </section>
 
-          <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
-          <p class="form-success" *ngIf="successMessage()">
-            {{ successMessage() }}
-          </p>
-
-          <div class="checkout-actions">
-            <a routerLink="/carrito" class="back-link">Volver al carro</a>
-
+          <div class="save-address-action">
             <button
               type="submit"
               class="primary-button"
@@ -286,6 +316,18 @@
             </button>
           </div>
         </form>
+
+        <div class="checkout-navigation">
+          <a routerLink="/carrito" class="back-link">Volver al carro</a>
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="continueToShipping()"
+          >
+            Continuar al envio
+          </button>
+        </div>
       </div>
 
       <aside class="summary-panel">

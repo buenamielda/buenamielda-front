@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { OrderService } from '../../services/order.service';
+import { CartService } from '../../services/cart.service';
 
 import {
   PaymentFailedError,
@@ -35,9 +36,11 @@ export class PaymentComponent {
   private readonly orderService = inject(OrderService);
   private readonly paymentService = inject(PaymentService);
   private readonly router = inject(Router);
+  private readonly cartService = inject(CartService);
 
-  readonly order = this.orderService.lastOrder;
-  readonly shippingData = this.checkoutService.data;
+  readonly address = this.checkoutService.address;
+  readonly items = this.cartService.items;
+  readonly subtotal = this.cartService.subtotal;
 
   readonly submitted = signal(false);
   readonly loading = signal(false);
@@ -74,20 +77,20 @@ export class PaymentComponent {
     this.submitted.set(true);
     this.errorMessage.set('');
 
-    const order = this.order();
-
     if (!this.authService.hasActiveSession()) {
       this.errorMessage.set('Inicia sesion para poder pagar el pedido.');
       return;
     }
 
-    if (!order) {
-      this.errorMessage.set('No hay ningun pedido pendiente de pago.');
+    const address = this.address();
+
+    if (!address) {
+      this.errorMessage.set('Selecciona primero una direccion de envio.');
       return;
     }
 
-    if (!this.shippingData()) {
-      this.errorMessage.set('Introduce primero los datos de envio.');
+    if (this.items().length === 0) {
+      this.errorMessage.set('El carrito esta vacio.');
       return;
     }
 
@@ -98,19 +101,17 @@ export class PaymentComponent {
 
     this.loading.set(true);
 
-    this.paymentService
-      .payOrder()
-      .pipe(finalize(() => this.loading.set(false)))
+    this.orderService
+      .createFromCart(address.id)
+      .pipe(
+        switchMap(() => this.paymentService.payOrder()),
+        finalize(() => this.loading.set(false)),
+      )
       .subscribe({
         next: () => {
           this.router.navigate(['/pedido-confirmado']);
         },
-        error: (error) => {
-          if (error instanceof PaymentFailedError) {
-            this.errorMessage.set(error.message);
-            return;
-          }
-
+        error: () => {
           this.errorMessage.set('No se ha podido procesar el pago.');
         },
       });
@@ -139,12 +140,16 @@ export class PaymentComponent {
   }
 
   shippingAddress(): string {
-    const data = this.shippingData();
+    const address = this.address();
 
-    if (!data) {
+    if (!address) {
       return 'Direccion pendiente';
     }
 
-return `${data.direccion}, ${data.codigoPostal}, ${data.localidad}`;
+    return `${address.direccion}, ${address.codigoPostal}, ${address.localidad}`;
+  }
+
+  email(): string {
+    return this.authService.getAuthenticatedEmail() || 'Email pendiente';
   }
 }

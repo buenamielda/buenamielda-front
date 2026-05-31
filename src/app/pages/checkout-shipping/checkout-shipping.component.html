@@ -1,16 +1,16 @@
 <main class="shipping-page">
   <div class="container-lg px-3 px-lg-4">
-    <section class="shipping-empty" *ngIf="!order()">
-      <h1>No hay pedido pendiente</h1>
+    <section class="shipping-empty" *ngIf="!address()">
+      <h1>Selecciona una direccion de envio</h1>
       <p>Completa primero los datos de envio para seleccionar un metodo.</p>
-      <a routerLink="/checkout/datos" class="primary-button"
-        >Volver a detalles</a
-      >
+      <a routerLink="/checkout/datos" class="primary-button">
+        Volver a detalles
+      </a>
     </section>
 
-    <section class="shipping-layout" *ngIf="order() as currentOrder">
+    <section class="shipping-layout" *ngIf="address()">
       <div class="shipping-main">
-        <nav class="checkout-steps" aria-label="Progreso del checkout">
+        <nav class="checkout-steps">
           <span>Carro</span>
           <span>Detalles</span>
           <strong>Envio</strong>
@@ -20,18 +20,20 @@
         <section class="info-box">
           <div>
             <span>Contacto</span>
-            <strong>{{ shippingData()?.email || "Email pendiente" }}</strong>
+            <strong>{{ email() }}</strong>
             <a routerLink="/checkout/datos">Editar</a>
           </div>
+
           <div>
             <span>Direccion</span>
-            <strong>{{ address() }}</strong>
+            <strong>{{ formatAddress() }}</strong>
             <a routerLink="/checkout/datos">Editar</a>
           </div>
         </section>
 
         <section class="shipping-method">
           <h1>Metodos de envio</h1>
+
           <label class="method-option">
             <input type="radio" checked />
             <span>Envio estandar</span>
@@ -47,33 +49,34 @@
 
       <aside class="summary-panel">
         <div class="summary-products">
-          <article
-            class="summary-product"
-            *ngFor="let line of currentOrder.lineas"
-          >
+          <article class="summary-product" *ngFor="let item of items()">
             <div class="product-thumb">
-              <img [src]="line.imagenProducto" [alt]="line.nombreProducto" />
-              <span>{{ line.cantidad }}</span>
+              <img
+                [src]="
+                  item.product.imagenUrl || 'assets/images/placeholder.svg'
+                "
+                [alt]="item.product.nombre"
+              />
+              <span>{{ item.quantity }}</span>
             </div>
+
             <div>
-              <h2>{{ line.nombreProducto }}&reg;</h2>
+              <h2>{{ item.product.nombre }}&reg;</h2>
               <p>
-                {{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}
+                {{ item.quantity }} x {{ formatPrice(item.product.precio) }}
               </p>
             </div>
-            <strong>{{ formatPrice(line.subtotal) }}</strong>
-          </article>
-        </div>
 
-        <div class="discount-box">
-          <input type="text" placeholder="Codigo de descuento" />
-          <button type="button">Aplicar</button>
+            <strong>
+              {{ formatPrice(item.quantity * item.product.precio) }}
+            </strong>
+          </article>
         </div>
 
         <div class="summary-totals">
           <div>
             <span>Subtotal</span>
-            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+            <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <div>
             <span>Envio</span>
@@ -81,7 +84,7 @@
           </div>
           <div class="total-row">
             <span>Total</span>
-            <strong>{{ formatPrice(currentOrder.total) }}</strong>
+            <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
         </div>
       </aside>

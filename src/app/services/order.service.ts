@@ -66,18 +66,20 @@ export class OrderService {
 
   readonly lastOrder = this.lastCreatedOrder.asReadonly();
 
-  createFromCart(): Observable<PedidoResponseDto> {
-    return this.http.post<PedidoApiResponseDto>(this.apiUrl, null).pipe(
-      map((response) => this.mapApiOrder(response)),
-      tap((pedido) => {
-        this.lastCreatedOrder.set(pedido);
-        this.cartService.clear();
-        this.productCatalog.cargarProductos();
-      }),
-      catchError((error: HttpErrorResponse) =>
-        this.handleCreateOrderError(error),
-      ),
-    );
+  createFromCart(idDireccionEnvio: number): Observable<PedidoResponseDto> {
+    return this.http
+      .post<PedidoApiResponseDto>(this.apiUrl, { idDireccionEnvio })
+      .pipe(
+        map((response) => this.mapApiOrder(response)),
+        tap((pedido) => {
+          this.lastCreatedOrder.set(pedido);
+          this.cartService.clear();
+          this.productCatalog.cargarProductos();
+        }),
+        catchError((error: HttpErrorResponse) =>
+          this.handleCreateOrderError(error),
+        ),
+      );
   }
 
   getOrderByIdFromApi(id: number): Observable<PedidoResponseDto> {

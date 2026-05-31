@@ -40,6 +40,7 @@ export class CheckoutDataComponent implements OnInit {
 
   readonly submitted = signal(false);
   readonly savingAddress = signal(false);
+  readonly showAddressForm = signal(false);
   readonly editingAddressId = signal<number | null>(null);
   readonly deletingAddressId = signal<number | null>(null);
   readonly errorMessage = signal('');
@@ -50,6 +51,14 @@ export class CheckoutDataComponent implements OnInit {
   readonly addresses = this.shippingAddressService.addresses;
   readonly addressesLoading = this.shippingAddressService.loading;
   readonly addressesError = this.shippingAddressService.errorMessage;
+
+  readonly shouldDisplayAddressForm = computed(() => {
+    return (
+      this.editingAddressId() !== null ||
+      this.showAddressForm() ||
+      (!this.addressesLoading() && this.addresses().length === 0)
+    );
+  });
 
   readonly form = signal<ShippingData>({
     email: this.authService.getAuthenticatedEmail(),
@@ -133,12 +142,14 @@ export class CheckoutDataComponent implements OnInit {
     this.savingAddress.set(true);
 
     saveRequest.subscribe({
-      next: () => {
+      next: (savedAddress) => {
+        this.checkoutService.selectAddress(savedAddress);
         this.checkoutService.saveShippingData(value);
         this.shippingAddressService.loadAddresses();
         this.savingAddress.set(false);
         this.submitted.set(false);
         this.editingAddressId.set(null);
+        this.showAddressForm.set(false);
         this.resetAddressFields();
         this.successMessage.set(
           editingId === null
@@ -163,7 +174,29 @@ export class CheckoutDataComponent implements OnInit {
     return this.submitted() ? this.getAddressFieldError(field) : '';
   }
 
+  startCreatingAddress(): void {
+    this.editingAddressId.set(null);
+    this.submitted.set(false);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.resetAddressFields();
+    this.showAddressForm.set(true);
+  }
+
+  collapseAddressForm(): void {
+    if (this.addresses().length === 0) {
+      return;
+    }
+
+    this.editingAddressId.set(null);
+    this.showAddressForm.set(false);
+    this.submitted.set(false);
+    this.errorMessage.set('');
+    this.resetAddressFields();
+  }
+
   editAddress(address: ShippingAddress): void {
+    this.showAddressForm.set(true);
     this.editingAddressId.set(address.id);
     this.submitted.set(false);
     this.errorMessage.set('');
@@ -183,51 +216,47 @@ export class CheckoutDataComponent implements OnInit {
   }
 
   deleteAddress(address: ShippingAddress): void {
-  this.errorMessage.set('');
-  this.successMessage.set('');
-
-  if (address.principal) {
-    this.errorMessage.set(
-      'No puedes eliminar la direccion principal. Selecciona otra como principal primero.',
-    );
-    return;
-  }
-
-  const confirmed = window.confirm(
-    `Quieres eliminar la direccion "${address.direccion}"?`,
-  );
-
-  if (!confirmed) {
-    return;
-  }
-
-  this.deletingAddressId.set(address.id);
-
-  this.shippingAddressService.deleteAddress(address.id).subscribe({
-    next: () => {
-      this.deletingAddressId.set(null);
-
-      if (this.editingAddressId() === address.id) {
-        this.cancelEditing();
-      }
-
-      this.successMessage.set('Direccion eliminada correctamente.');
-    },
-    error: (error: HttpErrorResponse) => {
-      this.deletingAddressId.set(null);
-      this.errorMessage.set(
-        error.error?.message ?? 'No ha sido posible eliminar la direccion.',
-      );
-    },
-  });
-}
-
-  cancelEditing(): void {
-    this.editingAddressId.set(null);
-    this.submitted.set(false);
     this.errorMessage.set('');
     this.successMessage.set('');
-    this.resetAddressFields();
+
+    if (address.principal) {
+      this.errorMessage.set(
+        'No puedes eliminar la direccion principal. Selecciona otra como principal primero.',
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Quieres eliminar la direccion "${address.direccion}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.deletingAddressId.set(address.id);
+
+    this.shippingAddressService.deleteAddress(address.id).subscribe({
+      next: () => {
+        this.deletingAddressId.set(null);
+
+        if (this.checkoutService.address()?.id === address.id) {
+          this.checkoutService.selectAddress(null);
+        }
+
+        if (this.editingAddressId() === address.id) {
+          this.collapseAddressForm();
+        }
+
+        this.successMessage.set('Direccion eliminada correctamente.');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.deletingAddressId.set(null);
+        this.errorMessage.set(
+          error.error?.message ?? 'No ha sido posible eliminar la direccion.',
+        );
+      },
+    });
   }
 
   private resetAddressFields(): void {
@@ -242,6 +271,41 @@ export class CheckoutDataComponent implements OnInit {
       pais: 'Espana',
       principal: false,
     }));
+  }
+
+  selectShippingAddress(address: ShippingAddress): void {
+    this.checkoutService.selectAddress(address);
+    this.errorMessage.set('');
+  }
+
+  isShippingAddressSelected(address: ShippingAddress): boolean {
+    const selectedAddress = this.checkoutService.address();
+
+    if (selectedAddress) {
+      return selectedAddress.id === address.id;
+    }
+
+    const defaultAddress =
+      this.addresses().find((item) => item.principal) ?? this.addresses()[0];
+
+    return defaultAddress?.id === address.id;
+  }
+
+  continueToShipping(): void {
+    const selectedAddress =
+      this.checkoutService.address() ??
+      this.addresses().find((address) => address.principal) ??
+      this.addresses()[0];
+
+    if (!selectedAddress) {
+      this.errorMessage.set(
+        'Guarda o selecciona una direccion de envio antes de continuar.',
+      );
+      return;
+    }
+
+    this.checkoutService.selectAddress(selectedAddress);
+    this.router.navigate(['/checkout/envio']);
   }
 
   formatPrice(price: number): string {

@@ -1,5 +1,4 @@
-import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +37,16 @@ export class NavbarComponent implements OnInit {
   dropdownOpen = signal(false);
   scrolled = signal(false);
   cartCount = this.cartService.itemCount;
+
+  readonly isAuthenticated = computed(() => {
+  this.authService.currentUser();
+  return this.authService.hasActiveSession();
+});
+
+readonly authenticatedDisplayName = computed(() => {
+  this.authService.currentUser();
+  return this.authService.getAuthenticatedDisplayName();
+});
 
   apiculturaLinks = [
     { label: 'Guía del apicultor', route: '/aprende/guia' },

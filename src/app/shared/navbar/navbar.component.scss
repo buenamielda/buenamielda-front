@@ -236,3 +236,28 @@ mat-divider {
   border-color: rgba($brand-dark, 0.08) !important;
   margin: 4px 0 !important;
 }
+
+.account-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: $brand-mid;
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    color: $brand-dark;
+    background: rgba($brand-gold, 0.08);
+  }
+}
+
+.account-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: $font-serif;
+  font-size: 0.9rem;
+}

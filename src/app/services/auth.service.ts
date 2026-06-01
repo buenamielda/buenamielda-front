@@ -191,6 +191,18 @@ export class AuthService {
     return typeof email === 'string' ? email : '';
   }
 
+  getAuthenticatedDisplayName(): string {
+    const token = this.getToken();
+    const payload = token ? this.decodeTokenPayload(token) : null;
+    const name = payload?.['nombre'];
+
+    if (typeof name === 'string' && name.trim()) {
+      return name;
+    }
+
+    return this.getAuthenticatedEmail().split('@')[0];
+  }
+
   private decodeTokenPayload(token: string): Record<string, unknown> | null {
     try {
       const [, payload] = token.split('.');

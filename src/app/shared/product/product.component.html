@@ -1,6 +1,5 @@
 <section class="products-section">
   <div class="container-lg px-3 px-lg-4">
-
     <!-- Título -->
     <div class="row">
       <div class="col-12 text-center">
@@ -10,7 +9,6 @@
 
     <!-- Barra de controles -->
     <div class="row align-items-center gy-3 mb-4" *ngIf="showControls">
-
       <!-- Contador resultados -->
       <div class="col-12 col-md-5">
         <p class="results-label">{{ etiquetaResultados }}</p>
@@ -18,22 +16,25 @@
 
       <!-- Ordenar -->
       <div class="col-12 col-md-7 d-flex justify-content-md-end">
-        <mat-form-field class="sort-field" appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field
+          class="sort-field"
+          appearance="outline"
+          subscriptSizing="dynamic"
+        >
           <mat-select
             [value]="ordenSeleccionado()"
-            (selectionChange)="ordenar($event.value)">
+            (selectionChange)="ordenar($event.value)"
+          >
             <mat-option *ngFor="let opt of opcionesOrden" [value]="opt.value">
               {{ opt.label }}
             </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
-
     </div>
 
     <!-- Buscador + Filtrar -->
     <div class="row align-items-center mb-4 gy-2" *ngIf="showControls">
-
       <div class="col-12 col-md-8">
         <div class="search-wrapper">
           <mat-icon class="search-icon">search</mat-icon>
@@ -53,26 +54,26 @@
           Filtrar
         </button>
       </div>
-
     </div>
 
     <!-- Grid de productos -->
     <div class="row gy-4" [class.list-view]="modoVista() === 'list'">
-
       <div
         *ngFor="let product of productosFiltrados()"
-        class="col-6 col-md-4 col-lg-3 product-col">
-
+        class="col-6 col-md-4 col-lg-3 product-col"
+      >
         <div class="product-card" [routerLink]="['/productos', product.id]">
-
           <!-- Imagen -->
           <div class="product-img-wrap">
             <img
-              [src]="product.imagenUrl"
+              [src]="product.imagenUrl || 'assets/images/placeholder.svg'"
               [alt]="product.nombre"
               class="product-img"
               loading="lazy"
-              onerror="this.src='assets/images/placeholder.svg'"
+              onerror="
+                this.onerror = null;
+                this.src = 'assets/images/placeholder.svg';
+              "
             />
           </div>
 
@@ -81,27 +82,38 @@
             <p class="product-name">{{ product.nombre }}</p>
             <p class="product-price">{{ formatearPrecio(product.precio) }}</p>
           </div>
-
         </div>
       </div>
 
       <!-- Sin resultados -->
-      <div *ngIf="productosFiltrados().length === 0" class="col-12 text-center py-5">
+      <div
+        *ngIf="productosFiltrados().length === 0"
+        class="col-12 text-center py-5"
+      >
         <mat-icon class="no-results-icon">search_off</mat-icon>
-        <p class="no-results-text">No se encontraron productos para "{{ busqueda() }}"</p>
+        <p class="no-results-text">
+          No se encontraron productos para "{{ busqueda() }}"
+        </p>
       </div>
-
     </div>
 
     <!-- Toggle vista lista -->
     <div class="row view-toggle-row" *ngIf="showControls && showViewToggle">
       <div class="col-12 d-flex justify-content-end">
-        <button class="view-toggle" (click)="cambiarVista(modoVista() === 'grid' ? 'list' : 'grid')">
-          <mat-icon>{{ modoVista() === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
-          {{ modoVista() === 'grid' ? 'Mostrar los productos en lista' : 'Mostrar en cuadrícula' }}
+        <button
+          class="view-toggle"
+          (click)="cambiarVista(modoVista() === 'grid' ? 'list' : 'grid')"
+        >
+          <mat-icon>{{
+            modoVista() === "grid" ? "view_list" : "grid_view"
+          }}</mat-icon>
+          {{
+            modoVista() === "grid"
+              ? "Mostrar los productos en lista"
+              : "Mostrar en cuadrícula"
+          }}
         </button>
       </div>
     </div>
-
   </div>
 </section>

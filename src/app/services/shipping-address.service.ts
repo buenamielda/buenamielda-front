@@ -93,7 +93,7 @@ export class ShippingAddressService {
     }
 
     if (error.status === 401 || error.status === 403) {
-      return 'Inicia sesion para consultar tus direcciones.';
+      return 'Inicia sesión para consultar tus direcciones.';
     }
 
     return 'No ha sido posible cargar tus direcciones.';

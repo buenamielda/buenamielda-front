@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import {
   AuthService,
@@ -24,6 +24,8 @@ interface LoginForm {
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly form = signal<LoginForm>({
     email: '',
@@ -52,7 +54,7 @@ export class LoginComponent {
     this.loggedUser.set(null);
 
     if (!this.canSubmit()) {
-      this.errorMessage.set('Introduce un email y una contrasena validos.');
+      this.errorMessage.set('Introduce un email y una contraseña válidos.');
       return;
     }
 
@@ -66,15 +68,19 @@ export class LoginComponent {
           this.loggedUser.set(user);
           this.form.set({ email: '', password: '' });
           this.submitted.set(false);
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          this.router.navigateByUrl(
+            returnUrl?.startsWith('/') ? returnUrl : '/productos',
+          );
         },
         error: (error) => {
           if (error instanceof InvalidCredentialsError) {
-            this.errorMessage.set('Email o contrasena incorrectos.');
+            this.errorMessage.set('Email o contraseña incorrectos.');
           } else if (error instanceof LoginValidationError) {
             this.errorMessage.set(error.message);
           } else {
             this.errorMessage.set(
-              'No se ha podido iniciar sesion. Intentalo de nuevo.',
+              'No se ha podido iniciar sesión. Inténtalo de nuevo.',
             );
           }
         },

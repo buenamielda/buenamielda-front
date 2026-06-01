@@ -23,24 +23,24 @@ export class HomeComponent {
     {
       icon: 'eco',
       title: 'Miel natural',
-      text: 'Productos apicolas seleccionados con cuidado, sin perder el sabor propio de cada floracion.',
+      text: 'Productos apícolas seleccionados con cuidado, sin perder el sabor propio de cada floración.',
     },
     {
       icon: 'science',
-      title: 'Divulgacion cercana',
+      title: 'Divulgación cercana',
       text: 'Contenido claro sobre abejas, colmenas y procesos para entender mejor lo que llega a tu mesa.',
     },
     {
       icon: 'local_shipping',
       title: 'Del colmenar a casa',
-      text: 'Una experiencia de compra sencilla para descubrir, elegir y recibir productos apicolas de calidad.',
+      text: 'Una experiencia de compra sencilla para descubrir, elegir y recibir productos apícolas de calidad.',
     },
   ];
 
   testimonials = [
     {
       quote:
-        'Una miel con sabor autentico y una web que explica muy bien de donde viene cada producto.',
+        'Una miel con sabor auténtico y una web que explica muy bien de dónde viene cada producto.',
       author: 'Cliente verificado',
     },
     {
@@ -50,7 +50,7 @@ export class HomeComponent {
     },
     {
       quote:
-        'El catalogo es claro y la identidad visual transmite naturaleza, cercania y oficio artesanal.',
+        'El catalogo es claro y la identidad visual transmite naturaleza, cercanía y oficio artesanal.',
       author: 'Usuario del prototipo',
     },
   ];
@@ -58,6 +58,6 @@ export class HomeComponent {
   popularLinks = [
     { label: 'Miel de tomillo', route: '/productos/1' },
     { label: 'Aprende apicultura', route: '/aprende' },
-    { label: 'Blog cientifico', route: '/blog' },
+    { label: 'Blog científico', route: '/blog' },
   ];
 }

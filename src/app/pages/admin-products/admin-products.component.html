@@ -2,9 +2,9 @@
   <div class="container-lg px-3 px-lg-4">
     <header class="admin-header">
       <div>
-        <p class="admin-kicker">Administracion</p>
-        <h1>Gestion de productos</h1>
-        <p>Crea, edita, desactiva o borra productos del catalogo.</p>
+        <p class="admin-kicker">Administración</p>
+        <h1>Gestión de productos</h1>
+        <p>Crea, edita, desactiva o borra productos del catálogo.</p>
       </div>
 
       <div class="admin-stats">
@@ -168,7 +168,7 @@
           </label>
 
           <label>
-            Categoria
+            Categoría
             <select
               [ngModel]="form().nombreCategoria"
               name="category"
@@ -176,12 +176,12 @@
             >
               <option value="miel">Miel</option>
               <option value="polen">Polen</option>
-              <option value="propoleo">Propoleo</option>
-              <option value="cosmetica">Cosmetica</option>
+              <option value="propoleo">Propóleo</option>
+              <option value="cosmetica">Cosmética</option>
             </select>
           </label>
         </div>
-        
+
         <label>
           Imagen
           <input
@@ -203,7 +203,7 @@
         </label>
 
         <label>
-          Descripcion
+          Descripción
           <textarea
             rows="4"
             [ngModel]="form().descripcion"
@@ -219,7 +219,7 @@
             [ngModel]="form().detallesTexto"
             name="detailsText"
             (ngModelChange)="cambiarCampo('detallesTexto', $event)"
-            placeholder="Un detalle por linea"
+            placeholder="Un detalle por línea"
           ></textarea>
         </label>
 
@@ -259,8 +259,14 @@
             *ngFor="let product of productosFiltrados()"
             [class.inactive]="!product.activo"
           >
-            <img [src]="product.imagenUrl" [alt]="product.nombre" />
-
+            <img
+              [src]="product.imagenUrl || 'assets/images/placeholder.svg'"
+              [alt]="product.nombre"
+              onerror="
+                this.onerror = null;
+                this.src = 'assets/images/placeholder.svg';
+              "
+            />
             <div class="product-main">
               <h3>{{ product.nombre }}</h3>
               <p>

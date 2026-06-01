@@ -1,6 +1,5 @@
 <main class="product-detail-page">
   <div class="container-lg px-3 px-lg-4">
-
     <div *ngIf="cargando()" class="text-center py-5">
       <p>Cargando producto...</p>
     </div>
@@ -12,12 +11,18 @@
 
     <ng-container *ngIf="producto() as producto">
       <section class="product-layout">
-        <article class="product-visual" [routerLink]="['/productos', producto.id]">
+        <article
+          class="product-visual"
+          [routerLink]="['/productos', producto.id]"
+        >
           <img
-            [src]="producto.imagenUrl"
+            [src]="producto.imagenUrl || 'assets/images/placeholder.svg'"
             [alt]="producto.nombre"
             loading="lazy"
-            onerror="this.src='assets/images/placeholder.svg'"
+            onerror="
+              this.onerror = null;
+              this.src = 'assets/images/placeholder.svg';
+            "
           />
         </article>
 
@@ -28,9 +33,7 @@
             {{ formatearPrecio(producto.precio) }}
           </p>
 
-          <p class="product-stock">
-            Stock disponible: {{ producto.stock }}
-          </p>
+          <p class="product-stock">Stock disponible: {{ producto.stock }}</p>
 
           <div class="product-actions">
             <div class="quantity-control" aria-label="Seleccionar cantidad">
@@ -39,20 +42,20 @@
               <div class="quantity-buttons">
                 <button
                   type="button"
-                  (click)="incrementarCantidad()"
-                  aria-label="Sumar producto"
+                  (click)="reducirCantidad()"
+                  aria-label="Restar producto"
                 >
-                  +
+                  -
                 </button>
 
                 <strong>{{ cantidad() }}</strong>
 
                 <button
                   type="button"
-                  (click)="reducirCantidad()"
-                  aria-label="Restar producto"
+                  (click)="incrementarCantidad()"
+                  aria-label="Sumar producto"
                 >
-                  -
+                  +
                 </button>
               </div>
             </div>
@@ -71,37 +74,21 @@
                 <span>Compra única</span>
               </label>
 
-              <label
-                class="purchase-option subscription"
-                [class.selected]="modoCompra() === 'subscription'"
-              >
-                <input
-                  type="radio"
-                  name="purchaseMode"
-                  [checked]="modoCompra() === 'subscription'"
-                  (change)="seleccionarModoCompra('subscription')"
-                />
-                <span>Suscripción y entrega cada <strong>4 semanas</strong></span>
+              <label class="purchase-option subscription disabled-option">
+                <input type="radio" name="purchaseMode" disabled />
+                <span>Suscripción y entrega periódica</span>
                 <small>
-                  Suscríbete ahora y obtén el 10% de descuento en cada pedido recurrente.
-                  El descuento se aplicará al finalizar la compra. Ver detalles.
+                  Esta funcionalidad no está disponible actualmente.
                 </small>
               </label>
             </div>
           </div>
 
-          <p class="product-total">
-            Total: {{ formatearPrecio(total()) }}
-          </p>
+          <p class="product-total">Total: {{ formatearPrecio(total()) }}</p>
 
           <p class="cart-error" *ngIf="cartError()">{{ cartError() }}</p>
 
-
-          <button
-            type="button"
-            class="buy-button"
-            (click)="anadirAlCarrito()"
-          >
+          <button type="button" class="buy-button" (click)="anadirAlCarrito()">
             Añadir al carro
           </button>
 
@@ -124,6 +111,5 @@
         </p>
       </section>
     </ng-container>
-
   </div>
 </main>

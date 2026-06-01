@@ -147,6 +147,16 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
+.disabled-option {
+  cursor: not-allowed;
+  opacity: 0.58;
+  background: rgba($brand-brown, 0.04);
+
+  input {
+    cursor: not-allowed;
+  }
+}
+
 .buy-button {
   grid-column: 2;
   display: inline-flex;

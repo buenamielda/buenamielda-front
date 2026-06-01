@@ -16,7 +16,7 @@ interface StoredUser extends UsuarioResponseDto {
 
 export class EmailAlreadyRegisteredError extends Error {
   constructor(email: string) {
-    super(`El email ${email} ya esta registrado.`);
+    super(`El email ${email} ya está registrado.`);
   }
 }
 
@@ -28,7 +28,7 @@ export class InvalidCredentialsError extends Error {
 
 export class InactiveUserError extends Error {
   constructor() {
-    super('El usuario no esta activo.');
+    super('El usuario no está activo.');
   }
 }
 
@@ -189,6 +189,18 @@ export class AuthService {
       payload?.['email'] ?? payload?.['sub'] ?? payload?.['username'] ?? '';
 
     return typeof email === 'string' ? email : '';
+  }
+
+  getAuthenticatedDisplayName(): string {
+    const token = this.getToken();
+    const payload = token ? this.decodeTokenPayload(token) : null;
+    const name = payload?.['nombre'];
+
+    if (typeof name === 'string' && name.trim()) {
+      return name;
+    }
+
+    return this.getAuthenticatedEmail().split('@')[0];
   }
 
   private decodeTokenPayload(token: string): Record<string, unknown> | null {

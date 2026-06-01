@@ -30,7 +30,7 @@ export class CheckoutShippingComponent {
     const address = this.address();
 
     if (!address) {
-      return 'Direccion pendiente';
+      return 'Dirección pendiente';
     }
 
     return `${address.direccion}, ${address.codigoPostal}, ${address.localidad}`;

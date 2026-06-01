@@ -153,14 +153,14 @@ export class CheckoutDataComponent implements OnInit {
         this.resetAddressFields();
         this.successMessage.set(
           editingId === null
-            ? 'Direccion guardada correctamente.'
-            : 'Direccion actualizada correctamente.',
+            ? 'Dirección guardada correctamente.'
+            : 'Dirección actualizada correctamente.',
         );
       },
       error: (error: HttpErrorResponse) => {
         this.savingAddress.set(false);
         this.errorMessage.set(
-          error.error?.message ?? 'No ha sido posible guardar la direccion.',
+          error.error?.message ?? 'No ha sido posible guardar la dirección.',
         );
       },
     });
@@ -221,13 +221,13 @@ export class CheckoutDataComponent implements OnInit {
 
     if (address.principal) {
       this.errorMessage.set(
-        'No puedes eliminar la direccion principal. Selecciona otra como principal primero.',
+        'No puedes eliminar la dirección principal. Selecciona otra como principal primero.',
       );
       return;
     }
 
     const confirmed = window.confirm(
-      `Quieres eliminar la direccion "${address.direccion}"?`,
+      `Quieres eliminar la dirección "${address.direccion}"?`,
     );
 
     if (!confirmed) {
@@ -248,12 +248,12 @@ export class CheckoutDataComponent implements OnInit {
           this.collapseAddressForm();
         }
 
-        this.successMessage.set('Direccion eliminada correctamente.');
+        this.successMessage.set('Dirección eliminada correctamente.');
       },
       error: (error: HttpErrorResponse) => {
         this.deletingAddressId.set(null);
         this.errorMessage.set(
-          error.error?.message ?? 'No ha sido posible eliminar la direccion.',
+          error.error?.message ?? 'No ha sido posible eliminar la dirección.',
         );
       },
     });
@@ -268,7 +268,7 @@ export class CheckoutDataComponent implements OnInit {
       codigoPostal: '',
       localidad: '',
       provincia: '',
-      pais: 'Espana',
+      pais: 'España',
       principal: false,
     }));
   }
@@ -299,7 +299,7 @@ export class CheckoutDataComponent implements OnInit {
 
     if (!selectedAddress) {
       this.errorMessage.set(
-        'Guarda o selecciona una direccion de envio antes de continuar.',
+        'Guarda o selecciona una dirección de envío antes de continuar.',
       );
       return;
     }
@@ -316,11 +316,11 @@ export class CheckoutDataComponent implements OnInit {
     const value = this.form()[field].trim();
 
     if (field === 'telefono' && !/^\+?[0-9]{7,15}$/.test(value)) {
-      return 'Introduce un telefono valido de entre 7 y 15 cifras.';
+      return 'Introduce un teléfono válido de entre 7 y 15 cifras.';
     }
 
     if (field === 'codigoPostal' && !/^[0-9]{5}$/.test(value)) {
-      return 'Introduce un codigo postal de 5 cifras.';
+      return 'Introduce un código postal de 5 cifras.';
     }
 
     if (value.length < 2) {
@@ -328,7 +328,7 @@ export class CheckoutDataComponent implements OnInit {
     }
 
     if (field === 'direccion' && value.length < 5) {
-      return 'Introduce una direccion valida.';
+      return 'Introduce una dirección válida.';
     }
 
     return '';

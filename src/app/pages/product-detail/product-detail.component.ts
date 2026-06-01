@@ -76,7 +76,9 @@ export class ProductDetailComponent implements OnInit {
     this.cartError.set('');
 
     if (!this.authService.hasActiveSession()) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url },
+      });
       return;
     }
 
@@ -94,7 +96,9 @@ export class ProductDetailComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           if (error.status === 401 || error.status === 403) {
-            this.router.navigate(['/login']);
+            this.router.navigate(['/login'], {
+              queryParams: { returnUrl: this.router.url },
+            });
             return;
           }
 
@@ -120,6 +124,6 @@ export class ProductDetailComponent implements OnInit {
       return Object.values(error.error).join(' ');
     }
 
-    return 'No se ha podido anadir el producto al carrito.';
+    return 'No se ha podido añadir el producto al carrito.';
   }
 }

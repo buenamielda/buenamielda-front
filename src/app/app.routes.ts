@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ProductGridComponent } from './shared/product/product.component';
 import { adminGuard } from './services/admin.guard';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   {
@@ -33,6 +34,7 @@ export const routes: Routes = [
   },
   {
     path: 'carrito',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/cart/cart.component').then((m) => m.CartComponent),
     title: 'Carrito | Buena mielda',
@@ -57,10 +59,11 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.component').then((m) => m.LoginComponent),
-    title: 'Iniciar sesion | Buena mielda',
+    title: 'Iniciar sesión | Buena mielda',
   },
   {
     path: 'pedido-confirmado',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/order-confirmation/order-confirmation.component').then(
         (m) => m.OrderConfirmationComponent,
@@ -69,6 +72,7 @@ export const routes: Routes = [
   },
   {
     path: 'pago',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/payment/payment.component').then(
         (m) => m.PaymentComponent,
@@ -77,19 +81,21 @@ export const routes: Routes = [
   },
   {
     path: 'checkout/datos',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/checkout-data/checkout-data.component').then(
         (m) => m.CheckoutDataComponent,
       ),
-    title: 'Datos de envio | Buena mielda',
+    title: 'Datos de envío | Buena mielda',
   },
   {
     path: 'checkout/envio',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/checkout-shipping/checkout-shipping.component').then(
         (m) => m.CheckoutShippingComponent,
       ),
-    title: 'Metodo de envio | Buena mielda',
+    title: 'Método de envío | Buena mielda',
   },
   {
     path: '**',

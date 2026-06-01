@@ -2,15 +2,15 @@
   <div class="container-lg px-3 px-lg-4">
     <header class="cart-header">
       <p class="cart-kicker">Carrito</p>
-      <h1>Articulos en tu cesta</h1>
+      <h1>Artículos en tu cesta</h1>
       <a routerLink="/productos" class="back-link">Seguir comprando</a>
     </header>
 
     <section class="cart-empty" *ngIf="items().length === 0">
       <div class="empty-icon">0</div>
-      <h2>Tu cesta esta vacia</h2>
+      <h2>Tu cesta está vacía</h2>
       <p>
-        Anade productos desde el catalogo para ver aqui el detalle completo de
+        Añade productos desde el catálogo para ver aquí el detalle completo de
         tu pedido.
       </p>
       <a routerLink="/productos" class="catalog-button">Ver productos</a>
@@ -27,7 +27,14 @@
 
         <div class="cart-row cart-item" *ngFor="let item of items()">
           <div class="item-product">
-            <img [src]="item.product.imagenUrl" [alt]="item.product.nombre" />
+            <img
+              [src]="item.product.imagenUrl || 'assets/images/placeholder.svg'"
+              [alt]="item.product.nombre"
+              onerror="
+                this.onerror = null;
+                this.src = 'assets/images/placeholder.svg';
+              "
+            />
             <div>
               <h2>{{ item.product.nombre }}&reg;</h2>
               <p>{{ modeLabel(item.purchaseMode) }}</p>
@@ -42,18 +49,18 @@
             <div class="quantity-buttons">
               <button
                 type="button"
-                (click)="increaseQuantity(item)"
-                aria-label="Sumar producto"
-              >
-                +
-              </button>
-              <strong>{{ item.quantity }}</strong>
-              <button
-                type="button"
                 (click)="decreaseQuantity(item)"
                 aria-label="Restar producto"
               >
                 -
+              </button>
+              <strong>{{ item.quantity }}</strong>
+              <button
+                type="button"
+                (click)="increaseQuantity(item)"
+                aria-label="Sumar producto"
+              >
+                +
               </button>
             </div>
           </div>
@@ -72,11 +79,11 @@
             <span>Total</span>
             <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
-          <p>Los impuestos y el coste de envio se calcularan mas tarde.</p>
+          <p>Los impuestos y el coste de envío se calcularán más tarde.</p>
           <p class="order-error" *ngIf="orderError()">{{ orderError() }}</p>
 
           <a routerLink="/login" class="login-warning" *ngIf="needsLogin()">
-            Ir a iniciar sesion
+            Ir a iniciar sesión
           </a>
         </div>
 

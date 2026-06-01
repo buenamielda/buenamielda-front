@@ -39,20 +39,20 @@
               <div class="quantity-buttons">
                 <button
                   type="button"
-                  (click)="incrementarCantidad()"
-                  aria-label="Sumar producto"
+                  (click)="reducirCantidad()"
+                  aria-label="Restar producto"
                 >
-                  +
+                  -
                 </button>
 
                 <strong>{{ cantidad() }}</strong>
 
                 <button
                   type="button"
-                  (click)="reducirCantidad()"
-                  aria-label="Restar producto"
+                  (click)="incrementarCantidad()"
+                  aria-label="Sumar producto"
                 >
-                  -
+                  +
                 </button>
               </div>
             </div>

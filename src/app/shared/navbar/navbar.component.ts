@@ -44,6 +44,7 @@ export class NavbarComponent implements OnInit {
 
   mobileMenuOpen = signal(false);
   dropdownOpen = signal(false);
+  managementDropdownOpen = signal(false);
   scrolled = signal(false);
   cartCount = this.cartService.itemCount;
 
@@ -55,6 +56,11 @@ export class NavbarComponent implements OnInit {
   readonly authenticatedDisplayName = computed(() => {
     this.authService.currentUser();
     return this.authService.getAuthenticatedDisplayName();
+  });
+
+  readonly isAdmin = computed(() => {
+    this.authService.currentUser();
+    return this.authService.hasActiveSession() && this.authService.isAdmin();
   });
 
   apiculturaLinks = [
@@ -86,11 +92,22 @@ export class NavbarComponent implements OnInit {
     const target = event.target as HTMLElement;
     if (!target.closest('.custom-dropdown')) {
       this.dropdownOpen.set(false);
+      this.managementDropdownOpen.set(false);
     }
   }
 
   toggleDropdown() {
-    this.dropdownOpen.update((v) => !v);
+    this.managementDropdownOpen.set(false);
+    this.dropdownOpen.update((value) => !value);
+  }
+
+  toggleManagementDropdown() {
+    this.dropdownOpen.set(false);
+    this.managementDropdownOpen.update((value) => !value);
+  }
+
+  closeManagementDropdown() {
+    this.managementDropdownOpen.set(false);
   }
 
   closeDropdown() {

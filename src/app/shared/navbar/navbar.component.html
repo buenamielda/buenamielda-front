@@ -108,6 +108,38 @@
 
       <!-- Acciones -->
       <div class="col-auto ms-auto d-flex align-items-center gap-1">
+        <div
+            *ngIf="isAdmin()"
+            class="custom-dropdown management-dropdown"
+            [class.open]="managementDropdownOpen()"
+          >
+            <button
+              type="button"
+              class="nav-link-btn management-trigger"
+              (click)="toggleManagementDropdown()"
+              [class.link-active]="managementDropdownOpen()"
+            >
+              Gestión
+              <mat-icon
+                class="chevron-icon"
+                [class.rotated]="managementDropdownOpen()"
+              >
+                expand_more
+              </mat-icon>
+            </button>
+
+            <div class="custom-dropdown-panel management-dropdown-panel">
+              <a
+                routerLink="/admin/productos"
+                class="dropdown-item-link management-item-link"
+                (click)="closeManagementDropdown()"
+              >
+                <mat-icon>inventory_2</mat-icon>
+                Productos y stock
+              </a>
+            </div>
+          </div>
+
         <a
           *ngIf="!isAuthenticated()"
           routerLink="/login"
@@ -192,6 +224,28 @@
             (click)="closeMobileMenu()"
           >
             <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel
+        *ngIf="isAdmin()"
+        class="mobile-expansion management-mobile"
+        elevation="0"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title class="mobile-expansion-title">
+            Gestión
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-nav-list class="submenu-list">
+          <a
+            mat-list-item
+            routerLink="/admin/productos"
+            (click)="closeMobileMenu()"
+          >
+            <span matListItemTitle>Productos y stock</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

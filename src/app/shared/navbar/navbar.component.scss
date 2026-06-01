@@ -276,3 +276,41 @@ mat-divider {
   height: 18px;
   font-size: 18px;
 }
+.management-dropdown-panel {
+  border-color: rgba($brand-gold, 0.3);
+}
+.management-mobile {
+  border-left: 3px solid $brand-gold;
+
+  .mobile-expansion-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $brand-dark;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+      color: $brand-gold;
+    }
+  }
+}
+.management-dropdown {
+  margin-right: 24px;
+}
+
+.management-trigger {
+  color: $brand-mid;
+}
+
+.management-dropdown-panel {
+  left: auto;
+  right: 0;
+  transform: translateY(-6px);
+  border-color: rgba($brand-dark, 0.1);
+
+  .management-dropdown.open & {
+    transform: translateY(0);
+  }
+}

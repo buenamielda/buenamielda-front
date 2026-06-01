@@ -90,11 +90,11 @@ export class RegisterComponent {
         error: (error) => {
           if (error instanceof EmailAlreadyRegisteredError) {
             this.errorMessage.set(
-              'Ese email ya esta registrado. Prueba con otro o inicia sesion.',
+              'Ese email ya está registrado. Prueba con otro o inicia sesión.',
             );
           } else {
             this.errorMessage.set(
-              'No se ha podido crear la cuenta. Intentalo de nuevo.',
+              'No se ha podido crear la cuenta. Inténtalo de nuevo.',
             );
           }
         },

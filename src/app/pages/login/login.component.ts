@@ -52,7 +52,7 @@ export class LoginComponent {
     this.loggedUser.set(null);
 
     if (!this.canSubmit()) {
-      this.errorMessage.set('Introduce un email y una contraseña validos.');
+      this.errorMessage.set('Introduce un email y una contraseña válidos.');
       return;
     }
 
@@ -74,7 +74,7 @@ export class LoginComponent {
             this.errorMessage.set(error.message);
           } else {
             this.errorMessage.set(
-              'No se ha podido iniciar sesion. Intentalo de nuevo.',
+              'No se ha podido iniciar sesión. Inténtalo de nuevo.',
             );
           }
         },

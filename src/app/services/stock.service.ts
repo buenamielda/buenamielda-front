@@ -17,7 +17,7 @@ export class StockProductNotFoundError extends Error {
 
 export class InactiveStockProductError extends Error {
   constructor(productName: string) {
-    super(`El producto "${productName}" no esta activo.`);
+    super(`El producto "${productName}" no está activo.`);
   }
 }
 

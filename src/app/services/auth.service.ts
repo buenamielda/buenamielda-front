@@ -16,7 +16,7 @@ interface StoredUser extends UsuarioResponseDto {
 
 export class EmailAlreadyRegisteredError extends Error {
   constructor(email: string) {
-    super(`El email ${email} ya esta registrado.`);
+    super(`El email ${email} ya está registrado.`);
   }
 }
 
@@ -28,7 +28,7 @@ export class InvalidCredentialsError extends Error {
 
 export class InactiveUserError extends Error {
   constructor() {
-    super('El usuario no esta activo.');
+    super('El usuario no está activo.');
   }
 }
 

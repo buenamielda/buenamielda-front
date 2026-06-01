@@ -1,8 +1,8 @@
 <main class="shipping-page">
   <div class="container-lg px-3 px-lg-4">
     <section class="shipping-empty" *ngIf="!address()">
-      <h1>Selecciona una direccion de envio</h1>
-      <p>Completa primero los datos de envio para seleccionar un metodo.</p>
+      <h1>Selecciona una dirección de envío</h1>
+      <p>Completa primero los datos de envío para seleccionar un método.</p>
       <a routerLink="/checkout/datos" class="primary-button">
         Volver a detalles
       </a>
@@ -25,18 +25,18 @@
           </div>
 
           <div>
-            <span>Direccion</span>
+            <span>Dirección</span>
             <strong>{{ formatAddress() }}</strong>
             <a routerLink="/checkout/datos">Editar</a>
           </div>
         </section>
 
         <section class="shipping-method">
-          <h1>Metodos de envio</h1>
+          <h1>Métodos de envío</h1>
 
           <label class="method-option">
             <input type="radio" checked />
-            <span>Envio estandar</span>
+            <span>Envío estándar</span>
             <strong>Gratis</strong>
           </label>
         </section>
@@ -79,8 +79,8 @@
             <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <div>
-            <span>Envio</span>
-            <strong>Envio gratuito</strong>
+            <span>Envío</span>
+            <strong>Envío gratuito</strong>
           </div>
           <div class="total-row">
             <span>Total</span>

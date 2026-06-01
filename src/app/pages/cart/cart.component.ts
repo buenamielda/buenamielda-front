@@ -67,8 +67,8 @@ export class CartComponent implements OnInit {
 
   modeLabel(mode: PurchaseMode): string {
     return mode === 'subscription'
-      ? 'Suscripcion cada 4 semanas'
-      : 'Compra unica';
+      ? 'Suscripción cada 4 semanas'
+      : 'Compra única';
   }
 
   formatPrice(precio: number): string {
@@ -82,7 +82,7 @@ export class CartComponent implements OnInit {
     if (!this.authService.hasActiveSession()) {
       this.needsLogin.set(true);
       this.orderError.set(
-        'Inicia sesion para confirmar el carrito y continuar con la compra.',
+        'Inicia sesión para confirmar el carrito y continuar con la compra.',
       );
       return;
     }

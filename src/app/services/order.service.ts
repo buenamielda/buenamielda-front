@@ -31,13 +31,13 @@ interface LineaPedidoApiResponseDto {
 
 export class EmptyCartError extends Error {
   constructor() {
-    super('El carrito esta vacio.');
+    super('El carrito está vacio.');
   }
 }
 
 export class AuthRequiredError extends Error {
   constructor() {
-    super('Inicia sesion para continuar.');
+    super('Inicia sesión para continuar.');
   }
 }
 
@@ -49,7 +49,7 @@ export class OrderNotFoundError extends Error {
 
 export class InvalidOrderStatusError extends Error {
   constructor(estado: string) {
-    super(`El estado "${estado}" no es valido.`);
+    super(`El estado "${estado}" no es válido.`);
   }
 }
 

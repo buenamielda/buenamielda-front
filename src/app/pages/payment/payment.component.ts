@@ -78,19 +78,19 @@ export class PaymentComponent {
     this.errorMessage.set('');
 
     if (!this.authService.hasActiveSession()) {
-      this.errorMessage.set('Inicia sesion para poder pagar el pedido.');
+      this.errorMessage.set('Inicia sesión para poder pagar el pedido.');
       return;
     }
 
     const address = this.address();
 
     if (!address) {
-      this.errorMessage.set('Selecciona primero una direccion de envio.');
+      this.errorMessage.set('Selecciona primero una dirección de envío.');
       return;
     }
 
     if (this.items().length === 0) {
-      this.errorMessage.set('El carrito esta vacio.');
+      this.errorMessage.set('El carrito está vacío.');
       return;
     }
 
@@ -143,7 +143,7 @@ export class PaymentComponent {
     const address = this.address();
 
     if (!address) {
-      return 'Direccion pendiente';
+      return 'Dirección pendiente';
     }
 
     return `${address.direccion}, ${address.codigoPostal}, ${address.localidad}`;

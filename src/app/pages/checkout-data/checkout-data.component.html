@@ -5,7 +5,7 @@
         <nav class="checkout-steps">
           <span>Carro</span>
           <strong>Detalles</strong>
-          <span>Envio</span>
+          <span>Envío</span>
           <span>Pago</span>
         </nav>
 
@@ -24,7 +24,7 @@
               [class.invalid]="showEmailError()"
             />
             <span class="field-error" *ngIf="showEmailError()">
-              Introduce un email valido.
+              Introduce un email válido.
             </span>
           </label>
 
@@ -35,7 +35,7 @@
               name="newsletter"
               (ngModelChange)="updateField('newsletter', $event)"
             />
-            Suscribirme al boletin de Buena mielda para obtener novedades.
+            Suscribirme al boletín de Buena mielda para obtener novedades.
           </label>
         </section>
 
@@ -69,7 +69,7 @@
               addresses().length === 0
             "
           >
-            Todavia no tienes direcciones guardadas.
+            Todavía no tienes direcciones guardadas.
           </p>
 
           <article
@@ -130,7 +130,7 @@
             *ngIf="addresses().length > 0 && !shouldDisplayAddressForm()"
             (click)="startCreatingAddress()"
           >
-            + Añadir nueva direccion de envio
+            + Añadir nueva dirección de envío
           </button>
         </section>
 
@@ -153,8 +153,8 @@
               <h2>
                 {{
                   editingAddressId() === null
-                    ? "Nueva direccion"
-                    : "Modificar direccion"
+                    ? "Nueva dirección"
+                    : "Modificar dirección"
                 }}
               </h2>
 
@@ -163,7 +163,7 @@
                 class="collapse-address-button"
                 *ngIf="addresses().length > 0"
                 (click)="collapseAddressForm()"
-                aria-label="Plegar formulario de direccion"
+                aria-label="Plegar formulario de dirección"
                 title="Plegar formulario"
               >
                 &#8722;
@@ -188,7 +188,7 @@
             </label>
 
             <label>
-              Telefono
+              Teléfono
               <input
                 type="tel"
                 [ngModel]="form().telefono"
@@ -205,7 +205,7 @@
             </label>
 
             <label>
-              Direccion de envio
+              Dirección de envío
               <input
                 type="text"
                 [ngModel]="form().direccion"
@@ -223,7 +223,7 @@
 
             <div class="form-row">
               <label>
-                Codigo postal
+                Código postal
                 <input
                   type="text"
                   [ngModel]="form().codigoPostal"
@@ -276,13 +276,13 @@
               </label>
 
               <label>
-                Pais
+                País
                 <select
                   [ngModel]="form().pais"
                   name="pais"
                   (ngModelChange)="updateField('pais', $event)"
                 >
-                  <option value="Espana">España</option>
+                  <option value="España">España</option>
                   <option value="Portugal">Portugal</option>
                   <option value="Francia">Francia</option>
                 </select>
@@ -296,7 +296,7 @@
                 name="principal"
                 (ngModelChange)="updateField('principal', $event)"
               />
-              Utilizar como direccion principal
+              Utilizar como dirección principal
             </label>
           </section>
 
@@ -310,8 +310,8 @@
                 savingAddress()
                   ? "Guardando..."
                   : editingAddressId() === null
-                    ? "Guardar direccion"
-                    : "Actualizar direccion"
+                    ? "Guardar dirección"
+                    : "Actualizar dirección"
               }}
             </button>
           </div>
@@ -325,7 +325,7 @@
             class="primary-button"
             (click)="continueToShipping()"
           >
-            Continuar al envio
+            Continuar al envío
           </button>
         </div>
       </div>
@@ -360,8 +360,8 @@
             <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <div>
-            <span>Envio</span>
-            <strong>Se calculara en el siguiente paso</strong>
+            <span>Envío</span>
+            <strong>Se calculará en el siguiente paso</strong>
           </div>
           <div class="total-row">
             <span>Total</span>

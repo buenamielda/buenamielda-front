@@ -11,7 +11,7 @@
         <nav class="checkout-steps" aria-label="Progreso del checkout">
           <span>Carro</span>
           <span>Detalles</span>
-          <span>Envio</span>
+          <span>Envío</span>
           <strong>Pago</strong>
         </nav>
 
@@ -21,26 +21,26 @@
             <strong>{{ email() }}</strong>
           </div>
           <div>
-            <span>Direccion</span>
+            <span>Dirección</span>
             <strong>{{ shippingAddress() }}</strong>
           </div>
           <div>
-            <span>Envio</span>
-            <strong>Envio estandar - GRATIS</strong>
+            <span>Envío</span>
+            <strong>Envío estándar - GRATIS</strong>
           </div>
         </section>
 
         <form class="payment-form" (ngSubmit)="pay()" novalidate>
           <section class="form-section">
-            <h1>Metodo de pago</h1>
+            <h1>Método de pago</h1>
 
             <div class="payment-method">
               <span class="radio-dot"></span>
-              <strong>Tarjeta de credito</strong>
+              <strong>Tarjeta de crédito</strong>
             </div>
 
             <label>
-              Numero de la tarjeta
+              Número de la tarjeta
               <input
                 type="text"
                 inputmode="numeric"
@@ -51,7 +51,7 @@
                 [class.invalid]="showCardNumberError()"
               />
               <span class="field-error" *ngIf="showCardNumberError()">
-                Introduce una tarjeta valida.
+                Introduce una tarjeta válida.
               </span>
             </label>
 
@@ -83,7 +83,7 @@
                   [class.invalid]="showExpiryError()"
                 />
                 <span class="field-error" *ngIf="showExpiryError()">
-                  Fecha no valida.
+                  Fecha no válida.
                 </span>
               </label>
 
@@ -99,14 +99,14 @@
                   [class.invalid]="showCvvError()"
                 />
                 <span class="field-error" *ngIf="showCvvError()">
-                  CVV no valido.
+                  CVV no válido.
                 </span>
               </label>
             </div>
           </section>
 
           <section class="form-section billing-section">
-            <h2>Direccion de facturacion</h2>
+            <h2>Dirección de facturación</h2>
 
             <label class="radio-option">
               <input
@@ -116,7 +116,7 @@
                 [value]="true"
                 (ngModelChange)="updateField('billingSameAsShipping', $event)"
               />
-              Usar la misma que la de envio
+              Usar la misma que la de envío
             </label>
 
             <label class="radio-option">
@@ -127,7 +127,7 @@
                 [value]="false"
                 (ngModelChange)="updateField('billingSameAsShipping', $event)"
               />
-              Usar una direccion diferente para la facturacion
+              Usar una dirección diferente para la facturación
             </label>
           </section>
 
@@ -176,8 +176,8 @@
             <strong>{{ formatPrice(subtotal()) }}</strong>
           </div>
           <div>
-            <span>Envio</span>
-            <strong>Envio gratuito</strong>
+            <span>Envío</span>
+            <strong>Envío gratuito</strong>
           </div>
           <div class="total-row">
             <span>Total</span>

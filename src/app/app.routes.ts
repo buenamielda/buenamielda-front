@@ -57,7 +57,7 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.component').then((m) => m.LoginComponent),
-    title: 'Iniciar sesion | Buena mielda',
+    title: 'Iniciar sesión | Buena mielda',
   },
   {
     path: 'pedido-confirmado',
@@ -81,7 +81,7 @@ export const routes: Routes = [
       import('./pages/checkout-data/checkout-data.component').then(
         (m) => m.CheckoutDataComponent,
       ),
-    title: 'Datos de envio | Buena mielda',
+    title: 'Datos de envío | Buena mielda',
   },
   {
     path: 'checkout/envio',
@@ -89,7 +89,7 @@ export const routes: Routes = [
       import('./pages/checkout-shipping/checkout-shipping.component').then(
         (m) => m.CheckoutShippingComponent,
       ),
-    title: 'Metodo de envio | Buena mielda',
+    title: 'Método de envío | Buena mielda',
   },
   {
     path: '**',

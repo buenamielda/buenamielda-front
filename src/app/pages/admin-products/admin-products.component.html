@@ -181,7 +181,7 @@
             </select>
           </label>
         </div>
-        
+
         <label>
           Imagen
           <input
@@ -259,8 +259,14 @@
             *ngFor="let product of productosFiltrados()"
             [class.inactive]="!product.activo"
           >
-            <img [src]="product.imagenUrl" [alt]="product.nombre" />
-
+            <img
+              [src]="product.imagenUrl || 'assets/images/placeholder.svg'"
+              [alt]="product.nombre"
+              onerror="
+                this.onerror = null;
+                this.src = 'assets/images/placeholder.svg';
+              "
+            />
             <div class="product-main">
               <h3>{{ product.nombre }}</h3>
               <p>

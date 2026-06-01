@@ -150,9 +150,10 @@
             <div class="product-thumb">
               <img
                 [src]="
-                  item.product.imagenUrl || 'assets/images/miel-tomillo.svg'
+                  item.product.imagenUrl || 'assets/images/placeholder.svg'
                 "
                 [alt]="item.product.nombre"
+                onerror="this.onerror=null; this.src='assets/images/placeholder.svg'"
               />
               <span>{{ item.quantity }}</span>
             </div>

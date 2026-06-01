@@ -27,7 +27,14 @@
 
         <div class="cart-row cart-item" *ngFor="let item of items()">
           <div class="item-product">
-            <img [src]="item.product.imagenUrl" [alt]="item.product.nombre" />
+            <img
+              [src]="item.product.imagenUrl || 'assets/images/placeholder.svg'"
+              [alt]="item.product.nombre"
+              onerror="
+                this.onerror = null;
+                this.src = 'assets/images/placeholder.svg';
+              "
+            />
             <div>
               <h2>{{ item.product.nombre }}&reg;</h2>
               <p>{{ modeLabel(item.purchaseMode) }}</p>

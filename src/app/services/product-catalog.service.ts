@@ -154,7 +154,7 @@ export class ProductCatalogService {
       descripcion: producto.descripcion?.trim() ?? '',
       precio: Number(producto.precio) || 0,
       stock: Math.max(0, Number(producto.stock) || 0),
-      imagenUrl: producto.imagenUrl?.trim() || 'assets/images/miel-tomillo.svg',
+      imagenUrl: producto.imagenUrl?.trim() || 'assets/images/placeholder.svg',
       idCategoria:
         producto.idCategoria ||
         this.resolverIdCategoria(producto.nombreCategoria),

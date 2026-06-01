@@ -12,11 +12,11 @@
         <div class="finish-message">
           <h1>Pago confirmado</h1>
           <p class="order-number">NÚMERO DE PEDIDO #{{ currentOrder.id }}</p>
-      <p class="thanks-copy">
-        Gracias por comprar en Buena mielda. Las abejas están trabajando
-        para preparar tu pedido. Revisa tu email para ver las actualizaciones
-        del envío.
-      </p>
+          <p class="thanks-copy">
+            Gracias por comprar en Buena mielda. Las abejas están trabajando
+            para preparar tu pedido. Revisa tu email para ver las
+            actualizaciones del envío.
+          </p>
         </div>
 
         <div class="finish-actions">
@@ -29,14 +29,26 @@
 
       <aside class="summary-panel">
         <div class="summary-products">
-          <article class="summary-product" *ngFor="let line of currentOrder.lineas">
+          <article
+            class="summary-product"
+            *ngFor="let line of currentOrder.lineas"
+          >
             <div class="product-thumb">
-              <img [src]="line.imagenProducto" [alt]="line.nombreProducto" />
+              <img
+                [src]="line.imagenProducto || 'assets/images/placeholder.svg'"
+                [alt]="line.nombreProducto"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'assets/images/placeholder.svg';
+                "
+              />
               <span>{{ line.cantidad }}</span>
             </div>
             <div>
               <h2>{{ line.nombreProducto }}&reg;</h2>
-              <p>{{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}</p>
+              <p>
+                {{ line.cantidad }} x {{ formatPrice(line.precioUnitario) }}
+              </p>
             </div>
             <strong>{{ formatPrice(line.subtotal) }}</strong>
           </article>

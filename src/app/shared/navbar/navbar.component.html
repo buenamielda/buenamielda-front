@@ -108,13 +108,38 @@
 
       <!-- Acciones -->
       <div class="col-auto ms-auto d-flex align-items-center gap-1">
-        <a routerLink="/login" class="account-link" aria-label="Mi cuenta">
+        <a
+          *ngIf="!isAuthenticated()"
+          routerLink="/login"
+          class="account-link"
+          aria-label="Iniciar sesión"
+        >
           <mat-icon>person_outline</mat-icon>
-
-          <span class="account-name" *ngIf="isAuthenticated()">
-            {{ authenticatedDisplayName() }}
-          </span>
         </a>
+
+        <button
+          *ngIf="isAuthenticated()"
+          type="button"
+          class="account-link account-menu-trigger"
+          aria-label="Abrir menú de usuario"
+          [matMenuTriggerFor]="userMenu"
+        >
+          <mat-icon>person_outline</mat-icon>
+          <span class="account-name">{{ authenticatedDisplayName() }}</span>
+          <mat-icon class="account-chevron">expand_more</mat-icon>
+        </button>
+
+        <mat-menu #userMenu="matMenu" class="user-menu-panel">
+          <button mat-menu-item disabled>
+            <mat-icon>person</mat-icon>
+            <span>Perfil</span>
+          </button>
+
+          <button mat-menu-item type="button" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Cerrar sesión</span>
+          </button>
+        </mat-menu>
 
         <a
           mat-icon-button

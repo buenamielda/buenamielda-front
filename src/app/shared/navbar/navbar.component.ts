@@ -1,5 +1,13 @@
-import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,6 +40,7 @@ import { AuthService } from '../../services/auth.service';
 export class NavbarComponent implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   mobileMenuOpen = signal(false);
   dropdownOpen = signal(false);
@@ -39,14 +48,14 @@ export class NavbarComponent implements OnInit {
   cartCount = this.cartService.itemCount;
 
   readonly isAuthenticated = computed(() => {
-  this.authService.currentUser();
-  return this.authService.hasActiveSession();
-});
+    this.authService.currentUser();
+    return this.authService.hasActiveSession();
+  });
 
-readonly authenticatedDisplayName = computed(() => {
-  this.authService.currentUser();
-  return this.authService.getAuthenticatedDisplayName();
-});
+  readonly authenticatedDisplayName = computed(() => {
+    this.authService.currentUser();
+    return this.authService.getAuthenticatedDisplayName();
+  });
 
   apiculturaLinks = [
     { label: 'Guía del apicultor', route: '/aprende/guia' },
@@ -94,5 +103,11 @@ readonly authenticatedDisplayName = computed(() => {
 
   closeMobileMenu() {
     this.mobileMenuOpen.set(false);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.cartService.clear();
+    this.router.navigate(['/productos']);
   }
 }

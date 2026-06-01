@@ -238,13 +238,15 @@ mat-divider {
 }
 
 .account-link {
-  display: inline-flex;
+ display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   padding: 6px 8px;
   border-radius: 6px;
   color: $brand-mid;
   text-decoration: none;
+  font-family: $font-serif;
+  font-size: 0.9rem;
   transition: color 0.15s ease, background 0.15s ease;
 
   &:hover {
@@ -260,4 +262,17 @@ mat-divider {
   white-space: nowrap;
   font-family: $font-serif;
   font-size: 0.9rem;
+}
+
+.account-menu-trigger {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.account-chevron {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
 }

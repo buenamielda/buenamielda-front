@@ -268,7 +268,7 @@ export class CheckoutDataComponent implements OnInit {
       codigoPostal: '',
       localidad: '',
       provincia: '',
-      pais: 'Espana',
+      pais: 'Espaa',
       principal: false,
     }));
   }

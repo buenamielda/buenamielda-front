@@ -120,6 +120,6 @@ export class ProductDetailComponent implements OnInit {
       return Object.values(error.error).join(' ');
     }
 
-    return 'No se ha podido anadir el producto al carrito.';
+    return 'No se ha podido añadir el producto al carrito.';
   }
 }

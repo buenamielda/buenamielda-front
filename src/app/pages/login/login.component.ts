@@ -52,7 +52,7 @@ export class LoginComponent {
     this.loggedUser.set(null);
 
     if (!this.canSubmit()) {
-      this.errorMessage.set('Introduce un email y una contrasena validos.');
+      this.errorMessage.set('Introduce un email y una contraseña validos.');
       return;
     }
 
@@ -69,7 +69,7 @@ export class LoginComponent {
         },
         error: (error) => {
           if (error instanceof InvalidCredentialsError) {
-            this.errorMessage.set('Email o contrasena incorrectos.');
+            this.errorMessage.set('Email o contraseña incorrectos.');
           } else if (error instanceof LoginValidationError) {
             this.errorMessage.set(error.message);
           } else {

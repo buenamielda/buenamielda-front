@@ -74,23 +74,11 @@
                 <span>Compra única</span>
               </label>
 
-              <label
-                class="purchase-option subscription"
-                [class.selected]="modoCompra() === 'subscription'"
-              >
-                <input
-                  type="radio"
-                  name="purchaseMode"
-                  [checked]="modoCompra() === 'subscription'"
-                  (change)="seleccionarModoCompra('subscription')"
-                />
-                <span
-                  >Suscripción y entrega cada <strong>4 semanas</strong></span
-                >
+              <label class="purchase-option subscription disabled-option">
+                <input type="radio" name="purchaseMode" disabled />
+                <span>Suscripción y entrega periódica</span>
                 <small>
-                  Suscríbete ahora y obtén el 10% de descuento en cada pedido
-                  recurrente. El descuento se aplicará al finalizar la compra.
-                  Ver detalles.
+                  Esta funcionalidad no está disponible actualmente.
                 </small>
               </label>
             </div>

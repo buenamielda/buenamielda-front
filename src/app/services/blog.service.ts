@@ -92,6 +92,38 @@ export class BlogService {
     });
   }
 
+  obtenerEntradaPorId(id: number): Observable<EntradaBlogDetalle> {
+    return this.http.get<EntradaBlogDetalle>(`${this.apiUrl}/${id}`);
+  }
+
+  actualizarEntrada(
+    id: number,
+    payload: EntradaBlogPayload,
+  ): Observable<EntradaBlogCreada> {
+    this.errorDetalle.set(null);
+
+    return this.http
+      .put<EntradaBlogCreada>(`${this.apiUrl}/${id}`, this.toRequestDto(payload))
+      .pipe(
+        tap((entradaActualizada) => {
+          this.entradaDetalleSignal.set({
+            id: entradaActualizada.id,
+            titulo: entradaActualizada.titulo,
+            resumen: entradaActualizada.resumen,
+            contenido: entradaActualizada.contenido,
+            imagenUrl: entradaActualizada.imagenUrl,
+            categoria: entradaActualizada.categoria,
+            fechaPublicacion: entradaActualizada.fechaPublicacion,
+            autor: entradaActualizada.autor,
+          });
+
+          this.entradasSignal.update((entradas) =>
+            this.actualizarListadoTrasEdicion(entradas, entradaActualizada),
+          );
+        }),
+      );
+  }
+
   private obtenerFecha(entrada: EntradaBlog): number {
     return new Date(entrada.fechaPublicacion).getTime() || 0;
   }
@@ -118,5 +150,25 @@ export class BlogService {
       fechaPublicacion: entrada.fechaPublicacion,
       autor: entrada.autor,
     };
+  }
+
+  private actualizarListadoTrasEdicion(
+    entradas: EntradaBlog[],
+    entradaActualizada: EntradaBlogCreada,
+  ): EntradaBlog[] {
+    if (!entradaActualizada.activa) {
+      return entradas.filter((entrada) => entrada.id !== entradaActualizada.id);
+    }
+
+    const entradaListado = this.toEntradaListado(entradaActualizada);
+    const existe = entradas.some((entrada) => entrada.id === entradaListado.id);
+
+    if (!existe) {
+      return [...entradas, entradaListado];
+    }
+
+    return entradas.map((entrada) =>
+      entrada.id === entradaListado.id ? entradaListado : entrada,
+    );
   }
 }

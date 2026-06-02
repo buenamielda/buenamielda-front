@@ -27,6 +27,14 @@
             {{ entrada.fechaPublicacion | date: "dd/MM/yyyy" }}
           </time>
         </div>
+        <a
+          *ngIf="puedeEditarEntradas()"
+          [routerLink]="['/blog', entrada.id, 'editar']"
+          class="edit-entry-link"
+        >
+          Editar entrada
+          <mat-icon>edit</mat-icon>
+        </a>
       </header>
 
       <div class="article-image">

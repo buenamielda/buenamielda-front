@@ -1,0 +1,156 @@
+<main class="blog-edit-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="edit-header">
+      <div>
+        <p class="edit-kicker">Blog educativo</p>
+        <h1>Modificar entrada</h1>
+        <p>
+          Actualiza la informacion principal de la entrada y controla si queda
+          visible para los visitantes del blog.
+        </p>
+      </div>
+
+      <a routerLink="/blog" class="back-link">
+        <mat-icon>arrow_back</mat-icon>
+        Volver al blog
+      </a>
+    </header>
+
+    <div *ngIf="cargando()" class="blog-feedback">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Cargando entrada...</p>
+    </div>
+
+    <section class="edit-layout" *ngIf="!cargando()">
+      <form class="blog-form" novalidate>
+        <label>
+          Titulo
+          <input
+            type="text"
+            required
+            [ngModel]="form().titulo"
+            name="titulo"
+            (ngModelChange)="updateField('titulo', $event)"
+            [class.invalid]="showTitleError()"
+          />
+          <span class="field-error" *ngIf="showTitleError()">
+            El titulo es obligatorio.
+          </span>
+        </label>
+
+        <label>
+          Resumen
+          <textarea
+            rows="3"
+            required
+            [ngModel]="form().resumen"
+            name="resumen"
+            (ngModelChange)="updateField('resumen', $event)"
+            [class.invalid]="showSummaryError()"
+          ></textarea>
+          <span class="field-error" *ngIf="showSummaryError()">
+            El resumen es obligatorio.
+          </span>
+        </label>
+
+        <label>
+          Contenido
+          <textarea
+            rows="10"
+            required
+            [ngModel]="form().contenido"
+            name="contenido"
+            (ngModelChange)="updateField('contenido', $event)"
+            [class.invalid]="showContentError()"
+          ></textarea>
+          <span class="field-error" *ngIf="showContentError()">
+            El contenido es obligatorio.
+          </span>
+        </label>
+
+        <div class="form-row">
+          <label>
+            Categoria
+            <input
+              type="text"
+              required
+              [ngModel]="form().categoria"
+              name="categoria"
+              (ngModelChange)="updateField('categoria', $event)"
+              [class.invalid]="showCategoryError()"
+            />
+            <span class="field-error" *ngIf="showCategoryError()">
+              La categoria es obligatoria.
+            </span>
+          </label>
+
+          <label>
+            Imagen
+            <input
+              type="text"
+              [ngModel]="form().imagenUrl"
+              name="imagenUrl"
+              (ngModelChange)="updateField('imagenUrl', $event)"
+            />
+          </label>
+        </div>
+
+        <label class="status-check">
+          <input
+            type="checkbox"
+            [ngModel]="form().activa"
+            name="activa"
+            (ngModelChange)="updateField('activa', $event)"
+          />
+          Entrada visible en el blog publico
+        </label>
+
+        <p class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+        <p class="form-success" *ngIf="successMessage()">
+          {{ successMessage() }}
+        </p>
+
+        <div class="form-actions">
+          <a
+            *ngIf="entradaId()"
+            [routerLink]="['/blog', entradaId()]"
+            class="ghost-link"
+          >
+            Cancelar
+          </a>
+
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="guardando()"
+            (click)="guardarCambios()"
+          >
+            {{ guardando() ? "Guardando..." : "Guardar cambios" }}
+          </button>
+        </div>
+      </form>
+
+      <aside class="preview-panel">
+        <p class="edit-kicker">Vista previa</p>
+        <article class="preview-card" [class.inactive]="!form().activa">
+          <img
+            [src]="form().imagenUrl || 'assets/images/placeholder.svg'"
+            [alt]="form().titulo || 'Vista previa de entrada'"
+            onerror="this.src='assets/images/placeholder.svg'"
+          />
+          <div>
+            <span>{{ form().categoria || "Categoria" }}</span>
+            <h2>{{ form().titulo || "Titulo de la entrada" }}</h2>
+            <p>
+              {{
+                form().resumen ||
+                  "Resumen breve de la entrada educativa que vera el visitante."
+              }}
+            </p>
+            <strong>{{ form().activa ? "Activa" : "Desactivada" }}</strong>
+          </div>
+        </article>
+      </aside>
+    </section>
+  </div>
+</main>

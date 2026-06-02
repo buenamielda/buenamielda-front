@@ -29,6 +29,14 @@ export const routes: Routes = [
       import('./pages/blog/blog.component').then((m) => m.BlogComponent),
     title: 'Blog educativo | Buena mielda',
   },
+    {
+    path: 'blog/:id',
+    loadComponent: () =>
+      import('./pages/blog-detail/blog-detail.component').then(
+        (m) => m.BlogDetailComponent,
+      ),
+    title: 'Detalle del blog | Buena mielda',
+  },
   {
     path: 'admin/productos',
     canActivate: [adminGuard],

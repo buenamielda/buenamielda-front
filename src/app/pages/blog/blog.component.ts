@@ -1,9 +1,10 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
 import { BlogService } from '../../services/blog.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-blog',
@@ -14,10 +15,16 @@ import { BlogService } from '../../services/blog.service';
 })
 export class BlogComponent implements OnInit {
   private readonly blogService = inject(BlogService);
+  private readonly authService = inject(AuthService);
 
   readonly entradas = this.blogService.entradas;
   readonly cargando = this.blogService.cargando;
   readonly error = this.blogService.error;
+  readonly puedeCrearEntradas = computed(
+    () =>
+      this.authService.hasActiveSession() &&
+      (this.authService.hasRole('DIVULGATIVO') || this.authService.isAdmin()),
+  );
 
   ngOnInit(): void {
     this.blogService.cargarEntradas();

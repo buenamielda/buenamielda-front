@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ProductGridComponent } from './shared/product/product.component';
 import { adminGuard } from './services/admin.guard';
 import { authGuard } from './services/auth.guard';
+import { blogEditorGuard } from './services/blog-editor.guard';
 
 export const routes: Routes = [
   {
@@ -36,6 +37,15 @@ export const routes: Routes = [
         (m) => m.BlogDetailComponent,
       ),
     title: 'Detalle del blog | Buena mielda',
+  },
+  {
+    path: 'blog/crear',
+    canActivate: [blogEditorGuard],
+    loadComponent: () =>
+      import('./pages/blog-create/blog-create.component').then(
+        (m) => m.BlogCreateComponent,
+      ),
+    title: 'Crear entrada | Buena mielda',
   },
   {
     path: 'admin/productos',

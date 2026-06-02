@@ -7,6 +7,8 @@ export interface EntradaBlog {
   activa: boolean;
   fechaPublicacion: string;
   autor: string;
+  autorId: number;
+
 }
 
 export interface EntradaBlogDetalle {
@@ -18,6 +20,7 @@ export interface EntradaBlogDetalle {
   categoria: string;
   fechaPublicacion: string;
   autor: string;
+  autorId: number;
 }
 
 export interface EntradaBlogPayload {

@@ -22,11 +22,22 @@ export class BlogDetailComponent implements OnInit {
   readonly entrada = this.blogService.entradaDetalle;
   readonly cargando = this.blogService.cargandoDetalle;
   readonly error = this.blogService.errorDetalle;
-  readonly puedeEditarEntradas = computed(
-    () =>
-      this.authService.hasActiveSession() &&
-      (this.authService.hasRole('DIVULGATIVO') || this.authService.isAdmin()),
-  );
+  readonly puedeEditarEntrada = computed(() => {
+    const entrada = this.entrada();
+
+    if (!this.authService.hasActiveSession() || !entrada) {
+      return false;
+    }
+
+    if (this.authService.isAdmin()) {
+      return true;
+    }
+
+    return (
+      this.authService.hasRole('DIVULGATIVO') &&
+      entrada.autorId === this.authService.getAuthenticatedUserId()
+    );
+  });
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

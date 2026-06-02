@@ -117,6 +117,7 @@ export class BlogService {
             categoria: entradaActualizada.categoria,
             fechaPublicacion: entradaActualizada.fechaPublicacion,
             autor: entradaActualizada.autor,
+            autorId: entradaActualizada.autorId,
           });
 
           this.entradasSignal.update((entradas) =>
@@ -126,17 +127,14 @@ export class BlogService {
       );
   }
 
-actualizarPublicacion(
+  actualizarPublicacion(
     id: number,
     payload: PublicacionEntradaPayload,
   ): Observable<EntradaBlogCreada> {
     this.errorDetalle.set(null);
 
     return this.http
-      .patch<EntradaBlogCreada>(
-        `${this.apiUrl}/${id}/publicacion`,
-        payload,
-      )
+      .patch<EntradaBlogCreada>(`${this.apiUrl}/${id}/publicacion`, payload)
       .pipe(
         tap((entradaActualizada) => {
           this.entradaDetalleSignal.set({
@@ -148,6 +146,7 @@ actualizarPublicacion(
             categoria: entradaActualizada.categoria,
             fechaPublicacion: entradaActualizada.fechaPublicacion,
             autor: entradaActualizada.autor,
+            autorId: entradaActualizada.autorId,
           });
 
           this.entradasSignal.update((entradas) =>
@@ -182,6 +181,7 @@ actualizarPublicacion(
       activa: entrada.activa,
       fechaPublicacion: entrada.fechaPublicacion,
       autor: entrada.autor,
+      autorId: entrada.autorId,
     };
   }
 

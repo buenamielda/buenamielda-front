@@ -1,0 +1,69 @@
+<main class="blog-page">
+  <section class="blog-hero">
+    <div class="container-lg px-3 px-lg-4">
+      <p class="blog-kicker">Blog educativo</p>
+      <h1>Apicultura, miel y consumo responsable</h1>
+      <p>
+        Entradas divulgativas para conocer mejor el trabajo del colmenar, los
+        productos apicolas y los procesos que hay detras de cada cosecha.
+      </p>
+    </div>
+  </section>
+
+  <section class="blog-list">
+    <div class="container-lg px-3 px-lg-4">
+      <div *ngIf="cargando()" class="blog-feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando entradas del blog...</p>
+      </div>
+
+      <div *ngIf="!cargando() && error()" class="blog-feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <div
+        *ngIf="!cargando() && !error() && entradas().length === 0"
+        class="blog-feedback"
+      >
+        <mat-icon>article</mat-icon>
+        <p>Aun no hay entradas publicadas en el blog educativo.</p>
+      </div>
+
+      <div *ngIf="!cargando() && !error() && entradas().length > 0" class="row gy-4">
+        <div class="col-12 col-md-6 col-xl-4" *ngFor="let entrada of entradas()">
+          <article class="blog-card" [routerLink]="['/blog', entrada.id]">
+            <div class="blog-image-wrap">
+              <img
+                [src]="entrada.imagenUrl"
+                [alt]="entrada.titulo"
+                loading="lazy"
+                onerror="this.src='assets/images/placeholder.svg'"
+              />
+            </div>
+
+            <div class="blog-card-body">
+              <div class="blog-meta">
+                <span>{{ entrada.categoria }}</span>
+                <time [attr.datetime]="entrada.fechaPublicacion">
+                  {{ entrada.fechaPublicacion | date: "dd/MM/yyyy" }}
+                </time>
+              </div>
+
+              <h2>{{ entrada.titulo }}</h2>
+              <p>{{ entrada.resumen }}</p>
+
+              <div class="blog-card-footer">
+                <span>{{ entrada.autor }}</span>
+                <a [routerLink]="['/blog', entrada.id]" (click)="$event.stopPropagation()">
+                  Leer entrada
+                  <mat-icon>arrow_forward</mat-icon>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

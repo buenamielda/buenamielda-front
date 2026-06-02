@@ -19,3 +19,18 @@ export interface EntradaBlogDetalle {
   fechaPublicacion: string;
   autor: string;
 }
+
+export interface EntradaBlogPayload {
+  titulo: string;
+  resumen: string;
+  contenido: string;
+  imagenUrl: string;
+  categoria: string;
+  activa: boolean;
+}
+
+export interface EntradaBlogCreada extends EntradaBlogDetalle {
+  activa: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}

@@ -7,6 +7,10 @@
         Entradas divulgativas para conocer mejor el trabajo del colmenar, los
         productos apicolas y los procesos que hay detras de cada cosecha.
       </p>
+      <a *ngIf="puedeCrearEntradas()" routerLink="/blog/crear" class="create-entry-link">
+        Crear entrada
+        <mat-icon>edit</mat-icon>
+      </a>
     </div>
   </section>
 

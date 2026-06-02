@@ -1,7 +1,17 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 
-import { EntradaBlog, EntradaBlogDetalle } from '../models/blog.model';
+import {
+  EntradaBlog,
+  EntradaBlogCreada,
+  EntradaBlogDetalle,
+  EntradaBlogPayload,
+} from '../models/blog.model';
+
+interface MessageResponse {
+  message: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -32,9 +42,9 @@ export class BlogService {
     this.cargando.set(true);
     this.error.set(null);
 
-    this.http.get<EntradaBlog[]>(this.apiUrl).subscribe({
-      next: (entradas) => {
-        this.entradasSignal.set(entradas);
+    this.http.get<EntradaBlog[] | MessageResponse>(this.apiUrl).subscribe({
+      next: (response) => {
+        this.entradasSignal.set(Array.isArray(response) ? response : []);
         this.cargando.set(false);
       },
       error: () => {
@@ -42,6 +52,25 @@ export class BlogService {
         this.cargando.set(false);
       },
     });
+  }
+
+  crearEntrada(payload: EntradaBlogPayload): Observable<EntradaBlogCreada> {
+    this.error.set(null);
+
+    return this.http
+      .post<EntradaBlogCreada>(this.apiUrl, this.toRequestDto(payload))
+      .pipe(
+        tap((entradaCreada) => {
+          if (!entradaCreada.activa) {
+            return;
+          }
+
+          this.entradasSignal.update((entradas) => [
+            ...entradas,
+            this.toEntradaListado(entradaCreada),
+          ]);
+        }),
+      );
   }
 
   cargarEntradaPorId(id: number): void {
@@ -65,5 +94,29 @@ export class BlogService {
 
   private obtenerFecha(entrada: EntradaBlog): number {
     return new Date(entrada.fechaPublicacion).getTime() || 0;
+  }
+
+  private toRequestDto(entrada: EntradaBlogPayload): EntradaBlogPayload {
+    return {
+      titulo: entrada.titulo.trim(),
+      resumen: entrada.resumen.trim(),
+      contenido: entrada.contenido.trim(),
+      imagenUrl: entrada.imagenUrl.trim(),
+      categoria: entrada.categoria.trim(),
+      activa: entrada.activa,
+    };
+  }
+
+  private toEntradaListado(entrada: EntradaBlogCreada): EntradaBlog {
+    return {
+      id: entrada.id,
+      titulo: entrada.titulo,
+      resumen: entrada.resumen,
+      imagenUrl: entrada.imagenUrl,
+      categoria: entrada.categoria,
+      activa: entrada.activa,
+      fechaPublicacion: entrada.fechaPublicacion,
+      autor: entrada.autor,
+    };
   }
 }

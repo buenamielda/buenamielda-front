@@ -1,0 +1,46 @@
+<main class="blog-detail-page">
+  <div class="container-lg px-3 px-lg-4">
+    <a routerLink="/blog" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+      Volver al blog
+    </a>
+
+    <div *ngIf="cargando()" class="blog-feedback">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Cargando entrada...</p>
+    </div>
+
+    <div *ngIf="!cargando() && error()" class="blog-feedback error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+    </div>
+
+    <article *ngIf="!cargando() && !error() && entrada() as entrada" class="blog-article">
+      <header class="article-header">
+        <p class="article-category">{{ entrada.categoria }}</p>
+        <h1>{{ entrada.titulo }}</h1>
+        <p class="article-summary">{{ entrada.resumen }}</p>
+
+        <div class="article-meta">
+          <span>{{ entrada.autor }}</span>
+          <time [attr.datetime]="entrada.fechaPublicacion">
+            {{ entrada.fechaPublicacion | date: "dd/MM/yyyy" }}
+          </time>
+        </div>
+      </header>
+
+      <div class="article-image">
+        <img
+          [src]="entrada.imagenUrl"
+          [alt]="entrada.titulo"
+          loading="lazy"
+          onerror="this.src='assets/images/placeholder.svg'"
+        />
+      </div>
+
+      <section class="article-content">
+        <p>{{ entrada.contenido }}</p>
+      </section>
+    </article>
+  </div>
+</main>

@@ -24,6 +24,12 @@ export const routes: Routes = [
     title: 'Detalle de producto | Buena mielda',
   },
   {
+    path: 'blog',
+    loadComponent: () =>
+      import('./pages/blog/blog.component').then((m) => m.BlogComponent),
+    title: 'Blog educativo | Buena mielda',
+  },
+  {
     path: 'admin/productos',
     canActivate: [adminGuard],
     loadComponent: () =>

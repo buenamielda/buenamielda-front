@@ -34,3 +34,7 @@ export interface EntradaBlogCreada extends EntradaBlogDetalle {
   fechaCreacion: string;
   fechaActualizacion: string;
 }
+
+export interface PublicacionEntradaPayload {
+  activa: boolean;
+}

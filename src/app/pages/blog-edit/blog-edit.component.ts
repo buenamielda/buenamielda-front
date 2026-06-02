@@ -3,7 +3,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 
 import {
   EntradaBlogDetalle,
@@ -37,6 +37,7 @@ export class BlogEditComponent implements OnInit {
   readonly cargando = signal(false);
   readonly guardando = signal(false);
   readonly submitted = signal(false);
+  readonly activaInicial = signal(true);
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
 
@@ -76,7 +77,9 @@ export class BlogEditComponent implements OnInit {
     this.submitted.set(true);
 
     if (!this.canSubmit()) {
-      this.errorMessage.set('Completa los campos obligatorios antes de guardar.');
+      this.errorMessage.set(
+        'Completa los campos obligatorios antes de guardar.',
+      );
       return;
     }
 
@@ -93,10 +96,22 @@ export class BlogEditComponent implements OnInit {
 
     this.blogService
       .actualizarEntrada(id, this.toPayload(this.form()))
-      .pipe(finalize(() => this.guardando.set(false)))
+      .pipe(
+        switchMap((entrada) => {
+          if (entrada.activa === this.form().activa) {
+            return [entrada];
+          }
+
+          return this.blogService.actualizarPublicacion(id, {
+            activa: this.form().activa,
+          });
+        }),
+        finalize(() => this.guardando.set(false)),
+      )
       .subscribe({
         next: (entrada) => {
           this.submitted.set(false);
+          this.activaInicial.set(entrada.activa);
 
           if (entrada.activa) {
             this.router.navigate(['/blog', entrada.id]);
@@ -135,11 +150,14 @@ export class BlogEditComponent implements OnInit {
     this.cargando.set(true);
     this.errorMessage.set('');
 
-    this.blogService
+   this.blogService
       .obtenerEntradaPorId(id)
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
-        next: (entrada) => this.form.set(this.toForm(entrada)),
+        next: (entrada) => {
+          this.form.set(this.toForm(entrada));
+          this.activaInicial.set(true);
+        },
         error: () => {
           this.errorMessage.set(
             'La entrada no existe o no esta disponible para su edicion.',
@@ -147,7 +165,7 @@ export class BlogEditComponent implements OnInit {
         },
       });
   }
-
+  
   private formularioVacio(): BlogEditForm {
     return {
       titulo: '',

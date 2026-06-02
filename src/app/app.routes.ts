@@ -39,6 +39,15 @@ export const routes: Routes = [
       ),
     title: 'Crear entrada | Buena mielda',
   },
+    {
+    path: 'blog/:id/editar',
+    canActivate: [blogEditorGuard],
+    loadComponent: () =>
+      import('./pages/blog-edit/blog-edit.component').then(
+        (m) => m.BlogEditComponent,
+      ),
+    title: 'Modificar entrada | Buena mielda',
+  },
   {
     path: 'blog/:id',
     loadComponent: () =>

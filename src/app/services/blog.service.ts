@@ -7,6 +7,7 @@ import {
   EntradaBlogCreada,
   EntradaBlogDetalle,
   EntradaBlogPayload,
+  PublicacionEntradaPayload,
 } from '../models/blog.model';
 
 interface MessageResponse {
@@ -84,9 +85,7 @@ export class BlogService {
         this.cargandoDetalle.set(false);
       },
       error: () => {
-        this.errorDetalle.set(
-          'No se ha podido cargar la entrada solicitada.',
-        );
+        this.errorDetalle.set('No se ha podido cargar la entrada solicitada.');
         this.cargandoDetalle.set(false);
       },
     });
@@ -103,7 +102,41 @@ export class BlogService {
     this.errorDetalle.set(null);
 
     return this.http
-      .put<EntradaBlogCreada>(`${this.apiUrl}/${id}`, this.toRequestDto(payload))
+      .put<EntradaBlogCreada>(
+        `${this.apiUrl}/${id}`,
+        this.toRequestDto(payload),
+      )
+      .pipe(
+        tap((entradaActualizada) => {
+          this.entradaDetalleSignal.set({
+            id: entradaActualizada.id,
+            titulo: entradaActualizada.titulo,
+            resumen: entradaActualizada.resumen,
+            contenido: entradaActualizada.contenido,
+            imagenUrl: entradaActualizada.imagenUrl,
+            categoria: entradaActualizada.categoria,
+            fechaPublicacion: entradaActualizada.fechaPublicacion,
+            autor: entradaActualizada.autor,
+          });
+
+          this.entradasSignal.update((entradas) =>
+            this.actualizarListadoTrasEdicion(entradas, entradaActualizada),
+          );
+        }),
+      );
+  }
+
+actualizarPublicacion(
+    id: number,
+    payload: PublicacionEntradaPayload,
+  ): Observable<EntradaBlogCreada> {
+    this.errorDetalle.set(null);
+
+    return this.http
+      .patch<EntradaBlogCreada>(
+        `${this.apiUrl}/${id}/publicacion`,
+        payload,
+      )
       .pipe(
         tap((entradaActualizada) => {
           this.entradaDetalleSignal.set({

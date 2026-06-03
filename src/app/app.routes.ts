@@ -65,6 +65,15 @@ export const routes: Routes = [
       ),
     title: 'Administrar productos | Buena mielda',
   },
+    {
+    path: 'admin/blog',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-blog/admin-blog.component').then(
+        (m) => m.AdminBlogComponent,
+      ),
+    title: 'Administrar blog | Buena mielda',
+  },
   {
     path: 'carrito',
     canActivate: [authGuard],

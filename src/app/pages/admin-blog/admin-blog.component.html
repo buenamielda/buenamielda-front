@@ -1,0 +1,122 @@
+<main class="admin-blog-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="admin-header">
+      <div>
+        <p class="admin-kicker">Administracion</p>
+        <h1>Gestion del blog</h1>
+        <p>
+          Revisa todas las entradas educativas, incluidas las desactivadas, y
+          controla su visibilidad en el blog publico.
+        </p>
+      </div>
+
+      <div class="admin-stats">
+        <article>
+          <strong>{{ entradas().length }}</strong>
+          <span>Total</span>
+        </article>
+        <article>
+          <strong>{{ totalActivas() }}</strong>
+          <span>Activas</span>
+        </article>
+        <article>
+          <strong>{{ totalInactivas() }}</strong>
+          <span>Ocultas</span>
+        </article>
+      </div>
+    </header>
+
+    <section class="admin-toolbar">
+      <div class="filter-group" aria-label="Filtrar entradas del blog">
+        <button
+          type="button"
+          [class.active]="filtroEstado() === 'todas'"
+          (click)="cambiarFiltro('todas')"
+        >
+          Todas
+        </button>
+        <button
+          type="button"
+          [class.active]="filtroEstado() === 'activas'"
+          (click)="cambiarFiltro('activas')"
+        >
+          Activas
+        </button>
+        <button
+          type="button"
+          [class.active]="filtroEstado() === 'inactivas'"
+          (click)="cambiarFiltro('inactivas')"
+        >
+          Ocultas
+        </button>
+      </div>
+
+      <a routerLink="/blog/crear" class="primary-link">
+        Crear entrada
+        <mat-icon>edit</mat-icon>
+      </a>
+    </section>
+
+    <div *ngIf="cargando()" class="admin-feedback">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Cargando entradas del blog...</p>
+    </div>
+
+    <div *ngIf="!cargando() && error()" class="admin-feedback error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+    </div>
+
+    <section
+      class="blog-admin-list"
+      *ngIf="!cargando() && !error()"
+      aria-label="Listado de entradas del blog"
+    >
+      <article
+        class="blog-admin-row"
+        *ngFor="let entrada of entradasFiltradas()"
+        [class.inactive]="!entrada.activa"
+      >
+        <img
+          [src]="entrada.imagenUrl || 'assets/images/placeholder.svg'"
+          [alt]="entrada.titulo"
+          onerror="this.src='assets/images/placeholder.svg'"
+        />
+
+        <div class="entry-main">
+          <span>{{ entrada.categoria }}</span>
+          <h2>{{ entrada.titulo }}</h2>
+          <p>{{ entrada.resumen }}</p>
+          <small>
+            {{ entrada.autor }} ·
+            {{
+              (entrada.fechaPublicacion ||
+                entrada.fechaActualizacion ||
+                entrada.fechaCreacion) | date: "dd/MM/yyyy"
+            }}
+          </small>
+        </div>
+
+        <span class="status-pill" [class.off]="!entrada.activa">
+          {{ entrada.activa ? "Activa" : "Oculta" }}
+        </span>
+
+        <div class="row-actions">
+          <a [routerLink]="['/blog', entrada.id, 'editar']">Editar</a>
+          <button
+            type="button"
+            (click)="alternarPublicacion(entrada)"
+            [disabled]="accionEnCursoId() === entrada.id"
+          >
+            {{ entrada.activa ? "Ocultar" : "Activar" }}
+          </button>
+        </div>
+      </article>
+
+      <div *ngIf="entradasFiltradas().length === 0" class="admin-feedback">
+        <mat-icon>article</mat-icon>
+        <p>No hay entradas para el filtro seleccionado.</p>
+      </div>
+    </section>
+  </div>
+</main>

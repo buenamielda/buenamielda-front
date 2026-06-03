@@ -41,3 +41,6 @@ export interface EntradaBlogCreada extends EntradaBlogDetalle {
 export interface PublicacionEntradaPayload {
   activa: boolean;
 }
+
+export type FiltroEstadoBlogAdmin = 'todas' | 'activas' | 'inactivas';
+

@@ -22,13 +22,16 @@ export class BlogService {
   private readonly apiUrl = '/api/blog';
 
   private readonly entradasSignal = signal<EntradaBlog[]>([]);
+  private readonly entradasAdminSignal = signal<EntradaBlogCreada[]>([]);
   private readonly entradaDetalleSignal = signal<EntradaBlogDetalle | null>(
     null,
   );
 
   readonly cargando = signal(false);
+  readonly cargandoAdmin = signal(false);
   readonly cargandoDetalle = signal(false);
   readonly error = signal<string | null>(null);
+  readonly errorAdmin = signal<string | null>(null);
   readonly errorDetalle = signal<string | null>(null);
 
   readonly entradas = computed(() =>
@@ -38,6 +41,12 @@ export class BlogService {
   );
 
   readonly entradaDetalle = this.entradaDetalleSignal.asReadonly();
+  readonly entradasAdmin = computed(() =>
+    [...this.entradasAdminSignal()].sort(
+      (a, b) =>
+        this.obtenerFechaEntradaAdmin(b) - this.obtenerFechaEntradaAdmin(a),
+    ),
+  );
 
   cargarEntradas(): void {
     this.cargando.set(true);
@@ -72,6 +81,22 @@ export class BlogService {
           ]);
         }),
       );
+  }
+
+  cargarEntradasAdmin(): void {
+    this.cargandoAdmin.set(true);
+    this.errorAdmin.set(null);
+
+    this.http.get<EntradaBlogCreada[]>(`${this.apiUrl}/admin`).subscribe({
+      next: (entradas) => {
+        this.entradasAdminSignal.set(entradas);
+        this.cargandoAdmin.set(false);
+      },
+      error: () => {
+        this.errorAdmin.set('No se han podido cargar las entradas del blog.');
+        this.cargandoAdmin.set(false);
+      },
+    });
   }
 
   cargarEntradaPorId(id: number): void {
@@ -156,8 +181,42 @@ export class BlogService {
       );
   }
 
+  actualizarPublicacionComoAdministrador(
+    id: number,
+    payload: PublicacionEntradaPayload,
+  ): Observable<EntradaBlogCreada> {
+    this.errorAdmin.set(null);
+
+    return this.http
+      .patch<EntradaBlogCreada>(
+        `${this.apiUrl}/admin/${id}/publicacion`,
+        payload,
+      )
+      .pipe(
+        tap((entradaActualizada) => {
+          this.entradasAdminSignal.update((entradas) =>
+            this.actualizarEntradaAdmin(entradas, entradaActualizada),
+          );
+
+          this.entradasSignal.update((entradas) =>
+            this.actualizarListadoTrasEdicion(entradas, entradaActualizada),
+          );
+        }),
+      );
+  }
+
   private obtenerFecha(entrada: EntradaBlog): number {
     return new Date(entrada.fechaPublicacion).getTime() || 0;
+  }
+
+  private obtenerFechaEntradaAdmin(entrada: EntradaBlogCreada): number {
+    return (
+      new Date(
+        entrada.fechaPublicacion ||
+          entrada.fechaActualizacion ||
+          entrada.fechaCreacion,
+      ).getTime() || 0
+    );
   }
 
   private toRequestDto(entrada: EntradaBlogPayload): EntradaBlogPayload {
@@ -202,6 +261,23 @@ export class BlogService {
 
     return entradas.map((entrada) =>
       entrada.id === entradaListado.id ? entradaListado : entrada,
+    );
+  }
+
+  private actualizarEntradaAdmin(
+    entradas: EntradaBlogCreada[],
+    entradaActualizada: EntradaBlogCreada,
+  ): EntradaBlogCreada[] {
+    const existe = entradas.some(
+      (entrada) => entrada.id === entradaActualizada.id,
+    );
+
+    if (!existe) {
+      return [...entradas, entradaActualizada];
+    }
+
+    return entradas.map((entrada) =>
+      entrada.id === entradaActualizada.id ? entradaActualizada : entrada,
     );
   }
 }

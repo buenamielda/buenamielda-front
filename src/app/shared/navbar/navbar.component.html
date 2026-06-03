@@ -109,36 +109,45 @@
       <!-- Acciones -->
       <div class="col-auto ms-auto d-flex align-items-center gap-1">
         <div
-            *ngIf="isAdmin()"
-            class="custom-dropdown management-dropdown"
-            [class.open]="managementDropdownOpen()"
+          *ngIf="isAdmin()"
+          class="custom-dropdown management-dropdown"
+          [class.open]="managementDropdownOpen()"
+        >
+          <button
+            type="button"
+            class="nav-link-btn management-trigger"
+            (click)="toggleManagementDropdown()"
+            [class.link-active]="managementDropdownOpen()"
           >
-            <button
-              type="button"
-              class="nav-link-btn management-trigger"
-              (click)="toggleManagementDropdown()"
-              [class.link-active]="managementDropdownOpen()"
+            Gestión
+            <mat-icon
+              class="chevron-icon"
+              [class.rotated]="managementDropdownOpen()"
             >
-              Gestión
-              <mat-icon
-                class="chevron-icon"
-                [class.rotated]="managementDropdownOpen()"
-              >
-                expand_more
-              </mat-icon>
-            </button>
+              expand_more
+            </mat-icon>
+          </button>
 
-            <div class="custom-dropdown-panel management-dropdown-panel">
-              <a
-                routerLink="/admin/productos"
-                class="dropdown-item-link management-item-link"
-                (click)="closeManagementDropdown()"
-              >
-                <mat-icon>inventory_2</mat-icon>
-                Productos y stock
-              </a>
-            </div>
+          <div class="custom-dropdown-panel management-dropdown-panel">
+            <a
+              routerLink="/admin/productos"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
+            >
+              <mat-icon>inventory_2</mat-icon>
+              Productos y stock
+            </a>
+
+            <a
+              routerLink="/admin/blog"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
+            >
+              <mat-icon>article</mat-icon>
+              Blog educativo
+            </a>
           </div>
+        </div>
 
         <a
           *ngIf="!isAuthenticated()"
@@ -219,11 +228,14 @@
         <mat-nav-list class="submenu-list">
           <a
             mat-list-item
-            *ngFor="let item of apiculturaLinks"
-            [routerLink]="item.route"
+            routerLink="/admin/productos"
             (click)="closeMobileMenu()"
           >
-            <span matListItemTitle>{{ item.label }}</span>
+            <span matListItemTitle>Productos y stock</span>
+          </a>
+
+          <a mat-list-item routerLink="/admin/blog" (click)="closeMobileMenu()">
+            <span matListItemTitle>Blog educativo</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

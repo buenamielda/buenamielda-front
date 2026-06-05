@@ -148,13 +148,13 @@
             </a>
 
             <a
-              mat-list-item
               routerLink="/admin/usuarios"
-              (click)="closeMobileMenu()"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
             >
-              <span matListItemTitle>Usuarios</span>
+              <mat-icon>group</mat-icon>
+              Usuarios
             </a>
-
           </div>
         </div>
 
@@ -267,6 +267,14 @@
             (click)="closeMobileMenu()"
           >
             <span matListItemTitle>Productos y stock</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/admin/usuarios"
+            (click)="closeMobileMenu()"
+          >
+            <span matListItemTitle>Usuarios</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

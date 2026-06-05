@@ -1,1 +1,95 @@
-<p>admin-users works!</p>
+<main class="admin-users-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="admin-header">
+      <div>
+        <p class="admin-kicker">Administración</p>
+        <h1>Gestión de usuarios</h1>
+        <p>
+          Consulta las cuentas registradas en la plataforma, sus roles y su
+          estado actual.
+        </p>
+      </div>
+
+      <div class="admin-stats">
+        <article>
+          <strong>{{ usuarios().length }}</strong>
+          <span>Total</span>
+        </article>
+        <article>
+          <strong>{{ totalActivos() }}</strong>
+          <span>Activos</span>
+        </article>
+        <article>
+          <strong>{{ totalInactivos() }}</strong>
+          <span>Inactivos</span>
+        </article>
+      </div>
+    </header>
+
+    <section class="users-panel">
+      <div class="list-toolbar">
+        <div>
+          <h2>Usuarios registrados</h2>
+          <p>{{ usuariosFiltrados().length }} resultados</p>
+        </div>
+
+        <label>
+          <mat-icon>search</mat-icon>
+          <input
+            type="search"
+            placeholder="Buscar por nombre, email, rol o estado"
+            [ngModel]="busqueda()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="busqueda.set($event)"
+          />
+        </label>
+      </div>
+
+      <div *ngIf="cargando()" class="admin-feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando usuarios...</p>
+      </div>
+
+      <div *ngIf="!cargando() && error()" class="admin-feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <div
+        class="users-table"
+        *ngIf="!cargando() && !error() && usuariosFiltrados().length > 0"
+        aria-label="Listado de usuarios registrados"
+      >
+        <div class="user-row user-row-header">
+          <span>ID</span>
+          <span>Nombre</span>
+          <span>Email</span>
+          <span>Roles</span>
+          <span>Estado</span>
+        </div>
+
+        <article
+          class="user-row"
+          *ngFor="let usuario of usuariosFiltrados()"
+          [class.inactive]="!usuario.activo"
+        >
+          <span>#{{ usuario.id }}</span>
+          <strong>{{ usuario.nombre }}</strong>
+          <span>{{ usuario.email }}</span>
+          <span>{{ formatearRoles(usuario.roles) }}</span>
+          <span class="status-pill" [class.off]="!usuario.activo">
+            {{ usuario.activo ? "Activo" : "Inactivo" }}
+          </span>
+        </article>
+      </div>
+
+      <div
+        *ngIf="!cargando() && !error() && usuariosFiltrados().length === 0"
+        class="admin-feedback"
+      >
+        <mat-icon>group</mat-icon>
+        <p>No hay usuarios para mostrar.</p>
+      </div>
+    </section>
+  </div>
+</main>

@@ -146,6 +146,23 @@
               <mat-icon>article</mat-icon>
               Blog educativo
             </a>
+
+            <a
+              mat-list-item
+              routerLink="/admin/usuarios"
+              (click)="closeMobileMenu()"
+            >
+              <span matListItemTitle>Usuarios</span>
+            </a>
+
+            <a
+              routerLink="/admin/usuarios"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
+            >
+              <mat-icon>group</mat-icon>
+              Usuarios
+            </a>
           </div>
         </div>
 

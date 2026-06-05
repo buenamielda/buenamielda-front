@@ -39,7 +39,7 @@ export const routes: Routes = [
       ),
     title: 'Crear entrada | Buena mielda',
   },
-    {
+  {
     path: 'blog/:id/editar',
     canActivate: [blogEditorGuard],
     loadComponent: () =>
@@ -65,7 +65,7 @@ export const routes: Routes = [
       ),
     title: 'Administrar productos | Buena mielda',
   },
-    {
+  {
     path: 'admin/blog',
     canActivate: [adminGuard],
     loadComponent: () =>
@@ -73,6 +73,15 @@ export const routes: Routes = [
         (m) => m.AdminBlogComponent,
       ),
     title: 'Administrar blog | Buena mielda',
+  },
+  {
+    path: 'admin/usuarios',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-users/admin-users.component').then(
+        (m) => m.AdminUsersComponent,
+      ),
+    title: 'Administrar usuarios | Buena mielda',
   },
   {
     path: 'carrito',

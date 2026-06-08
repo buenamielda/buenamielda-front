@@ -148,6 +148,15 @@
             </a>
 
             <a
+              routerLink="/admin/categorias"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
+            >
+              <mat-icon>category</mat-icon>
+              Categorías
+            </a>
+
+            <a
               routerLink="/admin/usuarios"
               class="dropdown-item-link management-item-link"
               (click)="closeManagementDropdown()"
@@ -288,6 +297,13 @@
       <a mat-list-item routerLink="/contacto" (click)="closeMobileMenu()"
         ><span matListItemTitle>Contacto</span></a
       >
+      <a
+        mat-list-item
+        routerLink="/admin/categorias"
+        (click)="closeMobileMenu()"
+      >
+        <span matListItemTitle>Categorías</span>
+      </a>
     </mat-nav-list>
   </div>
 </div>

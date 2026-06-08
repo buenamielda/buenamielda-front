@@ -8,6 +8,7 @@ export interface FiltrosProducto {
   categoriaId?: number;
   precioMin?: number;
   precioMax?: number;
+  disponible?: boolean;
 }
 
 @Injectable({
@@ -50,6 +51,10 @@ export class ProductCatalogService {
 
     if (filtros.precioMax !== undefined) {
       params = params.set('precioMax', filtros.precioMax.toString());
+    }
+
+    if (filtros.disponible !== undefined) {
+      params = params.set('disponible', filtros.disponible.toString());
     }
 
     this.http.get<Producto[]>(this.apiUrl, { params }).subscribe({

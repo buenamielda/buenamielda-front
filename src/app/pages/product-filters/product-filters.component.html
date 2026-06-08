@@ -23,6 +23,17 @@
     <section class="filters-panel">
       <div class="filter-fields">
         <label>
+          Nombre
+          <input
+            type="text"
+            placeholder="Buscar por nombre"
+            [ngModel]="nombreBusqueda()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="cambiarNombre($event)"
+          />
+        </label>
+
+        <label>
           Categoría
           <select
             [ngModel]="categoriaSeleccionada()"
@@ -30,7 +41,6 @@
             (ngModelChange)="seleccionarCategoria($event)"
           >
             <option [ngValue]="null">Todas las categorías</option>
-
             <option
               *ngFor="let categoria of categorias"
               [ngValue]="categoria.id"
@@ -71,6 +81,7 @@
             <span>€</span>
           </div>
         </label>
+
         <label>
           Disponibilidad
           <select

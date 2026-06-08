@@ -9,7 +9,9 @@
       <div>
         <p class="filters-kicker">Catálogo</p>
         <h1>Filtrar productos</h1>
-        <p>Encuentra productos por categoría y rango de precio.</p>
+        <p>
+          Encuentra productos por categoría, rango de precio y disponibilidad.
+        </p>
       </div>
 
       <div class="results-summary">
@@ -68,6 +70,17 @@
             />
             <span>€</span>
           </div>
+        </label>
+        <label>
+          Disponibilidad
+          <select
+            [ngModel]="disponibilidadSeleccionada()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="seleccionarDisponibilidad($event)"
+          >
+            <option [ngValue]="null">Todos los productos</option>
+            <option [ngValue]="true">Solo productos con stock</option>
+          </select>
         </label>
       </div>
 

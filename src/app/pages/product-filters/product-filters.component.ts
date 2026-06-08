@@ -29,10 +29,12 @@ export class ProductFiltersComponent implements OnInit {
   readonly precioMinimo = signal<number | null>(null);
   readonly precioMaximo = signal<number | null>(null);
   readonly errorFiltros = signal<string | null>(null);
+readonly disponibilidadSeleccionada = signal<boolean | null>(null);
 
   readonly categoriaAplicada = signal<number | null>(null);
   readonly precioMinimoAplicado = signal<number | null>(null);
   readonly precioMaximoAplicado = signal<number | null>(null);
+readonly disponibilidadAplicada = signal<boolean | null>(null);
 
   readonly categorias: CategoriaFiltro[] = [
     { id: 1, nombre: 'Miel' },
@@ -56,6 +58,10 @@ export class ProductFiltersComponent implements OnInit {
 
     if (this.precioMaximoAplicado() !== null) {
       filtros.push(`Hasta ${this.formatearPrecio(this.precioMaximoAplicado()!)}`);
+    }
+
+    if (this.disponibilidadAplicada() !== null) {
+      filtros.push(this.disponibilidadAplicada() ? 'Disponible' : 'No disponible');
     }
 
     return filtros.length ? filtros.join(' · ') : 'Todos los productos';
@@ -87,15 +93,18 @@ export class ProductFiltersComponent implements OnInit {
     const categoriaId = this.categoriaSeleccionada();
     const precioMin = this.precioMinimo();
     const precioMax = this.precioMaximo();
+const disponible = this.disponibilidadSeleccionada();
 
     this.categoriaAplicada.set(categoriaId);
     this.precioMinimoAplicado.set(precioMin);
     this.precioMaximoAplicado.set(precioMax);
+    this.disponibilidadAplicada.set(disponible);
 
     this.catalogoProductos.cargarProductos({
       categoriaId: categoriaId ?? undefined,
       precioMin: precioMin ?? undefined,
       precioMax: precioMax ?? undefined,
+      disponible: disponible ?? undefined,
     });
   }
 
@@ -104,10 +113,12 @@ export class ProductFiltersComponent implements OnInit {
     this.precioMinimo.set(null);
     this.precioMaximo.set(null);
     this.errorFiltros.set(null);
+    this.disponibilidadSeleccionada.set(null);
 
     this.categoriaAplicada.set(null);
     this.precioMinimoAplicado.set(null);
     this.precioMaximoAplicado.set(null);
+    this.disponibilidadAplicada.set(null);
 
     this.catalogoProductos.cargarProductos();
   }
@@ -154,4 +165,8 @@ export class ProductFiltersComponent implements OnInit {
 
     return Number.isFinite(precio) ? precio : null;
   }
+
+  seleccionarDisponibilidad(valor: boolean | null): void {
+  this.disponibilidadSeleccionada.set(valor);
+}
 }

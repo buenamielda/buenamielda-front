@@ -90,10 +90,11 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 .filter-fields {
   display: grid;
-  grid-template-columns: minmax(220px, 1.4fr) minmax(160px, 1fr) minmax(
-      160px,
-      1fr
-    );
+  grid-template-columns:
+    minmax(190px, 1.3fr)
+    minmax(145px, 1fr)
+    minmax(145px, 1fr)
+    minmax(190px, 1.2fr);
   gap: 1rem;
   margin-bottom: 1rem;
 
@@ -313,5 +314,16 @@ $font-serif: "Georgia", "Times New Roman", serif;
 @media (max-width: 575.98px) {
   .products-grid {
     grid-template-columns: 1fr;
+  }
+}
+.stock-info {
+  margin: 0.45rem 0 0;
+  color: $brand-mid;
+  font-family: $font-serif;
+  font-size: 0.8rem;
+
+  &.unavailable {
+    color: #8a2c1c;
+    font-weight: 700;
   }
 }

@@ -89,6 +89,10 @@ $font-serif: "Georgia", "Times New Roman", serif;
 }
 
 .form-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
   margin-bottom: 1.2rem;
 
   h2 {
@@ -265,7 +269,8 @@ $font-serif: "Georgia", "Times New Roman", serif;
     80px
     minmax(180px, 0.8fr)
     minmax(280px, 1.6fr)
-    110px;
+    110px
+    70px;
   gap: 1rem;
   align-items: center;
   min-height: 58px;
@@ -332,6 +337,37 @@ $font-serif: "Georgia", "Times New Roman", serif;
     mat-icon {
       color: #8a2c1c;
     }
+  }
+}
+
+.cancel-button,
+.edit-button {
+  border: 1px solid rgba($brand-brown, 0.16);
+  border-radius: 8px;
+  background: $brand-bg;
+  color: $brand-mid;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $brand-gold;
+    color: $brand-brown;
+  }
+}
+
+.cancel-button {
+  padding: 0.65rem 1rem;
+  font-family: $font-serif;
+  white-space: nowrap;
+}
+
+.edit-button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+
+  mat-icon {
+    font-size: 19px;
   }
 }
 

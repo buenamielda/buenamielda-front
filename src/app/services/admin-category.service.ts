@@ -53,4 +53,22 @@ export class AdminCategoryService {
         }),
       );
   }
+  actualizarCategoria(
+    id: number,
+    categoria: CategoriaAdminRequestDto,
+  ): Observable<CategoriaAdminResponseDto> {
+    return this.http
+      .put<CategoriaAdminResponseDto>(`${this.apiUrl}/${id}`, categoria)
+      .pipe(
+        tap((categoriaActualizada) => {
+          this.categoriasSignal.update((categorias) =>
+            categorias.map((categoriaActual) =>
+              categoriaActual.id === id
+                ? categoriaActualizada
+                : categoriaActual,
+            ),
+          );
+        }),
+      );
+  }
 }

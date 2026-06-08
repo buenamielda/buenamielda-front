@@ -1,12 +1,11 @@
-
 // ── Tokens ────────────────────────────────────────────────
-$brand-dark:   #2C1810;
-$brand-mid:    #5C3D2E;
-$brand-gold:   #C8860A;
-$brand-gold-h: #E09A10;
-$brand-bg:     #FDFAF5;
-$brand-card:   #F0EAE0;
-$font-serif:   'Georgia', 'Times New Roman', serif;
+$brand-dark: #2c1810;
+$brand-mid: #5c3d2e;
+$brand-gold: #c8860a;
+$brand-gold-h: #e09a10;
+$brand-bg: #fdfaf5;
+$brand-card: #f0eae0;
+$font-serif: "Georgia", "Times New Roman", serif;
 
 // ── Sección ───────────────────────────────────────────────
 .products-section {
@@ -112,8 +111,11 @@ $font-serif:   'Georgia', 'Times New Roman', serif;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
   box-shadow: 0 2px 8px rgba($brand-gold, 0.3);
+  text-decoration: none;
 
   mat-icon {
     font-size: 18px;
@@ -133,7 +135,9 @@ $font-serif:   'Georgia', 'Times New Roman', serif;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   border: 1px solid rgba($brand-dark, 0.06);
 
   &:hover {
@@ -246,7 +250,9 @@ $font-serif:   'Georgia', 'Times New Roman', serif;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 
   mat-icon {
     font-size: 18px;

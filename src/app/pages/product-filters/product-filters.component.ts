@@ -4,7 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 
-import { ProductCatalogService } from '../../services/product-catalog.service';
+import {
+  FiltrosProducto,
+  ProductCatalogService,
+} from '../../services/product-catalog.service';
 
 interface CategoriaFiltro {
   id: number;
@@ -25,16 +28,14 @@ export class ProductFiltersComponent implements OnInit {
   readonly cargando = this.catalogoProductos.cargando;
   readonly error = this.catalogoProductos.error;
 
+  readonly nombreBusqueda = signal('');
   readonly categoriaSeleccionada = signal<number | null>(null);
   readonly precioMinimo = signal<number | null>(null);
   readonly precioMaximo = signal<number | null>(null);
+  readonly disponibilidadSeleccionada = signal<boolean | null>(null);
   readonly errorFiltros = signal<string | null>(null);
-readonly disponibilidadSeleccionada = signal<boolean | null>(null);
 
-  readonly categoriaAplicada = signal<number | null>(null);
-  readonly precioMinimoAplicado = signal<number | null>(null);
-  readonly precioMaximoAplicado = signal<number | null>(null);
-readonly disponibilidadAplicada = signal<boolean | null>(null);
+  readonly filtrosAplicados = signal<FiltrosProducto>({});
 
   readonly categorias: CategoriaFiltro[] = [
     { id: 1, nombre: 'Miel' },
@@ -42,33 +43,42 @@ readonly disponibilidadAplicada = signal<boolean | null>(null);
   ];
 
   readonly resumenFiltrosAplicados = computed(() => {
-    const filtros: string[] = [];
+    const filtros = this.filtrosAplicados();
+    const resumen: string[] = [];
+
+    if (filtros.nombre) {
+      resumen.push(`Nombre: ${filtros.nombre}`);
+    }
 
     const categoria = this.categorias.find(
-      (item) => item.id === this.categoriaAplicada(),
+      (item) => item.id === filtros.categoriaId,
     );
 
     if (categoria) {
-      filtros.push(categoria.nombre);
+      resumen.push(categoria.nombre);
     }
 
-    if (this.precioMinimoAplicado() !== null) {
-      filtros.push(`Desde ${this.formatearPrecio(this.precioMinimoAplicado()!)}`);
+    if (filtros.precioMin !== undefined) {
+      resumen.push(`Desde ${this.formatearPrecio(filtros.precioMin)}`);
     }
 
-    if (this.precioMaximoAplicado() !== null) {
-      filtros.push(`Hasta ${this.formatearPrecio(this.precioMaximoAplicado()!)}`);
+    if (filtros.precioMax !== undefined) {
+      resumen.push(`Hasta ${this.formatearPrecio(filtros.precioMax)}`);
     }
 
-    if (this.disponibilidadAplicada() !== null) {
-      filtros.push(this.disponibilidadAplicada() ? 'Disponible' : 'No disponible');
+    if (filtros.disponible === true) {
+      resumen.push('Con stock');
     }
 
-    return filtros.length ? filtros.join(' · ') : 'Todos los productos';
+    return resumen.length ? resumen.join(' · ') : 'Todos los productos';
   });
 
   ngOnInit(): void {
     this.catalogoProductos.cargarProductos();
+  }
+
+  cambiarNombre(valor: string): void {
+    this.nombreBusqueda.set(valor);
   }
 
   seleccionarCategoria(valor: number | null): void {
@@ -85,46 +95,63 @@ readonly disponibilidadAplicada = signal<boolean | null>(null);
     this.errorFiltros.set(null);
   }
 
+  seleccionarDisponibilidad(valor: boolean | null): void {
+    this.disponibilidadSeleccionada.set(valor);
+  }
+
   aplicarFiltro(): void {
     if (!this.validarPrecios()) {
       return;
     }
 
-    const categoriaId = this.categoriaSeleccionada();
-    const precioMin = this.precioMinimo();
-    const precioMax = this.precioMaximo();
-const disponible = this.disponibilidadSeleccionada();
+    const filtros = this.construirFiltros();
 
-    this.categoriaAplicada.set(categoriaId);
-    this.precioMinimoAplicado.set(precioMin);
-    this.precioMaximoAplicado.set(precioMax);
-    this.disponibilidadAplicada.set(disponible);
-
-    this.catalogoProductos.cargarProductos({
-      categoriaId: categoriaId ?? undefined,
-      precioMin: precioMin ?? undefined,
-      precioMax: precioMax ?? undefined,
-      disponible: disponible ?? undefined,
-    });
+    this.filtrosAplicados.set(filtros);
+    this.catalogoProductos.cargarProductos(filtros);
   }
 
   limpiarFiltro(): void {
+    this.nombreBusqueda.set('');
     this.categoriaSeleccionada.set(null);
     this.precioMinimo.set(null);
     this.precioMaximo.set(null);
-    this.errorFiltros.set(null);
     this.disponibilidadSeleccionada.set(null);
-
-    this.categoriaAplicada.set(null);
-    this.precioMinimoAplicado.set(null);
-    this.precioMaximoAplicado.set(null);
-    this.disponibilidadAplicada.set(null);
+    this.errorFiltros.set(null);
+    this.filtrosAplicados.set({});
 
     this.catalogoProductos.cargarProductos();
   }
 
   formatearPrecio(precio: number): string {
     return `${precio.toFixed(2).replace('.', ',')} €`;
+  }
+
+  private construirFiltros(): FiltrosProducto {
+    const filtros: FiltrosProducto = {};
+
+    const nombre = this.nombreBusqueda().trim();
+
+    if (nombre) {
+      filtros.nombre = nombre;
+    }
+
+    if (this.categoriaSeleccionada()) {
+      filtros.categoriaId = this.categoriaSeleccionada()!;
+    }
+
+    if (this.precioMinimo() !== null) {
+      filtros.precioMin = this.precioMinimo()!;
+    }
+
+    if (this.precioMaximo() !== null) {
+      filtros.precioMax = this.precioMaximo()!;
+    }
+
+    if (this.disponibilidadSeleccionada() !== null) {
+      filtros.disponible = this.disponibilidadSeleccionada()!;
+    }
+
+    return filtros;
   }
 
   private validarPrecios(): boolean {
@@ -141,11 +168,7 @@ const disponible = this.disponibilidadSeleccionada();
       return false;
     }
 
-    if (
-      precioMin !== null &&
-      precioMax !== null &&
-      precioMin > precioMax
-    ) {
+    if (precioMin !== null && precioMax !== null && precioMin > precioMax) {
       this.errorFiltros.set(
         'El precio mínimo no puede ser superior al precio máximo.',
       );
@@ -165,8 +188,4 @@ const disponible = this.disponibilidadSeleccionada();
 
     return Number.isFinite(precio) ? precio : null;
   }
-
-  seleccionarDisponibilidad(valor: boolean | null): void {
-  this.disponibilidadSeleccionada.set(valor);
-}
 }

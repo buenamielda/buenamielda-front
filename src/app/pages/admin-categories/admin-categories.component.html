@@ -30,15 +30,34 @@
     <section class="create-category-panel">
       <div class="form-heading">
         <div>
-          <p class="admin-kicker">Nueva categoría</p>
-          <h2>Crear categoría</h2>
+          <p class="admin-kicker">
+            {{ editingId() ? "Categoría seleccionada" : "Nueva categoría" }}
+          </p>
+
+          <h2>
+            {{ editingId() ? "Modificar categoría" : "Crear categoría" }}
+          </h2>
+
           <p>
-            Añade una nueva categoría para organizar los productos del catálogo.
+            {{
+              editingId()
+                ? "Actualiza el nombre o la descripción de la categoría."
+                : "Añade una nueva categoría para organizar los productos del catálogo."
+            }}
           </p>
         </div>
+
+        <button
+          *ngIf="editingId()"
+          type="button"
+          class="cancel-button"
+          (click)="cancelarEdicion()"
+        >
+          Cancelar edición
+        </button>
       </div>
 
-      <form class="category-form" (ngSubmit)="crearCategoria()">
+      <form class="category-form" (ngSubmit)="guardarCategoria()">
         <label>
           Nombre
           <input
@@ -69,14 +88,31 @@
               type="checkbox"
               [ngModel]="formulario().activa"
               name="activa"
+              [disabled]="editingId() !== null"
               (ngModelChange)="cambiarCampo('activa', $event)"
             />
-            Crear como categoría activa
+
+            {{
+              editingId()
+                ? "El estado se gestionará mediante la opción de desactivar"
+                : "Crear como categoría activa"
+            }}
           </label>
 
           <button type="submit" [disabled]="guardando()">
-            <mat-icon>{{ guardando() ? "hourglass_empty" : "add" }}</mat-icon>
-            {{ guardando() ? "Creando..." : "Crear categoría" }}
+            <mat-icon>
+              {{
+                guardando() ? "hourglass_empty" : editingId() ? "save" : "add"
+              }}
+            </mat-icon>
+
+            {{
+              guardando()
+                ? "Guardando..."
+                : editingId()
+                  ? "Guardar cambios"
+                  : "Crear categoría"
+            }}
           </button>
         </div>
       </form>
@@ -129,6 +165,7 @@
           <span>Nombre</span>
           <span>Descripción</span>
           <span>Estado</span>
+          <span>Acciones</span>
         </div>
 
         <article
@@ -137,12 +174,24 @@
           [class.inactive]="!categoria.activa"
         >
           <span>#{{ categoria.id }}</span>
+
           <strong>{{ categoria.nombre }}</strong>
+
           <span>{{ categoria.descripcion || "Sin descripción" }}</span>
 
           <span class="status-pill" [class.off]="!categoria.activa">
             {{ categoria.activa ? "Activa" : "Inactiva" }}
           </span>
+
+          <button
+            type="button"
+            class="edit-button"
+            aria-label="Modificar categoría"
+            title="Modificar categoría"
+            (click)="editarCategoria(categoria)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
         </article>
       </div>
 

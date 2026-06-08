@@ -131,6 +131,19 @@ export class AdminCategoriesComponent implements OnInit {
         this.guardando.set(false);
       },
     });
+    const categoriaActual = editingId
+      ? this.categorias().find((categoria) => categoria.id === editingId)
+      : null;
+
+    if (
+      categoriaActual?.activa &&
+      !request.activa &&
+      !window.confirm(
+        `¿Quieres desactivar la categoría "${categoriaActual.nombre}"? Sus productos asociados también serán desactivados.`,
+      )
+    ) {
+      return;
+    }
   }
   editarCategoria(categoria: CategoriaAdminResponseDto): void {
     this.editingId.set(categoria.id);

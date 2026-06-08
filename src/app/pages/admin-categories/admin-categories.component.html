@@ -88,14 +88,11 @@
               type="checkbox"
               [ngModel]="formulario().activa"
               name="activa"
-              [disabled]="editingId() !== null"
               (ngModelChange)="cambiarCampo('activa', $event)"
             />
 
             {{
-              editingId()
-                ? "El estado se gestionará mediante la opción de desactivar"
-                : "Crear como categoría activa"
+              formulario().activa ? "Categoría activa" : "Categoría inactiva"
             }}
           </label>
 

@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { Producto, ProductoPayload } from '../models/product.model';
 
@@ -21,11 +21,18 @@ export class ProductCatalogService {
     this.productosSignal().filter((producto) => producto.activo),
   );
 
-  cargarProductos(): void {
+  cargarProductos(nombre?: string): void {
     this.cargando.set(true);
     this.error.set(null);
 
-    this.http.get<Producto[]>(this.apiUrl).subscribe({
+    let params = new HttpParams();
+    const nombreNormalizado = nombre?.trim();
+
+    if (nombreNormalizado) {
+      params = params.set('nombre', nombreNormalizado);
+    }
+
+    this.http.get<Producto[]>(this.apiUrl, { params }).subscribe({
       next: (productos) => {
         this.productosSignal.set(productos);
         this.cargando.set(false);

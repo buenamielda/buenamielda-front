@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,8 +34,9 @@ import { ProductCatalogService } from '../../services/product-catalog.service';
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss',
 })
-export class ProductGridComponent implements OnInit {
+export class ProductGridComponent implements OnInit, OnDestroy {
   private readonly catalogoProductos = inject(ProductCatalogService);
+  private temporizadorBusqueda?: ReturnType<typeof setTimeout>;
 
   @Input() sectionTitle = 'Todos los productos';
   @Input() showControls = true;
@@ -46,15 +55,7 @@ export class ProductGridComponent implements OnInit {
   ];
 
   productosFiltrados = computed(() => {
-    let resultado = this.catalogoProductos.productos();
-
-    const textoBusqueda = this.busqueda().toLowerCase().trim();
-
-    if (textoBusqueda) {
-      resultado = resultado.filter((producto) =>
-        producto.nombre.toLowerCase().includes(textoBusqueda)
-      );
-    }
+    const resultado = this.catalogoProductos.productos();
 
     switch (this.ordenSeleccionado()) {
       case 'price-asc':
@@ -62,13 +63,9 @@ export class ProductGridComponent implements OnInit {
       case 'price-desc':
         return [...resultado].sort((a, b) => b.precio - a.precio);
       case 'name-asc':
-        return [...resultado].sort((a, b) =>
-          a.nombre.localeCompare(b.nombre)
-        );
+        return [...resultado].sort((a, b) => a.nombre.localeCompare(b.nombre));
       case 'name-desc':
-        return [...resultado].sort((a, b) =>
-          b.nombre.localeCompare(a.nombre)
-        );
+        return [...resultado].sort((a, b) => b.nombre.localeCompare(a.nombre));
       default:
         return resultado;
     }
@@ -91,6 +88,14 @@ export class ProductGridComponent implements OnInit {
 
   buscar(valor: string): void {
     this.busqueda.set(valor);
+
+    if (this.temporizadorBusqueda) {
+      clearTimeout(this.temporizadorBusqueda);
+    }
+
+    this.temporizadorBusqueda = setTimeout(() => {
+      this.catalogoProductos.cargarProductos(valor);
+    }, 300);
   }
 
   ordenar(valor: string): void {
@@ -103,5 +108,10 @@ export class ProductGridComponent implements OnInit {
 
   formatearPrecio(precio: number): string {
     return precio.toFixed(2).replace('.', ',') + String.fromCharCode(8364);
+  }
+  ngOnDestroy(): void {
+    if (this.temporizadorBusqueda) {
+      clearTimeout(this.temporizadorBusqueda);
+    }
   }
 }

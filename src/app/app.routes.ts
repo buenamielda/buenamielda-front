@@ -92,6 +92,15 @@ export const routes: Routes = [
     title: 'Administrar usuarios | Buena mielda',
   },
   {
+    path: 'admin/categorias',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-categories/admin-categories.component').then(
+        (m) => m.AdminCategoriesComponent,
+      ),
+    title: 'Administrar categorías | Buena mielda',
+  },
+  {
     path: 'carrito',
     canActivate: [authGuard],
     loadComponent: () =>

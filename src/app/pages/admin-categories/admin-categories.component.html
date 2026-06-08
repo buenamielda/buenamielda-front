@@ -128,6 +128,13 @@
 
     <section class="categories-panel">
       <div class="list-toolbar">
+        <p class="form-message success" *ngIf="mensajeEstado()">
+          {{ mensajeEstado() }}
+        </p>
+
+        <p class="form-message error" *ngIf="errorEstado()">
+          {{ errorEstado() }}
+        </p>
         <div>
           <h2>Categorías registradas</h2>
           <p>{{ categoriasFiltradas().length }} resultados</p>
@@ -183,15 +190,41 @@
             {{ categoria.activa ? "Activa" : "Inactiva" }}
           </span>
 
-          <button
-            type="button"
-            class="edit-button"
-            aria-label="Modificar categoría"
-            title="Modificar categoría"
-            (click)="editarCategoria(categoria)"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
+          <div class="category-actions">
+            <button
+              type="button"
+              class="edit-button"
+              aria-label="Modificar categoría"
+              title="Modificar categoría"
+              (click)="editarCategoria(categoria)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button
+              type="button"
+              class="state-button"
+              [class.activate]="!categoria.activa"
+              [disabled]="cambiandoEstadoId() === categoria.id"
+              [attr.aria-label]="
+                categoria.activa ? 'Desactivar categoría' : 'Activar categoría'
+              "
+              [title]="
+                categoria.activa ? 'Desactivar categoría' : 'Activar categoría'
+              "
+              (click)="alternarEstadoCategoria(categoria)"
+            >
+              <mat-icon>
+                {{
+                  cambiandoEstadoId() === categoria.id
+                    ? "hourglass_empty"
+                    : categoria.activa
+                      ? "visibility_off"
+                      : "visibility"
+                }}
+              </mat-icon>
+            </button>
+          </div>
         </article>
       </div>
 

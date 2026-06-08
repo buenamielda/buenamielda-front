@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 import {
   CategoriaAdminRequestDto,
@@ -70,5 +70,30 @@ export class AdminCategoryService {
           );
         }),
       );
+  }
+  desactivarCategoria(id: number): Observable<CategoriaAdminResponseDto> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      map(() => {
+        const categoria = this.categoriasSignal().find(
+          (categoriaActual) => categoriaActual.id === id,
+        );
+
+        if (!categoria) {
+          throw new Error('Categoría no encontrada.');
+        }
+
+        return {
+          ...categoria,
+          activa: false,
+        };
+      }),
+      tap((categoriaDesactivada) => {
+        this.categoriasSignal.update((categorias) =>
+          categorias.map((categoria) =>
+            categoria.id === id ? categoriaDesactivada : categoria,
+          ),
+        );
+      }),
+    );
   }
 }

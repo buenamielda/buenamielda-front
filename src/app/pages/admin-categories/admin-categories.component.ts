@@ -67,6 +67,9 @@ export class AdminCategoriesComponent implements OnInit {
   });
 
   readonly guardando = signal(false);
+  readonly cambiandoEstadoId = signal<number | null>(null);
+  readonly errorEstado = signal<string | null>(null);
+  readonly mensajeEstado = signal<string | null>(null);
   readonly errorCreacion = signal<string | null>(null);
   readonly mensajeExito = signal<string | null>(null);
 
@@ -156,5 +159,89 @@ export class AdminCategoriesComponent implements OnInit {
       descripcion: '',
       activa: true,
     });
+  }
+
+  alternarEstadoCategoria(categoria: CategoriaAdminResponseDto): void {
+    this.errorEstado.set(null);
+    this.mensajeEstado.set(null);
+
+    if (categoria.activa) {
+      const confirmado = window.confirm(
+        `¿Quieres desactivar la categoría "${categoria.nombre}"? Sus productos asociados también serán desactivados.`,
+      );
+
+      if (!confirmado) {
+        return;
+      }
+
+      this.desactivarCategoria(categoria);
+      return;
+    }
+
+    this.activarCategoria(categoria);
+  }
+
+  private activarCategoria(categoria: CategoriaAdminResponseDto): void {
+    const request: CategoriaAdminRequestDto = {
+      nombre: categoria.nombre,
+      descripcion: categoria.descripcion ?? '',
+      activa: true,
+    };
+
+    this.cambiandoEstadoId.set(categoria.id);
+
+    this.categoryService.actualizarCategoria(categoria.id, request).subscribe({
+      next: () => {
+        this.mensajeEstado.set(
+          `La categoría "${categoria.nombre}" se ha activado correctamente.`,
+        );
+
+        this.actualizarFormularioSiEstaEditando(categoria.id, true);
+        this.cambiandoEstadoId.set(null);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorEstado.set(
+          error.error?.message ?? 'No se ha podido activar la categoría.',
+        );
+
+        this.cambiandoEstadoId.set(null);
+      },
+    });
+  }
+
+  private desactivarCategoria(categoria: CategoriaAdminResponseDto): void {
+    this.cambiandoEstadoId.set(categoria.id);
+
+    this.categoryService.desactivarCategoria(categoria.id).subscribe({
+      next: () => {
+        this.mensajeEstado.set(
+          `La categoría "${categoria.nombre}" se ha desactivado correctamente.`,
+        );
+
+        this.actualizarFormularioSiEstaEditando(categoria.id, false);
+        this.cambiandoEstadoId.set(null);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.errorEstado.set(
+          error.error?.message ?? 'No se ha podido desactivar la categoría.',
+        );
+
+        this.cambiandoEstadoId.set(null);
+      },
+    });
+  }
+
+  private actualizarFormularioSiEstaEditando(
+    categoriaId: number,
+    activa: boolean,
+  ): void {
+    if (this.editingId() !== categoriaId) {
+      return;
+    }
+
+    this.formulario.update((formulario) => ({
+      ...formulario,
+      activa,
+    }));
   }
 }

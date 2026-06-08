@@ -4,3 +4,10 @@ export interface CategoriaAdminResponseDto {
   descripcion: string | null;
   activa: boolean;
 }
+
+
+export interface CategoriaAdminRequestDto {
+  nombre: string;
+  descripcion: string;
+  activa: boolean;
+}

@@ -81,15 +81,21 @@ $font-serif: "Georgia", "Times New Roman", serif;
 }
 
 .filters-panel {
-  display: grid;
-  grid-template-columns: minmax(220px, 420px) auto;
-  gap: 1.5rem;
-  align-items: end;
   margin-bottom: 2rem;
   padding: 1.35rem;
   border: 1px solid rgba($brand-dark, 0.08);
   border-radius: 8px;
   background: #fff;
+}
+
+.filter-fields {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(160px, 1fr) minmax(
+      160px,
+      1fr
+    );
+  gap: 1rem;
+  margin-bottom: 1rem;
 
   label {
     display: grid;
@@ -98,7 +104,9 @@ $font-serif: "Georgia", "Times New Roman", serif;
     font-family: $font-serif;
   }
 
-  select {
+  select,
+  input {
+    width: 100%;
     min-height: 44px;
     padding: 0 0.85rem;
     border: 1px solid rgba($brand-dark, 0.16);
@@ -111,6 +119,46 @@ $font-serif: "Georgia", "Times New Roman", serif;
     &:focus {
       border-color: $brand-gold;
     }
+  }
+}
+
+.price-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border: 1px solid rgba($brand-dark, 0.16);
+  border-radius: 8px;
+  background: $brand-bg;
+
+  &:focus-within {
+    border-color: $brand-gold;
+  }
+
+  input {
+    border: 0;
+    background: transparent;
+  }
+
+  span {
+    padding-right: 0.85rem;
+    color: $brand-mid;
+    font-family: $font-serif;
+  }
+}
+
+.filter-error {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  background: rgba(#8a2c1c, 0.08);
+  color: #8a2c1c;
+  font-family: $font-serif;
+
+  mat-icon {
+    flex-shrink: 0;
   }
 }
 
@@ -183,7 +231,9 @@ $font-serif: "Georgia", "Times New Roman", serif;
   border-radius: 8px;
   background: $brand-bg;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-3px);
@@ -246,7 +296,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 @media (max-width: 767.98px) {
   .filters-header,
-  .filters-panel {
+  .filter-fields {
     grid-template-columns: 1fr;
   }
 

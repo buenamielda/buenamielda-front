@@ -6,6 +6,8 @@ import { Producto, ProductoPayload } from '../models/product.model';
 export interface FiltrosProducto {
   nombre?: string;
   categoriaId?: number;
+  precioMin?: number;
+  precioMax?: number;
 }
 
 @Injectable({
@@ -40,6 +42,14 @@ export class ProductCatalogService {
 
     if (filtros.categoriaId) {
       params = params.set('categoriaId', filtros.categoriaId.toString());
+    }
+
+    if (filtros.precioMin !== undefined) {
+      params = params.set('precioMin', filtros.precioMin.toString());
+    }
+
+    if (filtros.precioMax !== undefined) {
+      params = params.set('precioMax', filtros.precioMax.toString());
     }
 
     this.http.get<Producto[]>(this.apiUrl, { params }).subscribe({

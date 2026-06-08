@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 
-import { CategoriaAdminResponseDto } from '../models/admin-category.model';
+import {
+  CategoriaAdminRequestDto,
+  CategoriaAdminResponseDto,
+} from '../models/admin-category.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,5 +37,20 @@ export class AdminCategoryService {
         this.cargando.set(false);
       },
     });
+  }
+
+  crearCategoria(
+    categoria: CategoriaAdminRequestDto,
+  ): Observable<CategoriaAdminResponseDto> {
+    return this.http
+      .post<CategoriaAdminResponseDto>(this.apiUrl, categoria)
+      .pipe(
+        tap((categoriaCreada) => {
+          this.categoriasSignal.update((categorias) => [
+            ...categorias,
+            categoriaCreada,
+          ]);
+        }),
+      );
   }
 }

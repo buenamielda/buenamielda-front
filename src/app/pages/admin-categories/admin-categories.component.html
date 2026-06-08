@@ -5,8 +5,7 @@
         <p class="admin-kicker">Administración</p>
         <h1>Gestión de categorías</h1>
         <p>
-          Consulta las categorías disponibles en el catálogo y su estado
-          actual.
+          Consulta las categorías disponibles en el catálogo y su estado actual.
         </p>
       </div>
 
@@ -27,6 +26,69 @@
         </article>
       </div>
     </header>
+
+    <section class="create-category-panel">
+      <div class="form-heading">
+        <div>
+          <p class="admin-kicker">Nueva categoría</p>
+          <h2>Crear categoría</h2>
+          <p>
+            Añade una nueva categoría para organizar los productos del catálogo.
+          </p>
+        </div>
+      </div>
+
+      <form class="category-form" (ngSubmit)="crearCategoria()">
+        <label>
+          Nombre
+          <input
+            type="text"
+            required
+            maxlength="100"
+            placeholder="Ej. Propóleo"
+            [ngModel]="formulario().nombre"
+            name="nombre"
+            (ngModelChange)="cambiarCampo('nombre', $event)"
+          />
+        </label>
+
+        <label>
+          Descripción
+          <textarea
+            rows="3"
+            placeholder="Describe brevemente la categoría"
+            [ngModel]="formulario().descripcion"
+            name="descripcion"
+            (ngModelChange)="cambiarCampo('descripcion', $event)"
+          ></textarea>
+        </label>
+
+        <div class="form-footer">
+          <label class="status-check">
+            <input
+              type="checkbox"
+              [ngModel]="formulario().activa"
+              name="activa"
+              (ngModelChange)="cambiarCampo('activa', $event)"
+            />
+            Crear como categoría activa
+          </label>
+
+          <button type="submit" [disabled]="guardando()">
+            <mat-icon>{{ guardando() ? "hourglass_empty" : "add" }}</mat-icon>
+            {{ guardando() ? "Creando..." : "Crear categoría" }}
+          </button>
+        </div>
+      </form>
+
+      <p class="form-message success" *ngIf="mensajeExito()">
+        {{ mensajeExito() }}
+      </p>
+
+      <p class="form-message error" *ngIf="errorCreacion()">
+        {{ errorCreacion() }}
+      </p>
+    </section>
 
     <section class="categories-panel">
       <div class="list-toolbar">

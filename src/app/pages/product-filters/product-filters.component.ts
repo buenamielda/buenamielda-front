@@ -26,46 +26,132 @@ export class ProductFiltersComponent implements OnInit {
   readonly error = this.catalogoProductos.error;
 
   readonly categoriaSeleccionada = signal<number | null>(null);
+  readonly precioMinimo = signal<number | null>(null);
+  readonly precioMaximo = signal<number | null>(null);
+  readonly errorFiltros = signal<string | null>(null);
+
   readonly categoriaAplicada = signal<number | null>(null);
+  readonly precioMinimoAplicado = signal<number | null>(null);
+  readonly precioMaximoAplicado = signal<number | null>(null);
 
   readonly categorias: CategoriaFiltro[] = [
     { id: 1, nombre: 'Miel' },
     { id: 2, nombre: 'Polen' },
   ];
 
-  readonly nombreCategoriaAplicada = computed(() => {
-    const categoriaId = this.categoriaAplicada();
+  readonly resumenFiltrosAplicados = computed(() => {
+    const filtros: string[] = [];
 
-    return (
-      this.categorias.find((categoria) => categoria.id === categoriaId)
-        ?.nombre ?? 'Todas las categorías'
+    const categoria = this.categorias.find(
+      (item) => item.id === this.categoriaAplicada(),
     );
+
+    if (categoria) {
+      filtros.push(categoria.nombre);
+    }
+
+    if (this.precioMinimoAplicado() !== null) {
+      filtros.push(`Desde ${this.formatearPrecio(this.precioMinimoAplicado()!)}`);
+    }
+
+    if (this.precioMaximoAplicado() !== null) {
+      filtros.push(`Hasta ${this.formatearPrecio(this.precioMaximoAplicado()!)}`);
+    }
+
+    return filtros.length ? filtros.join(' · ') : 'Todos los productos';
   });
 
   ngOnInit(): void {
     this.catalogoProductos.cargarProductos();
   }
 
-  seleccionarCategoria(valor: string): void {
+  seleccionarCategoria(valor: number | null): void {
     this.categoriaSeleccionada.set(valor ? Number(valor) : null);
   }
 
+  cambiarPrecioMinimo(valor: number | null): void {
+    this.precioMinimo.set(this.normalizarPrecio(valor));
+    this.errorFiltros.set(null);
+  }
+
+  cambiarPrecioMaximo(valor: number | null): void {
+    this.precioMaximo.set(this.normalizarPrecio(valor));
+    this.errorFiltros.set(null);
+  }
+
   aplicarFiltro(): void {
+    if (!this.validarPrecios()) {
+      return;
+    }
+
     const categoriaId = this.categoriaSeleccionada();
+    const precioMin = this.precioMinimo();
+    const precioMax = this.precioMaximo();
 
     this.categoriaAplicada.set(categoriaId);
+    this.precioMinimoAplicado.set(precioMin);
+    this.precioMaximoAplicado.set(precioMax);
+
     this.catalogoProductos.cargarProductos({
       categoriaId: categoriaId ?? undefined,
+      precioMin: precioMin ?? undefined,
+      precioMax: precioMax ?? undefined,
     });
   }
 
   limpiarFiltro(): void {
     this.categoriaSeleccionada.set(null);
+    this.precioMinimo.set(null);
+    this.precioMaximo.set(null);
+    this.errorFiltros.set(null);
+
     this.categoriaAplicada.set(null);
+    this.precioMinimoAplicado.set(null);
+    this.precioMaximoAplicado.set(null);
+
     this.catalogoProductos.cargarProductos();
   }
 
   formatearPrecio(precio: number): string {
     return `${precio.toFixed(2).replace('.', ',')} €`;
+  }
+
+  private validarPrecios(): boolean {
+    const precioMin = this.precioMinimo();
+    const precioMax = this.precioMaximo();
+
+    if (precioMin !== null && precioMin < 0) {
+      this.errorFiltros.set('El precio mínimo no puede ser negativo.');
+      return false;
+    }
+
+    if (precioMax !== null && precioMax < 0) {
+      this.errorFiltros.set('El precio máximo no puede ser negativo.');
+      return false;
+    }
+
+    if (
+      precioMin !== null &&
+      precioMax !== null &&
+      precioMin > precioMax
+    ) {
+      this.errorFiltros.set(
+        'El precio mínimo no puede ser superior al precio máximo.',
+      );
+      return false;
+    }
+
+    this.errorFiltros.set(null);
+    return true;
+  }
+
+  private normalizarPrecio(valor: number | null): number | null {
+    if (valor === null || valor === undefined || valor === ('' as unknown)) {
+      return null;
+    }
+
+    const precio = Number(valor);
+
+    return Number.isFinite(precio) ? precio : null;
   }
 }

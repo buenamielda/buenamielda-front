@@ -1,0 +1,109 @@
+<main class="filters-page">
+  <div class="container-lg px-3 px-lg-4">
+    <a routerLink="/productos" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+      Volver a productos
+    </a>
+
+    <header class="filters-header">
+      <div>
+        <p class="filters-kicker">Catálogo</p>
+        <h1>Filtrar productos</h1>
+        <p>Encuentra productos pertenecientes a una categoría concreta.</p>
+      </div>
+
+      <div class="results-summary">
+        <strong>{{ productos().length }}</strong>
+        <span>Resultados</span>
+      </div>
+    </header>
+
+    <section class="filters-panel">
+      <label>
+        Categoría
+        <select
+          [ngModel]="categoriaSeleccionada()"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="seleccionarCategoria($event)"
+        >
+          <option [ngValue]="null">Todas las categorías</option>
+
+          <option
+            *ngFor="let categoria of categorias"
+            [ngValue]="categoria.id"
+          >
+            {{ categoria.nombre }}
+          </option>
+        </select>
+      </label>
+
+      <div class="filter-actions">
+        <button type="button" class="secondary-button" (click)="limpiarFiltro()">
+          Limpiar
+        </button>
+
+        <button type="button" class="primary-button" (click)="aplicarFiltro()">
+          <mat-icon>tune</mat-icon>
+          Aplicar filtro
+        </button>
+      </div>
+    </section>
+
+    <section class="results-section">
+      <div class="results-heading">
+        <div>
+          <p class="filters-kicker">Resultados</p>
+          <h2>{{ nombreCategoriaAplicada() }}</h2>
+        </div>
+
+        <span>{{ productos().length }} productos</span>
+      </div>
+
+      <div *ngIf="cargando()" class="feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando productos...</p>
+      </div>
+
+      <div *ngIf="!cargando() && error()" class="feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <div
+        class="products-grid"
+        *ngIf="!cargando() && !error() && productos().length > 0"
+      >
+        <article
+          class="product-card"
+          *ngFor="let producto of productos()"
+          [routerLink]="['/productos', producto.id]"
+        >
+          <div class="product-image">
+            <img
+              [src]="producto.imagenUrl || 'assets/images/placeholder.svg'"
+              [alt]="producto.nombre"
+              onerror="
+                this.onerror = null;
+                this.src = 'assets/images/placeholder.svg';
+              "
+            />
+          </div>
+
+          <div class="product-info">
+            <span>{{ producto.nombreCategoria }}</span>
+            <h3>{{ producto.nombre }}</h3>
+            <strong>{{ formatearPrecio(producto.precio) }}</strong>
+          </div>
+        </article>
+      </div>
+
+      <div
+        *ngIf="!cargando() && !error() && productos().length === 0"
+        class="feedback"
+      >
+        <mat-icon>search_off</mat-icon>
+        <p>No existen productos para la categoría seleccionada.</p>
+      </div>
+    </section>
+  </div>
+</main>

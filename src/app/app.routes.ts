@@ -17,6 +17,14 @@ export const routes: Routes = [
     title: 'Productos | Buena mielda',
   },
   {
+    path: 'productos/filtros',
+    loadComponent: () =>
+      import('./pages/product-filters/product-filters.component').then(
+        (m) => m.ProductFiltersComponent,
+      ),
+    title: 'Filtrar productos | Buena mielda',
+  },
+  {
     path: 'productos/:id',
     loadComponent: () =>
       import('./pages/product-detail/product-detail.component').then(

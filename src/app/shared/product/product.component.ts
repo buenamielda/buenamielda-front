@@ -94,7 +94,7 @@ export class ProductGridComponent implements OnInit, OnDestroy {
     }
 
     this.temporizadorBusqueda = setTimeout(() => {
-      this.catalogoProductos.cargarProductos(valor);
+      this.catalogoProductos.cargarProductos({ nombre: valor });
     }, 300);
   }
 

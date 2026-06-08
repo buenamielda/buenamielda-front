@@ -3,6 +3,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { Producto, ProductoPayload } from '../models/product.model';
 
+export interface FiltrosProducto {
+  nombre?: string;
+  categoriaId?: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,15 +26,20 @@ export class ProductCatalogService {
     this.productosSignal().filter((producto) => producto.activo),
   );
 
-  cargarProductos(nombre?: string): void {
+  cargarProductos(filtros: FiltrosProducto = {}): void {
     this.cargando.set(true);
     this.error.set(null);
 
     let params = new HttpParams();
-    const nombreNormalizado = nombre?.trim();
 
-    if (nombreNormalizado) {
-      params = params.set('nombre', nombreNormalizado);
+    const nombre = filtros.nombre?.trim();
+
+    if (nombre) {
+      params = params.set('nombre', nombre);
+    }
+
+    if (filtros.categoriaId) {
+      params = params.set('categoriaId', filtros.categoriaId.toString());
     }
 
     this.http.get<Producto[]>(this.apiUrl, { params }).subscribe({

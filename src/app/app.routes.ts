@@ -110,6 +110,15 @@ export const routes: Routes = [
     title: 'Administrar pedidos | Buena mielda',
   },
   {
+    path: 'admin/pedidos/:id',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-order-detail/admin-order-detail.component').then(
+        (m) => m.AdminOrderDetailComponent,
+      ),
+    title: 'Detalle del pedido | Buena mielda',
+  },
+  {
     path: 'carrito',
     canActivate: [authGuard],
     loadComponent: () =>

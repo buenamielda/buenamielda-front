@@ -69,6 +69,7 @@
           <span>Usuario</span>
           <span>Total</span>
           <span>Estado</span>
+          <span>Acciones</span>
         </div>
 
         <article
@@ -92,6 +93,15 @@
           >
             {{ formatearEstado(pedido.estado) }}
           </span>
+
+          <a
+            [routerLink]="['/admin/pedidos', pedido.id]"
+            class="detail-button"
+            aria-label="Consultar detalle del pedido"
+            title="Consultar detalle"
+          >
+            <mat-icon>visibility</mat-icon>
+          </a>
         </article>
       </div>
 

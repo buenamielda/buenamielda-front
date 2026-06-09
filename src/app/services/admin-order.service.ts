@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
-import {AdminPedidoDetallesResponseDto,
-        AdminPedidoResponseDto,
- } from '../models/admin-order.model';
+import {
+  AdminPedidoDetallesResponseDto,
+  AdminPedidoResponseDto,
+  ActualizarEstadoPedidoAdminRequestDto,
+} from '../models/admin-order.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,10 +42,27 @@ export class AdminOrderService {
       },
     });
   }
-  
+
   obtenerPedidoPorId(id: number): Observable<AdminPedidoDetallesResponseDto> {
-  return this.http.get<AdminPedidoDetallesResponseDto>(
-    `${this.apiUrl}/${id}`,
-  );
-}
+    return this.http.get<AdminPedidoDetallesResponseDto>(
+      `${this.apiUrl}/${id}`,
+    );
+  }
+
+  actualizarEstadoPedido(
+    id: number,
+    request: ActualizarEstadoPedidoAdminRequestDto,
+  ): Observable<AdminPedidoResponseDto> {
+    return this.http
+      .patch<AdminPedidoResponseDto>(`${this.apiUrl}/${id}/estado`, request)
+      .pipe(
+        tap((pedidoActualizado) => {
+          this.pedidosSignal.update((pedidos) =>
+            pedidos.map((pedido) =>
+              pedido.id === id ? pedidoActualizado : pedido,
+            ),
+          );
+        }),
+      );
+  }
 }

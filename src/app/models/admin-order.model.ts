@@ -31,3 +31,16 @@ export interface AdminPedidoDetallesResponseDto {
   pais: string | null;
   lineaPedido: AdminLineaPedidoResponseDto[];
 }
+
+export type AdminPedidoEstado =
+  | 'CREADO'
+  | 'PENDIENTE'
+  | 'PAGADO'
+  | 'EN_PREPARACION'
+  | 'ENVIADO'
+  | 'ENTREGADO'
+  | 'CANCELADO';
+
+export interface ActualizarEstadoPedidoAdminRequestDto {
+  estado: AdminPedidoEstado;
+}

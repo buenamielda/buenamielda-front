@@ -1,7 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
 
-import { AdminPedidoResponseDto } from '../models/admin-order.model';
+import {AdminPedidoDetallesResponseDto,
+        AdminPedidoResponseDto,
+ } from '../models/admin-order.model';
 
 @Injectable({
   providedIn: 'root',
@@ -37,4 +40,10 @@ export class AdminOrderService {
       },
     });
   }
+  
+  obtenerPedidoPorId(id: number): Observable<AdminPedidoDetallesResponseDto> {
+  return this.http.get<AdminPedidoDetallesResponseDto>(
+    `${this.apiUrl}/${id}`,
+  );
+}
 }

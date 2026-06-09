@@ -1,0 +1,135 @@
+<main class="admin-order-detail-page">
+  <div class="container-lg px-3 px-lg-4">
+    <a routerLink="/admin/pedidos" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+      Volver a pedidos
+    </a>
+
+    <div *ngIf="cargando()" class="admin-feedback">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Cargando pedido...</p>
+    </div>
+
+    <div *ngIf="!cargando() && error()" class="admin-feedback error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+    </div>
+
+    <ng-container *ngIf="!cargando() && !error() && pedido() as pedidoActual">
+      <header class="detail-header">
+        <div>
+          <p class="admin-kicker">Administración</p>
+          <h1>Pedido #{{ pedidoActual.id }}</h1>
+          <p>
+            Realizado el
+            {{ pedidoActual.fechaPedido | date: "dd/MM/yyyy 'a las' HH:mm" }}
+          </p>
+        </div>
+
+        <div class="detail-summary">
+          <span
+            class="status-pill"
+            [class.off]="pedidoActual.estado === 'CANCELADO'"
+          >
+            {{ formatearEstado(pedidoActual.estado) }}
+          </span>
+
+          <strong>{{ pedidoActual.total | currency: "EUR" }}</strong>
+        </div>
+      </header>
+
+      <section class="detail-grid">
+        <article class="detail-panel">
+          <div class="panel-heading">
+            <mat-icon>person</mat-icon>
+            <h2>Cliente</h2>
+          </div>
+
+          <dl>
+            <div>
+              <dt>Nombre</dt>
+              <dd>{{ pedidoActual.nombreUsuario || "No disponible" }}</dd>
+            </div>
+
+            <div>
+              <dt>Email</dt>
+              <dd>{{ pedidoActual.emailUsuario || "No disponible" }}</dd>
+            </div>
+
+            <div>
+              <dt>Teléfono</dt>
+              <dd>{{ pedidoActual.telefono || "No disponible" }}</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="detail-panel">
+          <div class="panel-heading">
+            <mat-icon>local_shipping</mat-icon>
+            <h2>Dirección de envío</h2>
+          </div>
+
+          <address>
+            <span>{{ pedidoActual.direccion || "Dirección no disponible" }}</span>
+            <span>
+              {{ pedidoActual.codigoPostal }}
+              {{ pedidoActual.localidad }}
+            </span>
+            <span>{{ pedidoActual.provincia }}</span>
+            <span>{{ pedidoActual.pais }}</span>
+          </address>
+        </article>
+      </section>
+
+      <section class="lines-panel">
+        <div class="lines-heading">
+          <div>
+            <p class="admin-kicker">Productos</p>
+            <h2>Líneas del pedido</h2>
+          </div>
+
+          <span>{{ pedidoActual.lineaPedido.length }} productos</span>
+        </div>
+
+        <div
+          *ngIf="pedidoActual.lineaPedido.length > 0"
+          class="order-lines"
+        >
+          <article
+            class="order-line"
+            *ngFor="let linea of pedidoActual.lineaPedido"
+          >
+            <img
+              [src]="linea.imagenProducto || 'assets/images/placeholder.svg'"
+              [alt]="linea.nombreProducto || 'Producto sin nombre'"
+              (error)="mostrarImagenAlternativa($event)"
+            />
+
+            <div class="product-information">
+              <span>{{ linea.nombreCategoria || "Sin categoría" }}</span>
+              <strong>{{ linea.nombreProducto || "Producto no disponible" }}</strong>
+              <small>Cantidad: {{ linea.cantidad }}</small>
+            </div>
+
+            <span>{{ linea.precioUnitario | currency: "EUR" }} / unidad</span>
+
+            <strong>{{ linea.subtotal | currency: "EUR" }}</strong>
+          </article>
+        </div>
+
+        <div
+          *ngIf="pedidoActual.lineaPedido.length === 0"
+          class="admin-feedback"
+        >
+          <mat-icon>inventory_2</mat-icon>
+          <p>El pedido no contiene líneas.</p>
+        </div>
+
+        <div class="order-total">
+          <span>Total del pedido</span>
+          <strong>{{ pedidoActual.total | currency: "EUR" }}</strong>
+        </div>
+      </section>
+    </ng-container>
+  </div>
+</main>

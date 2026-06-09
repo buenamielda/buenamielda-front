@@ -1,0 +1,268 @@
+$brand-dark: #272727;
+$brand-brown: #2c1810;
+$brand-mid: #5c3d2e;
+$brand-gold: #e6ac00;
+$brand-bg: #faf7f2;
+$brand-soft: #f0eae0;
+$font-serif: "Georgia", "Times New Roman", serif;
+
+:host {
+  display: block;
+  background: $brand-bg;
+}
+
+.admin-order-detail-page {
+  min-height: 760px;
+  padding: 3rem 0 6rem;
+}
+
+.back-link {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  color: $brand-mid;
+  font-family: $font-serif;
+  text-decoration: none;
+
+  &:hover {
+    color: $brand-gold;
+  }
+}
+
+.detail-header {
+  display: flex;
+  gap: 2rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+
+  h1 {
+    margin: 0 0 0.5rem;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: clamp(2rem, 4vw, 2.6rem);
+  }
+
+  p {
+    margin: 0;
+    color: rgba($brand-dark, 0.68);
+    font-family: $font-serif;
+  }
+}
+
+.admin-kicker {
+  margin-bottom: 0.45rem !important;
+  color: $brand-gold !important;
+  font-weight: 700;
+}
+
+.detail-summary {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  > strong {
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.6rem;
+  }
+}
+
+.status-pill {
+  display: inline-flex;
+  min-width: 90px;
+  justify-content: center;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: rgba($brand-gold, 0.16);
+  color: $brand-brown;
+  font-family: $font-serif;
+  font-weight: 700;
+
+  &.off {
+    background: rgba($brand-dark, 0.08);
+    color: rgba($brand-dark, 0.72);
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-panel,
+.lines-panel {
+  padding: 1.35rem;
+  border: 1px solid rgba($brand-brown, 0.08);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba($brand-brown, 0.06);
+}
+
+.panel-heading {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  mat-icon {
+    color: $brand-gold;
+  }
+
+  h2 {
+    margin: 0;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.25rem;
+  }
+}
+
+dl {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+
+  div {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  dt {
+    color: rgba($brand-dark, 0.58);
+    font-family: $font-serif;
+    font-size: 0.82rem;
+  }
+
+  dd {
+    margin: 0;
+    color: $brand-brown;
+    font-family: $font-serif;
+  }
+}
+
+address {
+  display: grid;
+  gap: 0.4rem;
+  color: $brand-brown;
+  font-family: $font-serif;
+  font-style: normal;
+}
+
+.lines-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.35rem;
+  }
+
+  > span {
+    color: rgba($brand-dark, 0.62);
+    font-family: $font-serif;
+  }
+}
+
+.order-lines {
+  display: grid;
+}
+
+.order-line {
+  display: grid;
+  grid-template-columns: 72px minmax(180px, 1fr) 160px 110px;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba($brand-brown, 0.08);
+  color: rgba($brand-dark, 0.76);
+  font-family: $font-serif;
+
+  img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: $brand-soft;
+  }
+
+  > strong {
+    color: $brand-brown;
+    text-align: right;
+  }
+}
+
+.product-information {
+  display: grid;
+  gap: 0.2rem;
+
+  span,
+  small {
+    color: rgba($brand-dark, 0.58);
+  }
+
+  strong {
+    color: $brand-brown;
+  }
+}
+
+.order-total {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2rem;
+  padding-top: 1.2rem;
+  color: $brand-brown;
+  font-family: $font-serif;
+
+  strong {
+    font-size: 1.3rem;
+  }
+}
+
+.admin-feedback {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  color: rgba($brand-dark, 0.68);
+  font-family: $font-serif;
+  text-align: center;
+
+  mat-icon {
+    color: $brand-gold;
+  }
+
+  &.error {
+    color: #8a2c1c;
+
+    mat-icon {
+      color: #8a2c1c;
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .detail-header,
+  .detail-summary,
+  .lines-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .order-lines {
+    overflow-x: auto;
+  }
+
+  .order-line {
+    min-width: 680px;
+  }
+}

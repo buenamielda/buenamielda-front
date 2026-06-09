@@ -38,6 +38,52 @@
         </div>
       </header>
 
+      <section class="state-panel">
+        <div>
+          <p class="admin-kicker">Estado del pedido</p>
+          <h2>Actualizar estado</h2>
+          <p>Selecciona el nuevo estado del pedido.</p>
+        </div>
+
+        <form class="state-form" (ngSubmit)="actualizarEstado()">
+          <select
+            [ngModel]="estadoSeleccionado()"
+            name="estado"
+            [disabled]="actualizandoEstado()"
+            (ngModelChange)="estadoSeleccionado.set($event)"
+          >
+            <option
+              *ngFor="let estado of estadosDisponibles"
+              [ngValue]="estado"
+            >
+              {{ formatearEstado(estado) }}
+            </option>
+          </select>
+
+          <button
+            type="submit"
+            [disabled]="
+              actualizandoEstado() ||
+              estadoSeleccionado() === pedidoActual.estado
+            "
+          >
+            <mat-icon>
+              {{ actualizandoEstado() ? "hourglass_empty" : "save" }}
+            </mat-icon>
+
+            {{ actualizandoEstado() ? "Guardando..." : "Guardar estado" }}
+          </button>
+        </form>
+
+        <p class="state-message success" *ngIf="mensajeEstado()">
+          {{ mensajeEstado() }}
+        </p>
+
+        <p class="state-message error" *ngIf="errorEstado()">
+          {{ errorEstado() }}
+        </p>
+      </section>
+
       <section class="detail-grid">
         <article class="detail-panel">
           <div class="panel-heading">
@@ -70,7 +116,9 @@
           </div>
 
           <address>
-            <span>{{ pedidoActual.direccion || "Dirección no disponible" }}</span>
+            <span>{{
+              pedidoActual.direccion || "Dirección no disponible"
+            }}</span>
             <span>
               {{ pedidoActual.codigoPostal }}
               {{ pedidoActual.localidad }}
@@ -91,10 +139,7 @@
           <span>{{ pedidoActual.lineaPedido.length }} productos</span>
         </div>
 
-        <div
-          *ngIf="pedidoActual.lineaPedido.length > 0"
-          class="order-lines"
-        >
+        <div *ngIf="pedidoActual.lineaPedido.length > 0" class="order-lines">
           <article
             class="order-line"
             *ngFor="let linea of pedidoActual.lineaPedido"
@@ -107,7 +152,9 @@
 
             <div class="product-information">
               <span>{{ linea.nombreCategoria || "Sin categoría" }}</span>
-              <strong>{{ linea.nombreProducto || "Producto no disponible" }}</strong>
+              <strong>{{
+                linea.nombreProducto || "Producto no disponible"
+              }}</strong>
               <small>Cantidad: {{ linea.cantidad }}</small>
             </div>
 

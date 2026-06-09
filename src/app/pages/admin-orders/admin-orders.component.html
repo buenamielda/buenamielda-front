@@ -1,0 +1,107 @@
+<main class="admin-orders-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="admin-header">
+      <div>
+        <p class="admin-kicker">Administración</p>
+        <h1>Gestión de pedidos</h1>
+        <p>
+          Consulta los pedidos realizados, su importe, usuario asociado y estado
+          actual.
+        </p>
+      </div>
+
+      <div class="admin-stats">
+        <article>
+          <strong>{{ pedidos().length }}</strong>
+          <span>Total</span>
+        </article>
+
+        <article>
+          <strong>{{ totalPendientes() }}</strong>
+          <span>Pendientes</span>
+        </article>
+
+        <article>
+          <strong>{{ totalEntregados() }}</strong>
+          <span>Entregados</span>
+        </article>
+      </div>
+    </header>
+
+    <section class="orders-panel">
+      <div class="list-toolbar">
+        <div>
+          <h2>Pedidos registrados</h2>
+          <p>{{ pedidosFiltrados().length }} resultados</p>
+        </div>
+
+        <label>
+          <mat-icon>search</mat-icon>
+
+          <input
+            type="search"
+            placeholder="Buscar por pedido, usuario o estado"
+            [ngModel]="busqueda()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="busqueda.set($event)"
+          />
+        </label>
+      </div>
+
+      <div *ngIf="cargando()" class="admin-feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando pedidos...</p>
+      </div>
+
+      <div *ngIf="!cargando() && error()" class="admin-feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <div
+        *ngIf="!cargando() && !error() && pedidosFiltrados().length > 0"
+        class="orders-table"
+        aria-label="Listado de pedidos"
+      >
+        <div class="order-row order-row-header">
+          <span>Pedido</span>
+          <span>Fecha</span>
+          <span>Usuario</span>
+          <span>Total</span>
+          <span>Estado</span>
+        </div>
+
+        <article
+          class="order-row"
+          *ngFor="let pedido of pedidosFiltrados()"
+          [class.cancelled]="pedido.estado === 'CANCELADO'"
+        >
+          <strong>#{{ pedido.id }}</strong>
+
+          <span>
+            {{ pedido.fechaPedido | date: "dd/MM/yyyy HH:mm" }}
+          </span>
+
+          <span>{{ pedido.emailUsuario || "Usuario no disponible" }}</span>
+
+          <strong>{{ pedido.total | currency: "EUR" }}</strong>
+
+          <span
+            class="status-pill"
+            [class.off]="pedido.estado === 'CANCELADO'"
+          >
+            {{ formatearEstado(pedido.estado) }}
+          </span>
+        </article>
+      </div>
+
+      <div
+        *ngIf="!cargando() && !error() && pedidosFiltrados().length === 0"
+        class="admin-feedback"
+      >
+        <mat-icon>receipt_long</mat-icon>
+        <p>No hay pedidos para mostrar.</p>
+      </div>
+    </section>
+  </div>
+</main>

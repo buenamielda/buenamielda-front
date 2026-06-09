@@ -164,6 +164,15 @@
               <mat-icon>group</mat-icon>
               Usuarios
             </a>
+
+            <a
+              routerLink="/admin/pedidos"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
+            >
+              <mat-icon>receipt_long</mat-icon>
+              Pedidos
+            </a>
           </div>
         </div>
 
@@ -284,6 +293,14 @@
             (click)="closeMobileMenu()"
           >
             <span matListItemTitle>Usuarios</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/admin/pedidos"
+            (click)="closeMobileMenu()"
+          >
+            <span matListItemTitle>Pedidos</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

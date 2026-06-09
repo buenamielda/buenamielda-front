@@ -101,6 +101,15 @@ export const routes: Routes = [
     title: 'Administrar categorías | Buena mielda',
   },
   {
+    path: 'admin/pedidos',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-orders/admin-orders.component').then(
+        (m) => m.AdminOrdersComponent,
+      ),
+    title: 'Administrar pedidos | Buena mielda',
+  },
+  {
     path: 'carrito',
     canActivate: [authGuard],
     loadComponent: () =>

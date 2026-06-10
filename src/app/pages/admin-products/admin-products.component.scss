@@ -185,6 +185,15 @@ $font-serif: "Georgia", "Times New Roman", serif;
   font-family: $font-serif;
 }
 
+.stock-success {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  background: rgba(#287a45, 0.1);
+  color: #287a45;
+  font-family: $font-serif;
+}
+
 .selected-stock {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -229,7 +238,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 .stock-row {
   display: grid;
-  grid-template-columns: 80px minmax(180px, 1fr) 110px 110px;
+  grid-template-columns: 70px minmax(180px, 1fr) 110px 110px 190px;
   gap: 1rem;
   align-items: center;
   min-height: 58px;
@@ -258,6 +267,46 @@ $font-serif: "Georgia", "Times New Roman", serif;
   color: $brand-mid;
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.stock-edit-input {
+  width: 90px;
+  min-height: 38px;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgba($brand-brown, 0.2);
+  border-radius: 8px;
+  font-family: $font-serif;
+}
+
+.stock-actions {
+  display: flex;
+  gap: 0.45rem;
+
+  button {
+    min-height: 36px;
+    padding: 0.35rem 0.7rem;
+    border-radius: 7px;
+    font-family: $font-serif;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+.stock-edit-button,
+.stock-save-button {
+  border: 1px solid $brand-gold;
+  background: $brand-gold;
+  color: #fff;
+}
+
+.stock-cancel-button {
+  border: 1px solid rgba($brand-brown, 0.2);
+  background: #fff;
+  color: $brand-brown;
 }
 
 .product-form,

@@ -41,6 +41,11 @@ export class AdminProductsComponent implements OnInit {
   readonly stockLookupId = signal<number | null>(null);
   readonly stockLookupError = signal('');
   readonly selectedStock = signal<AdminProductoStockResponseDto | null>(null);
+  readonly editingStockId = signal<number | null>(null);
+  readonly editingStockValue = signal<number | null>(null);
+  readonly stockUpdateLoading = signal(false);
+  readonly stockUpdateError = signal('');
+  readonly stockUpdateSuccess = signal('');
 
   readonly productosFiltrados = computed(() => {
     const textoBusqueda = this.busqueda().trim().toLowerCase();
@@ -210,6 +215,58 @@ export class AdminProductsComponent implements OnInit {
 
     this.selectedStock.set(producto);
     this.stockLookupError.set('');
+  }
+
+  editarStock(producto: AdminProductoStockResponseDto): void {
+    this.editingStockId.set(producto.id);
+    this.editingStockValue.set(producto.stock);
+    this.stockUpdateError.set('');
+    this.stockUpdateSuccess.set('');
+  }
+
+  cancelarEdicionStock(): void {
+    this.editingStockId.set(null);
+    this.editingStockValue.set(null);
+    this.stockUpdateError.set('');
+  }
+
+  guardarStock(producto: AdminProductoStockResponseDto): void {
+    const nuevoStock = Number(this.editingStockValue());
+
+    if (!Number.isInteger(nuevoStock) || nuevoStock < 0) {
+      this.stockUpdateError.set(
+        'El stock debe ser un número entero igual o superior a cero.',
+      );
+      return;
+    }
+
+    this.stockUpdateLoading.set(true);
+    this.stockUpdateError.set('');
+    this.stockUpdateSuccess.set('');
+
+    this.adminStockService
+      .actualizarStock(producto.id, { stock: nuevoStock })
+      .subscribe({
+        next: (productoActualizado) => {
+          if (this.selectedStock()?.id === productoActualizado.id) {
+            this.selectedStock.set(productoActualizado);
+          }
+
+          this.stockUpdateSuccess.set(
+            `Stock de "${productoActualizado.nombre}" actualizado correctamente.`,
+          );
+
+          this.editingStockId.set(null);
+          this.editingStockValue.set(null);
+          this.stockUpdateLoading.set(false);
+        },
+        error: () => {
+          this.stockUpdateError.set(
+            'No se ha podido modificar el stock del producto.',
+          );
+          this.stockUpdateLoading.set(false);
+        },
+      });
   }
 
   formatearPrecio(precio: number): string {

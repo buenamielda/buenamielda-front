@@ -97,12 +97,21 @@
 
       <p *ngIf="stockLoading()">Cargando stock de productos...</p>
 
+      <p class="stock-success" *ngIf="stockUpdateSuccess()">
+        {{ stockUpdateSuccess() }}
+      </p>
+
+      <p class="stock-error" *ngIf="stockUpdateError()">
+        {{ stockUpdateError() }}
+      </p>
+
       <div class="stock-table" aria-label="Listado de stock de productos">
         <div class="stock-row stock-row-header">
           <span>ID</span>
           <span>Producto</span>
           <span>Stock</span>
           <span>Estado</span>
+          <span>Acciones</span>
         </div>
 
         <div
@@ -111,12 +120,65 @@
           [class.stock-alert]="product.stock === 0"
         >
           <span>#{{ product.id }}</span>
+
           <strong>{{ product.nombre }}</strong>
-          <span>{{ product.stock }} uds.</span>
+
+          <ng-container
+            *ngIf="editingStockId() === product.id; else stockActual"
+          >
+            <input
+              class="stock-edit-input"
+              type="number"
+              min="0"
+              step="1"
+              required
+              [ngModel]="editingStockValue()"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="editingStockValue.set($event)"
+            />
+          </ng-container>
+
+          <ng-template #stockActual>
+            <span>{{ product.stock }} uds.</span>
+          </ng-template>
 
           <span class="status-pill" [class.off]="!product.activo">
             {{ product.activo ? "Activo" : "Inactivo" }}
           </span>
+
+          <div class="stock-actions">
+            <ng-container
+              *ngIf="editingStockId() === product.id; else editarAccion"
+            >
+              <button
+                type="button"
+                class="stock-save-button"
+                [disabled]="stockUpdateLoading()"
+                (click)="guardarStock(product)"
+              >
+                Guardar
+              </button>
+
+              <button
+                type="button"
+                class="stock-cancel-button"
+                [disabled]="stockUpdateLoading()"
+                (click)="cancelarEdicionStock()"
+              >
+                Cancelar
+              </button>
+            </ng-container>
+
+            <ng-template #editarAccion>
+              <button
+                type="button"
+                class="stock-edit-button"
+                (click)="editarStock(product)"
+              >
+                Modificar
+              </button>
+            </ng-template>
+          </div>
         </div>
       </div>
     </section>

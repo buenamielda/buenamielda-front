@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 
 import {
   AdminProductoStockResponseDto,
+  AdminStockAlertResponseDto,
   AdminStockUpdateRequestDto,
 } from '../models/admin-stock.model';
 
@@ -41,6 +42,23 @@ export class AdminStockService {
     });
   }
 
+  private readonly alertasUrl = '/api/admin/alertas-stock';
+
+  private readonly alertasSignal = signal<AdminStockAlertResponseDto[]>([]);
+
+  readonly alertasPendientes = computed(() =>
+    this.alertasSignal()
+      .filter((alerta) => alerta.estado === 'PENDIENTE')
+      .sort(
+        (a, b) =>
+          new Date(b.fechaCreacion).getTime() -
+          new Date(a.fechaCreacion).getTime(),
+      ),
+  );
+
+  readonly cargandoAlertas = signal(false);
+  readonly errorAlertas = signal<string | null>(null);
+
   actualizarStock(
     idProducto: number,
     request: AdminStockUpdateRequestDto,
@@ -59,5 +77,23 @@ export class AdminStockService {
           );
         }),
       );
+  }
+
+  cargarAlertasPendientes(): void {
+    this.cargandoAlertas.set(true);
+    this.errorAlertas.set(null);
+
+    this.http.get<AdminStockAlertResponseDto[]>(this.alertasUrl).subscribe({
+      next: (alertas) => {
+        this.alertasSignal.set(alertas);
+        this.cargandoAlertas.set(false);
+      },
+      error: () => {
+        this.errorAlertas.set(
+          'No se han podido cargar las alertas de stock pendientes.',
+        );
+        this.cargandoAlertas.set(false);
+      },
+    });
   }
 }

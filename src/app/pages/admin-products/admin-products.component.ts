@@ -4,11 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 import { Producto, ProductoPayload } from '../../models/product.model';
 import { ProductCatalogService } from '../../services/product-catalog.service';
-import { ProductoStockResponseDto } from '../../models/stock.model';
-import {
-  StockProductNotFoundError,
-  StockService,
-} from '../../services/stock.service';
+import { AdminProductoStockResponseDto } from '../../models/admin-stock.model';
+import { AdminStockService } from '../../services/admin-stock.service';
 
 interface FormularioProducto {
   nombre: string;
@@ -32,7 +29,7 @@ interface FormularioProducto {
 })
 export class AdminProductsComponent implements OnInit {
   private readonly catalogoProductos = inject(ProductCatalogService);
-  private readonly stockService = inject(StockService);
+  private readonly adminStockService = inject(AdminStockService);
 
   readonly productos = this.catalogoProductos.todosLosProductos;
   readonly error = this.catalogoProductos.error;
@@ -43,7 +40,7 @@ export class AdminProductsComponent implements OnInit {
   readonly busquedaStock = signal('');
   readonly stockLookupId = signal<number | null>(null);
   readonly stockLookupError = signal('');
-  readonly selectedStock = signal<ProductoStockResponseDto | null>(null);
+  readonly selectedStock = signal<AdminProductoStockResponseDto | null>(null);
 
   readonly productosFiltrados = computed(() => {
     const textoBusqueda = this.busqueda().trim().toLowerCase();
@@ -70,9 +67,9 @@ export class AdminProductsComponent implements OnInit {
     () => this.productos().filter((producto) => !producto.activo).length,
   );
 
-  readonly stockProducts = computed(
-    () => this.stockService.getAllProductStocks().productos,
-  );
+  readonly stockProducts = this.adminStockService.productosStock;
+  readonly stockLoading = this.adminStockService.cargando;
+  readonly stockError = this.adminStockService.error;
 
   readonly filteredStockProducts = computed(() => {
     const textoBusqueda = this.busquedaStock().trim().toLowerCase();
@@ -83,7 +80,7 @@ export class AdminProductsComponent implements OnInit {
 
     return this.stockProducts().filter((producto) =>
       [
-        producto.idProducto.toString(),
+        producto.id.toString(),
         producto.nombre,
         producto.activo ? 'activo' : 'inactivo',
       ]
@@ -97,7 +94,7 @@ export class AdminProductsComponent implements OnInit {
     () =>
       this.stockProducts().filter(
         (producto) =>
-          producto.activo && producto.stock > 0 && producto.stock <= 3,
+          producto.activo && producto.stock > 0 && producto.stock <= 10,
       ).length,
   );
 
@@ -108,6 +105,7 @@ export class AdminProductsComponent implements OnInit {
 
   ngOnInit(): void {
     this.catalogoProductos.cargarProductos();
+    this.adminStockService.cargarStock();
   }
 
   cambiarCampo<K extends keyof FormularioProducto>(
@@ -195,22 +193,23 @@ export class AdminProductsComponent implements OnInit {
     if (!id || id <= 0) {
       this.selectedStock.set(null);
       this.stockLookupError.set(
-        'Introduce un identificador de producto valido.',
+        'Introduce un identificador de producto válido.',
       );
       return;
     }
 
-    try {
-      this.selectedStock.set(this.stockService.getProductStockById(id));
-      this.stockLookupError.set('');
-    } catch (error) {
+    const producto = this.stockProducts().find((item) => item.id === id);
+
+    if (!producto) {
       this.selectedStock.set(null);
       this.stockLookupError.set(
-        error instanceof StockProductNotFoundError
-          ? error.message
-          : 'No se ha podido consultar el stock del producto.',
+        `No se ha encontrado ningún producto con identificador ${id}.`,
       );
+      return;
     }
+
+    this.selectedStock.set(producto);
+    this.stockLookupError.set('');
   }
 
   formatearPrecio(precio: number): string {

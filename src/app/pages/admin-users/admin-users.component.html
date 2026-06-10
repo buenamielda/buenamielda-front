@@ -26,6 +26,85 @@
       </div>
     </header>
 
+    <section class="edit-user-panel" *ngIf="editingId()">
+      <div class="form-heading">
+        <div>
+          <p class="admin-kicker">Usuario seleccionado</p>
+          <h2>Modificar usuario #{{ editingId() }}</h2>
+          <p>Actualiza sus datos, disponibilidad y rol asociado.</p>
+        </div>
+
+        <button type="button" class="cancel-button" (click)="cancelarEdicion()">
+          Cancelar edición
+        </button>
+      </div>
+
+      <form class="user-form" (ngSubmit)="guardarUsuario()">
+        <div class="form-row">
+          <label>
+            Nombre
+            <input
+              type="text"
+              required
+              [ngModel]="formulario().nombre"
+              name="nombre"
+              (ngModelChange)="cambiarCampo('nombre', $event)"
+            />
+          </label>
+
+          <label>
+            Correo electrónico
+            <input
+              type="email"
+              required
+              [ngModel]="formulario().email"
+              name="email"
+              (ngModelChange)="cambiarCampo('email', $event)"
+            />
+          </label>
+
+          <label>
+            Rol
+            <select
+              [ngModel]="formulario().rol"
+              name="rol"
+              (ngModelChange)="cambiarCampo('rol', $event)"
+            >
+              <option *ngFor="let rol of rolesDisponibles" [ngValue]="rol">
+                {{ formatearRol(rol) }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-footer">
+          <label class="status-check">
+            <input
+              type="checkbox"
+              [ngModel]="formulario().activo"
+              name="activo"
+              (ngModelChange)="cambiarCampo('activo', $event)"
+            />
+
+            {{ formulario().activo ? "Usuario activo" : "Usuario inactivo" }}
+          </label>
+
+          <button type="submit" [disabled]="guardando()">
+            <mat-icon>{{ guardando() ? "hourglass_empty" : "save" }}</mat-icon>
+            {{ guardando() ? "Guardando..." : "Guardar usuario" }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <p class="form-message success" *ngIf="mensajeExito()">
+      {{ mensajeExito() }}
+    </p>
+
+    <p class="form-message error" *ngIf="errorEdicion()">
+      {{ errorEdicion() }}
+    </p>
+
     <section class="users-panel">
       <div class="list-toolbar">
         <div>
@@ -66,6 +145,7 @@
           <span>Email</span>
           <span>Roles</span>
           <span>Estado</span>
+          <span>Acciones</span>
         </div>
 
         <article
@@ -80,6 +160,15 @@
           <span class="status-pill" [class.off]="!usuario.activo">
             {{ usuario.activo ? "Activo" : "Inactivo" }}
           </span>
+          <button
+            type="button"
+            class="edit-button"
+            title="Modificar usuario"
+            aria-label="Modificar usuario"
+            (click)="editarUsuario(usuario)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
         </article>
       </div>
 

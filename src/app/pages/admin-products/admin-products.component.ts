@@ -75,6 +75,9 @@ export class AdminProductsComponent implements OnInit {
   readonly stockProducts = this.adminStockService.productosStock;
   readonly stockLoading = this.adminStockService.cargando;
   readonly stockError = this.adminStockService.error;
+  readonly pendingStockAlerts = this.adminStockService.alertasPendientes;
+  readonly stockAlertsLoading = this.adminStockService.cargandoAlertas;
+  readonly stockAlertsError = this.adminStockService.errorAlertas;
 
   readonly filteredStockProducts = computed(() => {
     const textoBusqueda = this.busquedaStock().trim().toLowerCase();
@@ -111,6 +114,7 @@ export class AdminProductsComponent implements OnInit {
   ngOnInit(): void {
     this.catalogoProductos.cargarProductos();
     this.adminStockService.cargarStock();
+    this.adminStockService.cargarAlertasPendientes();
   }
 
   cambiarCampo<K extends keyof FormularioProducto>(
@@ -267,6 +271,17 @@ export class AdminProductsComponent implements OnInit {
           this.stockUpdateLoading.set(false);
         },
       });
+  }
+
+  formatearTipoAlerta(tipo: string): string {
+    return tipo === 'AGOTADO' ? 'Producto agotado' : 'Stock bajo';
+  }
+
+  formatearFecha(fecha: string): string {
+    return new Intl.DateTimeFormat('es-ES', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(fecha));
   }
 
   formatearPrecio(precio: number): string {

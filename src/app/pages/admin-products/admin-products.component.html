@@ -183,6 +183,73 @@
       </div>
     </section>
 
+    <section class="stock-alerts-panel">
+      <div class="stock-alerts-heading">
+        <div>
+          <p class="admin-kicker">Alertas de stock</p>
+          <h2>Alertas pendientes</h2>
+          <p>
+            Revisa los productos agotados o cuyo stock se encuentra por debajo
+            del umbral definido.
+          </p>
+        </div>
+
+        <div class="pending-alert-count">
+          <strong>{{ pendingStockAlerts().length }}</strong>
+          <span>Pendientes</span>
+        </div>
+      </div>
+
+      <p class="stock-error" *ngIf="stockAlertsError()">
+        {{ stockAlertsError() }}
+      </p>
+
+      <p class="stock-alerts-message" *ngIf="stockAlertsLoading()">
+        Cargando alertas pendientes...
+      </p>
+
+      <p
+        class="stock-alerts-empty"
+        *ngIf="
+          !stockAlertsLoading() &&
+          !stockAlertsError() &&
+          pendingStockAlerts().length === 0
+        "
+      >
+        No existen alertas de stock pendientes.
+      </p>
+
+      <div
+        class="stock-alerts-list"
+        *ngIf="!stockAlertsLoading() && pendingStockAlerts().length > 0"
+      >
+        <article
+          class="stock-alert-item"
+          *ngFor="let alerta of pendingStockAlerts()"
+          [class.out-of-stock]="alerta.tipo === 'AGOTADO'"
+        >
+          <div class="stock-alert-main">
+            <span class="stock-alert-type">
+              {{ formatearTipoAlerta(alerta.tipo) }}
+            </span>
+
+            <h3>{{ alerta.nombreProducto }}</h3>
+            <p>{{ alerta.mensaje }}</p>
+          </div>
+
+          <div class="stock-alert-information">
+            <span>Producto #{{ alerta.idProducto }}</span>
+            <strong>{{ alerta.stockDetectado }} uds.</strong>
+            <span>Umbral: {{ alerta.umbral }}</span>
+          </div>
+
+          <time [attr.datetime]="alerta.fechaCreacion">
+            {{ formatearFecha(alerta.fechaCreacion) }}
+          </time>
+        </article>
+      </div>
+    </section>
+
     <section class="admin-layout">
       <form class="product-form" (ngSubmit)="guardarProducto()">
         <div class="form-heading">

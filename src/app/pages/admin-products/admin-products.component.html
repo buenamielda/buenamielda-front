@@ -204,6 +204,14 @@
         {{ stockAlertsError() }}
       </p>
 
+      <p class="stock-success" *ngIf="resolveAlertSuccess()">
+        {{ resolveAlertSuccess() }}
+      </p>
+
+      <p class="stock-error" *ngIf="resolveAlertError()">
+        {{ resolveAlertError() }}
+      </p>
+
       <p class="stock-alerts-message" *ngIf="stockAlertsLoading()">
         Cargando alertas pendientes...
       </p>
@@ -246,6 +254,18 @@
           <time [attr.datetime]="alerta.fechaCreacion">
             {{ formatearFecha(alerta.fechaCreacion) }}
           </time>
+          <button
+            type="button"
+            class="resolve-alert-button"
+            [disabled]="resolvingAlertId() === alerta.id"
+            (click)="resolverAlerta(alerta.id, alerta.nombreProducto)"
+          >
+            {{
+              resolvingAlertId() === alerta.id
+                ? "Resolviendo..."
+                : "Marcar como resuelta"
+            }}
+          </button>
         </article>
       </div>
     </section>

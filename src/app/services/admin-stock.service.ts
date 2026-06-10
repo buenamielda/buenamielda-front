@@ -96,4 +96,20 @@ export class AdminStockService {
       },
     });
   }
+  resolverAlerta(idAlerta: number): Observable<AdminStockAlertResponseDto> {
+    return this.http
+      .patch<AdminStockAlertResponseDto>(
+        `${this.alertasUrl}/${idAlerta}/resolver`,
+        {},
+      )
+      .pipe(
+        tap((alertaResuelta) => {
+          this.alertasSignal.update((alertas) =>
+            alertas.map((alerta) =>
+              alerta.id === idAlerta ? alertaResuelta : alerta,
+            ),
+          );
+        }),
+      );
+  }
 }

@@ -263,6 +263,8 @@ export class AdminProductsComponent implements OnInit {
             `Stock de "${productoActualizado.nombre}" actualizado correctamente.`,
           );
 
+          this.adminStockService.cargarAlertasPendientes();
+
           this.editingStockId.set(null);
           this.editingStockValue.set(null);
           this.stockUpdateLoading.set(false);

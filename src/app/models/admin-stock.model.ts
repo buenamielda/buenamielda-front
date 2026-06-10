@@ -5,3 +5,7 @@ export interface AdminProductoStockResponseDto {
   activo: boolean;
   deleted: boolean;
 }
+
+export interface AdminStockUpdateRequestDto {
+  stock: number;
+}

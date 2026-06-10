@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 
-import { UsuarioAdminResponseDto } from '../models/admin-user.model';
+import {
+  UsuarioAdminResponseDto,
+  UsuarioAdminUpdateRequestDto,
+} from '../models/admin-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,5 +37,22 @@ export class AdminUserService {
         this.cargando.set(false);
       },
     });
+  }
+
+  actualizarUsuario(
+    id: number,
+    request: UsuarioAdminUpdateRequestDto,
+  ): Observable<UsuarioAdminResponseDto> {
+    return this.http
+      .put<UsuarioAdminResponseDto>(`${this.apiUrl}/${id}`, request)
+      .pipe(
+        tap((usuarioActualizado) => {
+          this.usuariosSignal.update((usuarios) =>
+            usuarios.map((usuario) =>
+              usuario.id === id ? usuarioActualizado : usuario,
+            ),
+          );
+        }),
+      );
   }
 }

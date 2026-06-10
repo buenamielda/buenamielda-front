@@ -46,6 +46,9 @@ export class AdminProductsComponent implements OnInit {
   readonly stockUpdateLoading = signal(false);
   readonly stockUpdateError = signal('');
   readonly stockUpdateSuccess = signal('');
+  readonly resolvingAlertId = signal<number | null>(null);
+  readonly resolveAlertError = signal('');
+  readonly resolveAlertSuccess = signal('');
 
   readonly productosFiltrados = computed(() => {
     const textoBusqueda = this.busqueda().trim().toLowerCase();
@@ -271,6 +274,35 @@ export class AdminProductsComponent implements OnInit {
           this.stockUpdateLoading.set(false);
         },
       });
+  }
+
+  resolverAlerta(idAlerta: number, nombreProducto: string): void {
+    const confirmado = window.confirm(
+      `¿Quieres marcar como resuelta la alerta de "${nombreProducto}"?`,
+    );
+
+    if (!confirmado) {
+      return;
+    }
+
+    this.resolvingAlertId.set(idAlerta);
+    this.resolveAlertError.set('');
+    this.resolveAlertSuccess.set('');
+
+    this.adminStockService.resolverAlerta(idAlerta).subscribe({
+      next: () => {
+        this.resolveAlertSuccess.set(
+          `La alerta de "${nombreProducto}" se ha marcado como resuelta.`,
+        );
+        this.resolvingAlertId.set(null);
+      },
+      error: () => {
+        this.resolveAlertError.set(
+          'No se ha podido marcar la alerta como resuelta.',
+        );
+        this.resolvingAlertId.set(null);
+      },
+    });
   }
 
   formatearTipoAlerta(tipo: string): string {

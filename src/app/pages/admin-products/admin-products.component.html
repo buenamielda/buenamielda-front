@@ -80,21 +80,27 @@
 
       <article class="selected-stock" *ngIf="selectedStock() as stock">
         <div>
-          <span>Producto #{{ stock.idProducto }}</span>
+          <span>Producto #{{ stock.id }}</span>
           <h3>{{ stock.nombre }}</h3>
         </div>
-        <strong>{{ formatearPrecio(stock.precio) }}</strong>
+
         <strong>{{ stock.stock }} uds.</strong>
+
         <span class="status-pill" [class.off]="!stock.activo">
           {{ stock.activo ? "Activo" : "Inactivo" }}
         </span>
       </article>
 
+      <p class="stock-error" *ngIf="stockError()">
+        {{ stockError() }}
+      </p>
+
+      <p *ngIf="stockLoading()">Cargando stock de productos...</p>
+
       <div class="stock-table" aria-label="Listado de stock de productos">
         <div class="stock-row stock-row-header">
           <span>ID</span>
           <span>Producto</span>
-          <span>Precio</span>
           <span>Stock</span>
           <span>Estado</span>
         </div>
@@ -104,10 +110,10 @@
           *ngFor="let product of filteredStockProducts()"
           [class.stock-alert]="product.stock === 0"
         >
-          <span>#{{ product.idProducto }}</span>
+          <span>#{{ product.id }}</span>
           <strong>{{ product.nombre }}</strong>
-          <span>{{ formatearPrecio(product.precio) }}</span>
           <span>{{ product.stock }} uds.</span>
+
           <span class="status-pill" [class.off]="!product.activo">
             {{ product.activo ? "Activo" : "Inactivo" }}
           </span>

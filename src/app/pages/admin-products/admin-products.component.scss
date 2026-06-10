@@ -187,7 +187,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 .selected-stock {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 1rem;
   align-items: center;
   margin-bottom: 1rem;
@@ -229,7 +229,7 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
 .stock-row {
   display: grid;
-  grid-template-columns: 80px minmax(180px, 1fr) 110px 110px 110px;
+  grid-template-columns: 80px minmax(180px, 1fr) 110px 110px;
   gap: 1rem;
   align-items: center;
   min-height: 58px;

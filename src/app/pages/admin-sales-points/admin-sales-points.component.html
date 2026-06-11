@@ -1,0 +1,116 @@
+<main class="admin-sales-points-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="admin-header">
+      <div>
+        <p class="admin-kicker">Administración</p>
+        <h1>Gestión de puntos de venta</h1>
+        <p>
+          Consulta los establecimientos físicos registrados y revisa sus datos
+          de contacto, ubicación y estado actual.
+        </p>
+      </div>
+
+      <div class="admin-stats">
+        <article>
+          <strong>{{ salesPoints().length }}</strong>
+          <span>Total</span>
+        </article>
+
+        <article>
+          <strong>{{ activeCount() }}</strong>
+          <span>Activos</span>
+        </article>
+
+        <article>
+          <strong>{{ inactiveCount() }}</strong>
+          <span>Inactivos</span>
+        </article>
+      </div>
+    </header>
+
+    <section class="sales-points-panel">
+      <div class="list-toolbar">
+        <div>
+          <h2>Puntos de venta registrados</h2>
+          <p>{{ filteredSalesPoints().length }} resultados</p>
+        </div>
+
+        <label>
+          <mat-icon>search</mat-icon>
+
+          <input
+            type="search"
+            placeholder="Buscar por nombre, dirección o estado"
+            [ngModel]="search()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="search.set($event)"
+          />
+        </label>
+      </div>
+
+      <div *ngIf="loading()" class="admin-feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando puntos de venta...</p>
+      </div>
+
+      <div *ngIf="!loading() && error()" class="admin-feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <div
+        *ngIf="!loading() && !error() && filteredSalesPoints().length === 0"
+        class="admin-feedback"
+      >
+        <mat-icon>storefront</mat-icon>
+        <p>No existen puntos de venta registrados.</p>
+      </div>
+
+      <div
+        class="sales-points-table"
+        *ngIf="
+          !loading() && !error() && filteredSalesPoints().length > 0
+        "
+        aria-label="Listado administrativo de puntos de venta"
+      >
+        <div class="sales-point-row sales-point-row-header">
+          <span>ID</span>
+          <span>Punto de venta</span>
+          <span>Ubicación</span>
+          <span>Contacto</span>
+          <span>Estado</span>
+        </div>
+
+        <article
+          class="sales-point-row"
+          *ngFor="let salesPoint of filteredSalesPoints()"
+          [class.inactive]="!salesPoint.activo"
+        >
+          <span>#{{ salesPoint.id }}</span>
+
+          <div class="sales-point-main">
+            <strong>{{ salesPoint.nombre }}</strong>
+
+            <span>{{ formatCoordinates(salesPoint) }}</span>
+          </div>
+
+          <div class="sales-point-information">
+            <span>{{ fullAddress(salesPoint) }}</span>
+
+            <span *ngIf="salesPoint.horario">
+              {{ salesPoint.horario }}
+            </span>
+          </div>
+
+          <a [href]="'tel:' + salesPoint.telefono">
+            {{ salesPoint.telefono }}
+          </a>
+
+          <span class="status-pill" [class.off]="!salesPoint.activo">
+            {{ salesPoint.activo ? "Activo" : "Inactivo" }}
+          </span>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>

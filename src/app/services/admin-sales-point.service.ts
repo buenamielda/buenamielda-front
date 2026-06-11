@@ -1,7 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 
-import { AdminSalesPointResponseDto } from '../models/admin-sales-point.model';
+import { Observable, tap } from 'rxjs';
+
+import {
+  AdminSalesPointRequestDto,
+  AdminSalesPointResponseDto,
+} from '../models/admin-sales-point.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,11 +34,24 @@ export class AdminSalesPointService {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set(
-          'No se ha podido cargar el listado de puntos de venta.',
-        );
+        this.error.set('No se ha podido cargar el listado de puntos de venta.');
         this.loading.set(false);
       },
     });
+  }
+
+  createSalesPoint(
+    request: AdminSalesPointRequestDto,
+  ): Observable<AdminSalesPointResponseDto> {
+    return this.http
+      .post<AdminSalesPointResponseDto>(this.apiUrl, request)
+      .pipe(
+        tap((createdSalesPoint) => {
+          this.salesPointsSignal.update((salesPoints) => [
+            ...salesPoints,
+            createdSalesPoint,
+          ]);
+        }),
+      );
   }
 }

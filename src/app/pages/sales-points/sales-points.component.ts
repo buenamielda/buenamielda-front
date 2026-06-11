@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   Component,
+  Injector,
   OnDestroy,
   OnInit,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -22,9 +23,7 @@ import { SalesPointService } from '../../services/sales-point.service';
   templateUrl: './sales-points.component.html',
   styleUrl: './sales-points.component.scss',
 })
-export class SalesPointsComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class SalesPointsComponent implements OnInit, OnDestroy {
   private readonly salesPointService = inject(SalesPointService);
 
   private map?: L.Map;
@@ -37,6 +36,8 @@ export class SalesPointsComponent
 
   readonly search = signal('');
   readonly selectedId = signal<number | null>(null);
+
+  private readonly injector = inject(Injector);
 
   readonly filteredSalesPoints = computed(() => {
     const value = this.search().trim().toLowerCase();
@@ -63,9 +64,21 @@ export class SalesPointsComponent
   private readonly updateMapEffect = effect(() => {
     const salesPoints = this.filteredSalesPoints();
 
-    if (this.map) {
-      this.renderMarkers(salesPoints);
+    if (salesPoints.length === 0) {
+      return;
     }
+
+    afterNextRender(
+      () => {
+        if (!this.map) {
+          this.initializeMap();
+        }
+
+        this.renderMarkers(salesPoints);
+        this.map?.invalidateSize();
+      },
+      { injector: this.injector },
+    );
   });
 
   ngOnInit(): void {
@@ -107,7 +120,13 @@ export class SalesPointsComponent
   }
 
   private initializeMap(): void {
-    this.map = L.map('sales-points-map', {
+    const container = document.getElementById('sales-points-map');
+
+    if (!container || this.map) {
+      return;
+    }
+
+    this.map = L.map(container, {
       center: [40.416775, -3.70379],
       zoom: 6,
       scrollWheelZoom: false,

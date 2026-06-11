@@ -182,6 +182,15 @@
               <mat-icon>receipt_long</mat-icon>
               Pedidos
             </a>
+
+            <a
+              routerLink="/admin/puntos-venta"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
+            >
+              <mat-icon>store</mat-icon>
+              Puntos de venta
+            </a>
           </div>
         </div>
 
@@ -310,6 +319,14 @@
             (click)="closeMobileMenu()"
           >
             <span matListItemTitle>Pedidos</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/admin/puntos-venta"
+            (click)="closeMobileMenu()"
+          >
+            <span matListItemTitle>Puntos de venta</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

@@ -118,6 +118,15 @@ export const routes: Routes = [
     title: 'Administrar pedidos | Buena mielda',
   },
   {
+    path: 'admin/puntos-venta',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-sales-points/admin-sales-points.component').then(
+        (m) => m.AdminSalesPointsComponent,
+      ),
+    title: 'Administrar puntos de venta | Buena mielda',
+  },
+  {
     path: 'admin/pedidos/:id',
     canActivate: [adminGuard],
     loadComponent: () =>

@@ -78,6 +78,111 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
+.create-sales-point-panel {
+  margin-bottom: 2rem;
+  padding: 1.35rem;
+  border: 1px solid rgba($brand-brown, 0.08);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba($brand-brown, 0.06);
+}
+
+.form-heading {
+  margin-bottom: 1.2rem;
+
+  h2 {
+    margin: 0 0 0.35rem;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.35rem;
+  }
+
+  p {
+    margin: 0;
+    color: rgba($brand-dark, 0.68);
+    font-family: $font-serif;
+    line-height: 1.5;
+  }
+}
+
+.sales-point-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+
+  label {
+    display: grid;
+    gap: 0.4rem;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-weight: 700;
+  }
+
+  input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    border: 1px solid rgba($brand-brown, 0.18);
+    border-radius: 8px;
+    background: $brand-bg;
+    color: $brand-dark;
+    font-family: $font-serif;
+    font-weight: 400;
+    outline: none;
+
+    &:focus {
+      border-color: $brand-gold;
+      box-shadow: 0 0 0 3px rgba($brand-gold, 0.1);
+    }
+  }
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+    border: 0;
+    border-radius: 8px;
+    background: $brand-gold;
+    color: #fff;
+    font-family: $font-serif;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+  }
+}
+
+.form-message {
+  margin: 1rem 0 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-family: $font-serif;
+
+  &.success {
+    background: #e9f5ec;
+    color: #216a35;
+  }
+
+  &.error {
+    background: #f9e9e6;
+    color: #8a2c1c;
+  }
+}
+
 .sales-points-panel {
   padding: 1.35rem;
   border: 1px solid rgba($brand-brown, 0.08);
@@ -265,5 +370,12 @@ $font-serif: "Georgia", "Times New Roman", serif;
     label {
       grid-template-columns: auto 1fr;
     }
+  }
+  .sales-point-form {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-field {
+    grid-column: auto;
   }
 }

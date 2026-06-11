@@ -28,6 +28,160 @@
       </div>
     </header>
 
+    <section class="create-sales-point-panel">
+      <div class="form-heading">
+        <div>
+          <p class="admin-kicker">Nuevo establecimiento</p>
+          <h2>Crear punto de venta</h2>
+          <p>
+            Registra los datos de contacto y las coordenadas necesarias para
+            mostrar el establecimiento en el mapa público.
+          </p>
+        </div>
+      </div>
+
+      <form class="sales-point-form" (ngSubmit)="createSalesPoint()">
+        <label class="wide-field">
+          Nombre
+          <input
+            type="text"
+            required
+            placeholder="Ej. Mielería Buena Mielda"
+            [ngModel]="form().nombre"
+            name="nombre"
+            (ngModelChange)="updateField('nombre', $event)"
+          />
+        </label>
+
+        <label class="wide-field">
+          Dirección
+          <input
+            type="text"
+            required
+            placeholder="Ej. Calle Mayor, 25"
+            [ngModel]="form().direccion"
+            name="direccion"
+            (ngModelChange)="updateField('direccion', $event)"
+          />
+        </label>
+
+        <label>
+          Código postal
+          <input
+            type="text"
+            required
+            placeholder="Ej. 28013"
+            [ngModel]="form().codigoPostal"
+            name="codigoPostal"
+            (ngModelChange)="updateField('codigoPostal', $event)"
+          />
+        </label>
+
+        <label>
+          Localidad
+          <input
+            type="text"
+            required
+            placeholder="Ej. Madrid"
+            [ngModel]="form().localidad"
+            name="localidad"
+            (ngModelChange)="updateField('localidad', $event)"
+          />
+        </label>
+
+        <label>
+          Provincia
+          <input
+            type="text"
+            required
+            placeholder="Ej. Madrid"
+            [ngModel]="form().provincia"
+            name="provincia"
+            (ngModelChange)="updateField('provincia', $event)"
+          />
+        </label>
+
+        <label>
+          País
+          <input
+            type="text"
+            required
+            [ngModel]="form().pais"
+            name="pais"
+            (ngModelChange)="updateField('pais', $event)"
+          />
+        </label>
+
+        <label>
+          Latitud
+          <input
+            type="number"
+            required
+            min="-90"
+            max="90"
+            step="0.00000001"
+            placeholder="Ej. 40.416775"
+            [ngModel]="form().latitud"
+            name="latitud"
+            (ngModelChange)="updateField('latitud', $event)"
+          />
+        </label>
+
+        <label>
+          Longitud
+          <input
+            type="number"
+            required
+            min="-180"
+            max="180"
+            step="0.00000001"
+            placeholder="Ej. -3.703790"
+            [ngModel]="form().longitud"
+            name="longitud"
+            (ngModelChange)="updateField('longitud', $event)"
+          />
+        </label>
+
+        <label>
+          Teléfono
+          <input
+            type="tel"
+            required
+            placeholder="Ej. 912 345 678"
+            [ngModel]="form().telefono"
+            name="telefono"
+            (ngModelChange)="updateField('telefono', $event)"
+          />
+        </label>
+
+        <label>
+          Horario
+          <input
+            type="text"
+            placeholder="Ej. Lunes a viernes de 09:00 a 20:00"
+            [ngModel]="form().horario"
+            name="horario"
+            (ngModelChange)="updateField('horario', $event)"
+          />
+        </label>
+
+        <div class="form-actions wide-field">
+          <button type="submit" [disabled]="saving()">
+            <mat-icon>{{ saving() ? "hourglass_empty" : "add" }}</mat-icon>
+            {{ saving() ? "Creando..." : "Crear punto de venta" }}
+          </button>
+        </div>
+      </form>
+
+      <p class="form-message success" *ngIf="successMessage()">
+        {{ successMessage() }}
+      </p>
+
+      <p class="form-message error" *ngIf="creationError()">
+        {{ creationError() }}
+      </p>
+    </section>
+
     <section class="sales-points-panel">
       <div class="list-toolbar">
         <div>
@@ -68,9 +222,7 @@
 
       <div
         class="sales-points-table"
-        *ngIf="
-          !loading() && !error() && filteredSalesPoints().length > 0
-        "
+        *ngIf="!loading() && !error() && filteredSalesPoints().length > 0"
         aria-label="Listado administrativo de puntos de venta"
       >
         <div class="sales-point-row sales-point-row-header">

@@ -17,6 +17,14 @@ export const routes: Routes = [
     title: 'Productos | Buena mielda',
   },
   {
+    path: 'puntos-venta',
+    loadComponent: () =>
+      import('./pages/sales-points/sales-points.component').then(
+        (m) => m.SalesPointsComponent,
+      ),
+    title: 'Puntos de venta | Buena mielda',
+  },
+  {
     path: 'productos/filtros',
     loadComponent: () =>
       import('./pages/product-filters/product-filters.component').then(

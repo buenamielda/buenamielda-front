@@ -31,16 +31,40 @@
     <section class="create-sales-point-panel">
       <div class="form-heading">
         <div>
-          <p class="admin-kicker">Nuevo establecimiento</p>
-          <h2>Crear punto de venta</h2>
+          <p class="admin-kicker">
+            {{
+              editingId()
+                ? "Establecimiento seleccionado"
+                : "Nuevo establecimiento"
+            }}
+          </p>
+
+          <h2>
+            {{
+              editingId() ? "Modificar punto de venta" : "Crear punto de venta"
+            }}
+          </h2>
+
           <p>
-            Registra los datos de contacto y las coordenadas necesarias para
-            mostrar el establecimiento en el mapa público.
+            {{
+              editingId()
+                ? "Actualiza los datos de contacto, ubicación o coordenadas del establecimiento."
+                : "Registra los datos de contacto y las coordenadas necesarias para mostrar el establecimiento en el mapa público."
+            }}
           </p>
         </div>
+
+        <button
+          *ngIf="editingId()"
+          type="button"
+          class="cancel-edit-button"
+          (click)="cancelEditing()"
+        >
+          Cancelar edición
+        </button>
       </div>
 
-      <form class="sales-point-form" (ngSubmit)="createSalesPoint()">
+      <form class="sales-point-form" (ngSubmit)="saveSalesPoint()">
         <label class="wide-field">
           Nombre
           <input
@@ -167,8 +191,17 @@
 
         <div class="form-actions wide-field">
           <button type="submit" [disabled]="saving()">
-            <mat-icon>{{ saving() ? "hourglass_empty" : "add" }}</mat-icon>
-            {{ saving() ? "Creando..." : "Crear punto de venta" }}
+            <mat-icon>
+              {{ saving() ? "hourglass_empty" : editingId() ? "save" : "add" }}
+            </mat-icon>
+
+            {{
+              saving()
+                ? "Guardando..."
+                : editingId()
+                  ? "Guardar cambios"
+                  : "Crear punto de venta"
+            }}
           </button>
         </div>
       </form>
@@ -231,6 +264,7 @@
           <span>Ubicación</span>
           <span>Contacto</span>
           <span>Estado</span>
+          <span>Acciones</span>
         </div>
 
         <article
@@ -261,6 +295,17 @@
           <span class="status-pill" [class.off]="!salesPoint.activo">
             {{ salesPoint.activo ? "Activo" : "Inactivo" }}
           </span>
+
+          <div class="sales-point-actions">
+            <button
+              type="button"
+              aria-label="Modificar punto de venta"
+              title="Modificar punto de venta"
+              (click)="editSalesPoint(salesPoint)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
         </article>
       </div>
     </section>

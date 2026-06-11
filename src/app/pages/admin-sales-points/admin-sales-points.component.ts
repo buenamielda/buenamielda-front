@@ -41,6 +41,7 @@ export class AdminSalesPointsComponent implements OnInit {
   readonly search = signal('');
 
   readonly form = signal<SalesPointForm>(this.emptyForm());
+  readonly editingId = signal<number | null>(null);
   readonly saving = signal(false);
   readonly creationError = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
@@ -94,8 +95,9 @@ export class AdminSalesPointsComponent implements OnInit {
     this.successMessage.set(null);
   }
 
-  createSalesPoint(): void {
+  saveSalesPoint(): void {
     const form = this.form();
+    const editingId = this.editingId();
 
     this.creationError.set(null);
     this.successMessage.set(null);
@@ -160,21 +162,68 @@ export class AdminSalesPointsComponent implements OnInit {
 
     this.saving.set(true);
 
-    this.adminSalesPointService.createSalesPoint(request).subscribe({
-      next: (createdSalesPoint) => {
+    const operation = editingId
+      ? this.adminSalesPointService.updateSalesPoint(editingId, request)
+      : this.adminSalesPointService.createSalesPoint(request);
+
+    operation.subscribe({
+      next: (savedSalesPoint) => {
         this.successMessage.set(
-          `El punto de venta "${createdSalesPoint.nombre}" se ha creado correctamente.`,
+          editingId
+            ? `El punto de venta "${savedSalesPoint.nombre}" se ha modificado correctamente.`
+            : `El punto de venta "${savedSalesPoint.nombre}" se ha creado correctamente.`,
         );
-        this.form.set(this.emptyForm());
+
+        this.resetForm();
         this.saving.set(false);
       },
       error: (error: HttpErrorResponse) => {
         this.creationError.set(
-          error.error?.message ?? 'No se ha podido crear el punto de venta.',
+          error.error?.message ??
+            (editingId
+              ? 'No se ha podido modificar el punto de venta.'
+              : 'No se ha podido crear el punto de venta.'),
         );
+
         this.saving.set(false);
       },
     });
+  }
+
+  editSalesPoint(salesPoint: AdminSalesPointResponseDto): void {
+    this.editingId.set(salesPoint.id);
+
+    this.form.set({
+      nombre: salesPoint.nombre,
+      direccion: salesPoint.direccion,
+      codigoPostal: salesPoint.codigoPostal,
+      localidad: salesPoint.localidad,
+      provincia: salesPoint.provincia,
+      pais: salesPoint.pais,
+      latitud: Number(salesPoint.latitud),
+      longitud: Number(salesPoint.longitud),
+      telefono: salesPoint.telefono,
+      horario: salesPoint.horario ?? '',
+    });
+
+    this.creationError.set(null);
+    this.successMessage.set(null);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }
+
+  cancelEditing(): void {
+    this.resetForm();
+    this.creationError.set(null);
+    this.successMessage.set(null);
+  }
+
+  private resetForm(): void {
+    this.editingId.set(null);
+    this.form.set(this.emptyForm());
   }
 
   fullAddress(salesPoint: AdminSalesPointResponseDto): string {

@@ -97,6 +97,15 @@
             class="nav-link-btn"
             >Sobre nosotros</a
           >
+
+          <a
+            routerLink="/puntos-venta"
+            routerLinkActive="link-active"
+            class="nav-link-btn"
+          >
+            Puntos de venta
+          </a>
+
           <a
             routerLink="/contacto"
             routerLinkActive="link-active"
@@ -311,6 +320,9 @@
       <a mat-list-item routerLink="/sobre-nosotros" (click)="closeMobileMenu()"
         ><span matListItemTitle>Sobre nosotros</span></a
       >
+      <a mat-list-item routerLink="/puntos-venta" (click)="closeMobileMenu()">
+        <span matListItemTitle>Puntos de venta</span>
+      </a>
       <a mat-list-item routerLink="/contacto" (click)="closeMobileMenu()"
         ><span matListItemTitle>Contacto</span></a
       >

@@ -37,6 +37,7 @@ export class FooterComponent {
         { label: 'Contáctanos',            route: '/contacto' },
         { label: 'Política de privacidad', route: '/privacidad' },
         { label: 'Términos y condiciones', route: '/terminos' },
+        { label: 'Puntos de venta', route: '/puntos-venta' },
       ],
     },
   ];

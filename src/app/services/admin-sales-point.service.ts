@@ -54,4 +54,21 @@ export class AdminSalesPointService {
         }),
       );
   }
+
+  updateSalesPoint(
+    id: number,
+    request: AdminSalesPointRequestDto,
+  ): Observable<AdminSalesPointResponseDto> {
+    return this.http
+      .put<AdminSalesPointResponseDto>(`${this.apiUrl}/${id}`, request)
+      .pipe(
+        tap((updatedSalesPoint) => {
+          this.salesPointsSignal.update((salesPoints) =>
+            salesPoints.map((salesPoint) =>
+              salesPoint.id === id ? updatedSalesPoint : salesPoint,
+            ),
+          );
+        }),
+      );
+  }
 }

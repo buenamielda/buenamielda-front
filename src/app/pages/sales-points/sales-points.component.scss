@@ -1,0 +1,312 @@
+$brand-dark: #272727;
+$brand-brown: #2c1810;
+$brand-mid: #5c3d2e;
+$brand-gold: #e6ac00;
+$brand-bg: #faf7f2;
+$brand-soft: #f0eae0;
+$font-serif: "Georgia", "Times New Roman", serif;
+
+:host {
+  display: block;
+  background: $brand-bg;
+}
+
+.sales-points-page {
+  min-height: 760px;
+  padding: 4rem 0 6rem;
+}
+
+.sales-points-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: end;
+  margin-bottom: 2.4rem;
+
+  h1 {
+    margin: 0 0 0.65rem;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: clamp(2rem, 4vw, 2.7rem);
+    font-weight: 700;
+  }
+
+  p:not(.page-kicker) {
+    max-width: 680px;
+    margin: 0;
+    color: rgba($brand-dark, 0.72);
+    font-family: $font-serif;
+    line-height: 1.65;
+  }
+}
+
+.page-kicker {
+  margin: 0 0 0.5rem;
+  color: $brand-gold;
+  font-family: $font-serif;
+  font-weight: 700;
+}
+
+.sales-points-count {
+  min-width: 116px;
+  padding: 0.95rem;
+  border: 1px solid rgba($brand-brown, 0.08);
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba($brand-brown, 0.05);
+
+  strong,
+  span {
+    display: block;
+    font-family: $font-serif;
+  }
+
+  strong {
+    color: $brand-gold;
+    font-size: 1.6rem;
+  }
+
+  span {
+    color: $brand-mid;
+    font-size: 0.88rem;
+  }
+}
+
+.sales-points-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+
+  label {
+    display: grid;
+    width: min(100%, 520px);
+    gap: 0.45rem;
+    color: $brand-mid;
+    font-family: $font-serif;
+  }
+
+  input {
+    min-height: 46px;
+    padding: 0 0.9rem;
+    border: 1px solid rgba($brand-brown, 0.15);
+    border-radius: 8px;
+    background: #fff;
+    color: $brand-dark;
+    font-family: $font-serif;
+    outline: none;
+
+    &:focus {
+      border-color: $brand-gold;
+      box-shadow: 0 0 0 3px rgba($brand-gold, 0.12);
+    }
+  }
+
+  span {
+    color: rgba($brand-dark, 0.65);
+    font-family: $font-serif;
+  }
+}
+
+.sales-points-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.sales-points-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sales-point-item {
+  padding: 1rem;
+  border: 1px solid rgba($brand-brown, 0.09);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba($brand-brown, 0.04);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:hover,
+  &.selected {
+    border-color: rgba($brand-gold, 0.65);
+    box-shadow: 0 10px 28px rgba($brand-brown, 0.09);
+  }
+
+  address,
+  p,
+  a {
+    font-family: $font-serif;
+  }
+
+  address {
+    margin: 0.75rem 0 0.35rem;
+    color: rgba($brand-dark, 0.72);
+    font-style: normal;
+    line-height: 1.5;
+  }
+
+  p {
+    margin: 0.6rem 0 0;
+    color: rgba($brand-dark, 0.65);
+  }
+}
+
+.sales-point-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+
+  span {
+    color: rgba($brand-dark, 0.55);
+    font-family: $font-serif;
+    font-size: 0.8rem;
+  }
+
+  h2 {
+    margin: 0.15rem 0 0;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  button {
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid $brand-gold;
+    border-radius: 7px;
+    background: $brand-gold;
+    color: #fff;
+    font-family: $font-serif;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+.sales-point-phone {
+  color: $brand-gold;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    color: $brand-brown;
+  }
+}
+
+.map-column {
+  position: sticky;
+  top: 88px;
+}
+
+.sales-points-map {
+  width: 100%;
+  min-height: 620px;
+  border: 1px solid rgba($brand-brown, 0.1);
+  border-radius: 8px;
+  background: $brand-soft;
+  box-shadow: 0 10px 30px rgba($brand-brown, 0.06);
+}
+
+.feedback-message {
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fff;
+  color: $brand-mid;
+  font-family: $font-serif;
+  text-align: center;
+
+  &.error {
+    background: rgba(#8a2c1c, 0.08);
+    color: #8a2c1c;
+  }
+}
+
+:host ::ng-deep .sales-point-marker {
+  background: transparent;
+  border: 0;
+
+  span {
+    display: block;
+    width: 28px;
+    height: 28px;
+    border: 4px solid #fff;
+    border-radius: 50% 50% 50% 0;
+    background: $brand-gold;
+    box-shadow: 0 3px 10px rgba($brand-brown, 0.3);
+    transform: rotate(-45deg);
+
+    &::after {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: $brand-brown;
+      content: "";
+      left: 10px;
+      top: 10px;
+    }
+  }
+}
+
+:host ::ng-deep .sales-point-popup {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 190px;
+  font-family: $font-serif;
+
+  strong {
+    color: $brand-brown;
+    font-size: 1rem;
+  }
+
+  span {
+    color: rgba($brand-dark, 0.72);
+  }
+
+  a {
+    color: $brand-gold;
+    font-weight: 700;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .sales-points-header,
+  .sales-points-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-column {
+    position: static;
+    grid-row: 1;
+  }
+
+  .sales-points-map {
+    min-height: 440px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .sales-points-page {
+    padding-top: 2.5rem;
+  }
+
+  .sales-points-toolbar,
+  .sales-point-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sales-points-map {
+    min-height: 360px;
+  }
+}

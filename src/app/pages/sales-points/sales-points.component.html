@@ -1,0 +1,102 @@
+<main class="sales-points-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="sales-points-header">
+      <div>
+        <p class="page-kicker">Encuéntranos</p>
+        <h1>Puntos de venta</h1>
+        <p>
+          Consulta nuestras tiendas y establecimientos colaboradores para
+          encontrar el punto de venta más cercano.
+        </p>
+      </div>
+
+      <div class="sales-points-count">
+        <strong>{{ salesPoints().length }}</strong>
+        <span>Puntos activos</span>
+      </div>
+    </header>
+
+    <section class="sales-points-toolbar">
+      <label>
+        Buscar punto de venta
+        <input
+          type="search"
+          placeholder="Nombre, localidad o provincia"
+          [ngModel]="search()"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="search.set($event)"
+        />
+      </label>
+
+      <span>{{ filteredSalesPoints().length }} resultados</span>
+    </section>
+
+    <p class="feedback-message" *ngIf="loading()">
+      Cargando puntos de venta...
+    </p>
+
+    <p class="feedback-message error" *ngIf="error()">
+      {{ error() }}
+    </p>
+
+    <p
+      class="feedback-message"
+      *ngIf="!loading() && !error() && filteredSalesPoints().length === 0"
+    >
+      No se han encontrado puntos de venta.
+    </p>
+
+    <section
+      class="sales-points-layout"
+      *ngIf="!loading() && !error() && salesPoints().length > 0"
+    >
+      <div class="sales-points-list">
+        <article
+          class="sales-point-item"
+          *ngFor="let salesPoint of filteredSalesPoints()"
+          [class.selected]="selectedId() === salesPoint.id"
+          (click)="selectSalesPoint(salesPoint)"
+        >
+          <div class="sales-point-heading">
+            <div>
+              <span>Punto de venta #{{ salesPoint.id }}</span>
+              <h2>{{ salesPoint.nombre }}</h2>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Mostrar punto de venta en el mapa"
+              (click)="selectSalesPoint(salesPoint); $event.stopPropagation()"
+            >
+              Ver mapa
+            </button>
+          </div>
+
+          <address>
+            {{ fullAddress(salesPoint) }}
+          </address>
+
+          <a
+            class="sales-point-phone"
+            [href]="phoneLink(salesPoint.telefono)"
+            (click)="$event.stopPropagation()"
+          >
+            {{ salesPoint.telefono }}
+          </a>
+
+          <p *ngIf="salesPoint.horario">
+            {{ salesPoint.horario }}
+          </p>
+        </article>
+      </div>
+
+      <div class="map-column">
+        <div
+          id="sales-points-map"
+          class="sales-points-map"
+          aria-label="Mapa de puntos de venta"
+        ></div>
+      </div>
+    </section>
+  </div>
+</main>

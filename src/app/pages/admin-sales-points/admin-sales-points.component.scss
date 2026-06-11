@@ -88,8 +88,11 @@ $font-serif: "Georgia", "Times New Roman", serif;
 }
 
 .form-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
   margin-bottom: 1.2rem;
-
   h2 {
     margin: 0 0 0.35rem;
     color: $brand-brown;
@@ -252,7 +255,8 @@ $font-serif: "Georgia", "Times New Roman", serif;
     minmax(190px, 0.9fr)
     minmax(280px, 1.5fr)
     130px
-    100px;
+    100px
+    70px;
   gap: 1rem;
   align-items: center;
   min-height: 68px;
@@ -340,6 +344,44 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
+.cancel-edit-button {
+  flex-shrink: 0;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba($brand-brown, 0.16);
+  border-radius: 8px;
+  background: $brand-bg;
+  color: $brand-mid;
+  font-family: $font-serif;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $brand-gold;
+    color: $brand-brown;
+  }
+}
+
+.sales-point-actions {
+  display: flex;
+  justify-content: center;
+
+  button {
+    display: inline-grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid rgba($brand-brown, 0.16);
+    border-radius: 8px;
+    background: $brand-bg;
+    color: $brand-mid;
+    cursor: pointer;
+
+    &:hover {
+      border-color: $brand-gold;
+      color: $brand-brown;
+    }
+  }
+}
+
 @media (max-width: 991.98px) {
   .admin-header {
     grid-template-columns: 1fr;
@@ -377,5 +419,10 @@ $font-serif: "Georgia", "Times New Roman", serif;
 
   .wide-field {
     grid-column: auto;
+  }
+
+  .form-heading {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

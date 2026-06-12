@@ -71,4 +71,25 @@ export class AdminSalesPointService {
         }),
       );
   }
+
+  changeSalesPointStatus(
+    salesPoint: AdminSalesPointResponseDto,
+    activo: boolean,
+  ): Observable<AdminSalesPointResponseDto> {
+    const request: AdminSalesPointRequestDto = {
+      nombre: salesPoint.nombre,
+      direccion: salesPoint.direccion,
+      codigoPostal: salesPoint.codigoPostal,
+      localidad: salesPoint.localidad,
+      provincia: salesPoint.provincia,
+      pais: salesPoint.pais,
+      latitud: Number(salesPoint.latitud),
+      longitud: Number(salesPoint.longitud),
+      telefono: salesPoint.telefono,
+      horario: salesPoint.horario ?? '',
+      activo,
+    };
+
+    return this.updateSalesPoint(salesPoint.id, request);
+  }
 }

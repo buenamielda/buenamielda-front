@@ -15,4 +15,5 @@ export interface AdminSalesPointRequestDto {
   longitud: number;
   telefono: string;
   horario: string;
+  activo: boolean;
 }

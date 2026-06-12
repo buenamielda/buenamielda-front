@@ -22,6 +22,7 @@ interface SalesPointForm {
   longitud: number | null;
   telefono: string;
   horario: string;
+  activo: boolean;
 }
 
 @Component({
@@ -45,6 +46,10 @@ export class AdminSalesPointsComponent implements OnInit {
   readonly saving = signal(false);
   readonly creationError = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
+
+  readonly changingStatusId = signal<number | null>(null);
+  readonly statusMessage = signal<string | null>(null);
+  readonly statusError = signal<string | null>(null);
 
   readonly filteredSalesPoints = computed(() => {
     const value = this.search().trim().toLowerCase();
@@ -158,6 +163,7 @@ export class AdminSalesPointsComponent implements OnInit {
       longitud: Number(form.longitud),
       telefono: form.telefono.trim(),
       horario: form.horario.trim(),
+      activo: form.activo,
     };
 
     this.saving.set(true);
@@ -204,6 +210,7 @@ export class AdminSalesPointsComponent implements OnInit {
       longitud: Number(salesPoint.longitud),
       telefono: salesPoint.telefono,
       horario: salesPoint.horario ?? '',
+      activo: salesPoint.activo,
     });
 
     this.creationError.set(null);
@@ -224,6 +231,51 @@ export class AdminSalesPointsComponent implements OnInit {
   private resetForm(): void {
     this.editingId.set(null);
     this.form.set(this.emptyForm());
+  }
+
+  toggleSalesPointStatus(salesPoint: AdminSalesPointResponseDto): void {
+    const newStatus = !salesPoint.activo;
+
+    if (
+      !newStatus &&
+      !window.confirm(
+        `¿Quieres desactivar el punto de venta "${salesPoint.nombre}"?`,
+      )
+    ) {
+      return;
+    }
+
+    this.changingStatusId.set(salesPoint.id);
+    this.statusMessage.set(null);
+    this.statusError.set(null);
+
+    this.adminSalesPointService
+      .changeSalesPointStatus(salesPoint, newStatus)
+      .subscribe({
+        next: (updatedSalesPoint) => {
+          this.statusMessage.set(
+            updatedSalesPoint.activo
+              ? `El punto de venta "${updatedSalesPoint.nombre}" se ha activado correctamente.`
+              : `El punto de venta "${updatedSalesPoint.nombre}" se ha desactivado correctamente.`,
+          );
+
+          if (this.editingId() === updatedSalesPoint.id) {
+            this.form.update((form) => ({
+              ...form,
+              activo: updatedSalesPoint.activo,
+            }));
+          }
+
+          this.changingStatusId.set(null);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.statusError.set(
+            error.error?.message ??
+              'No se ha podido modificar el estado del punto de venta.',
+          );
+          this.changingStatusId.set(null);
+        },
+      });
   }
 
   fullAddress(salesPoint: AdminSalesPointResponseDto): string {
@@ -253,6 +305,7 @@ export class AdminSalesPointsComponent implements OnInit {
       longitud: null,
       telefono: '',
       horario: '',
+      activo: true,
     };
   }
 }

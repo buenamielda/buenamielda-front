@@ -48,8 +48,7 @@
 
     <section
       class="sales-points-layout"
-      *ngIf="!loading() && !error() && salesPoints().length > 0"
-    >
+*ngIf="!loading() && !error() && filteredSalesPoints().length > 0"    >
       <div class="sales-points-list">
         <article
           class="sales-point-item"

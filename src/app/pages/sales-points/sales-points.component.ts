@@ -65,9 +65,11 @@ export class SalesPointsComponent implements OnInit, OnDestroy {
     const salesPoints = this.filteredSalesPoints();
 
     if (salesPoints.length === 0) {
+      this.markersLayer?.clearLayers();
+      this.markers.clear();
       return;
     }
-
+    
     afterNextRender(
       () => {
         if (!this.map) {

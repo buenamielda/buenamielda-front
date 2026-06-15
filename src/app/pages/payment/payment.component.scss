@@ -334,3 +334,19 @@ $font-serif: "Georgia", "Times New Roman", serif;
     flex-direction: column;
   }
 }
+
+.stripe-card {
+  margin-top: 20px;
+}
+
+#card-element {
+  padding: 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background: white;
+}
+
+#card-errors {
+  margin-top: 10px;
+  color: red;
+}

@@ -66,9 +66,9 @@ export class OrderService {
 
   readonly lastOrder = this.lastCreatedOrder.asReadonly();
 
-  createFromCart(idDireccionEnvio: number): Observable<PedidoResponseDto> {
+  createFromCart(idDireccionEnvio: number, stripeToken: string): Observable<PedidoResponseDto> {
     return this.http
-      .post<PedidoApiResponseDto>(this.apiUrl, { idDireccionEnvio })
+      .post<PedidoApiResponseDto>(this.apiUrl, { idDireccionEnvio, stripeToken })
       .pipe(
         map((response) => this.mapApiOrder(response)),
         tap((pedido) => {

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize, switchMap } from 'rxjs';
+import { from, finalize, switchMap } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { CheckoutService } from '../../services/checkout.service';
@@ -10,15 +10,17 @@ import { OrderService } from '../../services/order.service';
 import { CartService } from '../../services/cart.service';
 
 import {
-  PaymentFailedError,
-  PaymentService,
-} from '../../services/payment.service';
+  Stripe,
+  StripeElements,
+  StripeCardElement,
+  loadStripe,
+} from '@stripe/stripe-js';
+
+import { AfterViewInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
+import { PaymentFailedError, PaymentService } from '../../services/payment.service';
 
 interface PaymentForm {
-  cardNumber: string;
-  cardHolder: string;
-  expiryDate: string;
-  cvv: string;
   billingSameAsShipping: boolean;
 }
 
@@ -29,7 +31,7 @@ interface PaymentForm {
   templateUrl: './payment.component.html',
   styleUrl: './payment.component.scss',
 })
-export class PaymentComponent {
+export class PaymentComponent implements AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly checkoutService = inject(CheckoutService);
 
@@ -37,6 +39,10 @@ export class PaymentComponent {
   private readonly paymentService = inject(PaymentService);
   private readonly router = inject(Router);
   private readonly cartService = inject(CartService);
+  
+  private stripe: Stripe | null = null;
+  private elements!: StripeElements;
+  private card!: StripeCardElement;
 
   readonly address = this.checkoutService.address;
   readonly items = this.cartService.items;
@@ -47,23 +53,26 @@ export class PaymentComponent {
   readonly errorMessage = signal('');
 
   readonly form = signal<PaymentForm>({
-    cardNumber: '',
-    cardHolder: '',
-    expiryDate: '',
-    cvv: '',
     billingSameAsShipping: true,
   });
 
-  readonly canSubmit = computed(() => {
-    const value = this.form();
+  readonly canSubmit = computed(() => true);
 
-    return (
-      value.cardNumber.replace(/\s/g, '').length >= 12 &&
-      value.cardHolder.trim().length >= 3 &&
-      value.expiryDate.trim().length >= 4 &&
-      value.cvv.trim().length >= 3
-    );
-  });
+  async ngAfterViewInit() {
+    this.stripe = await loadStripe(environment.stripePublicKey);
+
+    if (!this.stripe) {
+      return;
+    }
+
+    this.elements = this.stripe.elements();
+
+    this.card = this.elements.create('card', {
+      hidePostalCode: true
+    });
+
+    this.card.mount('#card-element');
+  }
 
   updateField<K extends keyof PaymentForm>(
     field: K,
@@ -101,38 +110,25 @@ export class PaymentComponent {
 
     this.loading.set(true);
 
-    this.orderService
-      .createFromCart(address.id)
-      .pipe(
-        switchMap(() => this.paymentService.payOrder()),
-        finalize(() => this.loading.set(false)),
-      )
-      .subscribe({
-        next: () => {
-          this.router.navigate(['/pedido-confirmado']);
-        },
-        error: () => {
-          this.errorMessage.set('No se ha podido procesar el pago.');
-        },
-      });
-  }
+    from(this.stripe!.createToken(this.card))
+    .pipe(
+      switchMap((result) => {
+        if(result.error) {
+          throw new PaymentFailedError(result.error.message);
+        }
 
-  showCardNumberError(): boolean {
-    return (
-      this.submitted() && this.form().cardNumber.replace(/\s/g, '').length < 12
-    );
-  }
-
-  showHolderError(): boolean {
-    return this.submitted() && this.form().cardHolder.trim().length < 3;
-  }
-
-  showExpiryError(): boolean {
-    return this.submitted() && this.form().expiryDate.trim().length < 4;
-  }
-
-  showCvvError(): boolean {
-    return this.submitted() && this.form().cvv.trim().length < 3;
+        return this.orderService.createFromCart(address.id, result.token!.id);
+      }),
+      finalize(() => this.loading.set(false)),
+    )
+    .subscribe({
+      next: () => {
+        this.router.navigate(['/pedido-confirmado']);
+      },
+      error: () => {
+        this.errorMessage.set('No se ha podido procesar el pago.');
+      },
+    });
   }
 
   formatPrice(price: number): string {

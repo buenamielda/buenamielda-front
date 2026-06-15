@@ -34,75 +34,16 @@
           <section class="form-section">
             <h1>Método de pago</h1>
 
-            <div class="payment-method">
-              <span class="radio-dot"></span>
-              <strong>Tarjeta de crédito</strong>
+            <div class="stripe-card">
+            
+              <label>Datos de la tarjeta</label>
+
+              <div id="card-element"></div>
+
+              <div id="card-errors"></div>
+
             </div>
 
-            <label>
-              Número de la tarjeta
-              <input
-                type="text"
-                inputmode="numeric"
-                autocomplete="cc-number"
-                [ngModel]="form().cardNumber"
-                name="cardNumber"
-                (ngModelChange)="updateField('cardNumber', $event)"
-                [class.invalid]="showCardNumberError()"
-              />
-              <span class="field-error" *ngIf="showCardNumberError()">
-                Introduce una tarjeta válida.
-              </span>
-            </label>
-
-            <label>
-              Titular de la tarjeta
-              <input
-                type="text"
-                autocomplete="cc-name"
-                [ngModel]="form().cardHolder"
-                name="cardHolder"
-                (ngModelChange)="updateField('cardHolder', $event)"
-                [class.invalid]="showHolderError()"
-              />
-              <span class="field-error" *ngIf="showHolderError()">
-                Introduce el titular.
-              </span>
-            </label>
-
-            <div class="form-row">
-              <label>
-                Fecha de caducidad
-                <input
-                  type="text"
-                  placeholder="MM/AA"
-                  autocomplete="cc-exp"
-                  [ngModel]="form().expiryDate"
-                  name="expiryDate"
-                  (ngModelChange)="updateField('expiryDate', $event)"
-                  [class.invalid]="showExpiryError()"
-                />
-                <span class="field-error" *ngIf="showExpiryError()">
-                  Fecha no válida.
-                </span>
-              </label>
-
-              <label>
-                CVV
-                <input
-                  type="password"
-                  inputmode="numeric"
-                  autocomplete="cc-csc"
-                  [ngModel]="form().cvv"
-                  name="cvv"
-                  (ngModelChange)="updateField('cvv', $event)"
-                  [class.invalid]="showCvvError()"
-                />
-                <span class="field-error" *ngIf="showCvvError()">
-                  CVV no válido.
-                </span>
-              </label>
-            </div>
           </section>
 
           <section class="form-section billing-section">

@@ -157,6 +157,15 @@
             </a>
 
             <a
+              routerLink="/admin/valoraciones"
+              class="dropdown-item-link management-item-link"
+              (click)="closeManagementDropdown()"
+            >
+              <mat-icon>rate_review</mat-icon>
+              Valoraciones
+            </a>
+
+            <a
               routerLink="/admin/categorias"
               class="dropdown-item-link management-item-link"
               (click)="closeManagementDropdown()"
@@ -281,6 +290,13 @@
 
           <a mat-list-item routerLink="/admin/blog" (click)="closeMobileMenu()">
             <span matListItemTitle>Blog educativo</span>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/admin/valoraciones"
+            (click)="closeMobileMenu()"
+          >
+            <span matListItemTitle>Valoraciones</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

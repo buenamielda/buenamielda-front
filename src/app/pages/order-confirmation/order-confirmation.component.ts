@@ -39,6 +39,11 @@ export class OrderConfirmationComponent implements OnInit {
   readonly createReviewErrors = signal<Record<number, string>>({});
   readonly createReviewMessage = signal<string | null>(null);
 
+  readonly editingReviewId = signal<number | null>(null);
+  readonly updatingReviewId = signal<number | null>(null);
+  readonly updateReviewErrors = signal<Record<number, string>>({});
+  readonly updateReviewMessage = signal<string | null>(null);
+
   readonly activeOrderReviews = computed(() =>
     this.orderReviews().filter((review) => review.activa),
   );
@@ -209,6 +214,88 @@ export class OrderConfirmationComponent implements OnInit {
     this.createReviewErrors.update((errors) => {
       const next = { ...errors };
       delete next[lineId];
+      return next;
+    });
+  }
+
+  startEditingReview(review: OrderReviewResponse): void {
+    this.editingReviewId.set(review.id);
+    this.updateReviewMessage.set(null);
+    this.clearUpdateReviewError(review.id);
+
+    this.reviewForms.update((forms) => ({
+      ...forms,
+      [review.id]: {
+        puntuacion: review.puntuacion,
+        comentario: review.comentario ?? '',
+      },
+    }));
+  }
+
+  cancelEditingReview(reviewId: number): void {
+    this.editingReviewId.set(null);
+    this.clearUpdateReviewError(reviewId);
+  }
+
+  updateReview(review: OrderReviewResponse): void {
+    const order = this.order();
+    const form = this.reviewForm(review.id);
+
+    this.updateReviewMessage.set(null);
+    this.clearUpdateReviewError(review.id);
+
+    if (!order) {
+      this.setUpdateReviewError(review.id, 'No se ha encontrado el pedido.');
+      return;
+    }
+
+    if (form.puntuacion < 1 || form.puntuacion > 5) {
+      this.setUpdateReviewError(
+        review.id,
+        'Selecciona una puntuación entre 1 y 5.',
+      );
+      return;
+    }
+
+    this.updatingReviewId.set(review.id);
+
+    this.productReviewService
+      .updateProductReview(review.id, {
+        puntuacion: form.puntuacion,
+        comentario: form.comentario.trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.updateReviewMessage.set(
+            `La valoración de "${review.nombreProducto}" se ha actualizado y queda pendiente de moderación.`,
+          );
+
+          this.editingReviewId.set(null);
+          this.updatingReviewId.set(null);
+          this.loadOrderReviews(order.id);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.setUpdateReviewError(
+            review.id,
+            error.error?.message ?? 'No se ha podido modificar la valoración.',
+          );
+
+          this.updatingReviewId.set(null);
+        },
+      });
+  }
+
+  private setUpdateReviewError(reviewId: number, message: string): void {
+    this.updateReviewErrors.update((errors) => ({
+      ...errors,
+      [reviewId]: message,
+    }));
+  }
+
+  private clearUpdateReviewError(reviewId: number): void {
+    this.updateReviewErrors.update((errors) => {
+      const next = { ...errors };
+      delete next[reviewId];
       return next;
     });
   }

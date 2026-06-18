@@ -83,6 +83,10 @@
           {{ createReviewMessage() }}
         </p>
 
+        <p class="reviews-feedback success" *ngIf="updateReviewMessage()">
+          {{ updateReviewMessage() }}
+        </p>
+
         <p class="reviews-feedback" *ngIf="reviewsLoading()">
           Cargando valoraciones...
         </p>
@@ -121,7 +125,10 @@
             <ng-container
               *ngIf="getReviewForLine(line) as review; else reviewFormTemplate"
             >
-              <div class="existing-review">
+              <div
+                class="existing-review"
+                *ngIf="editingReviewId() !== review.id"
+              >
                 <div
                   class="review-stars"
                   aria-label="Puntuación de la valoración"
@@ -144,7 +151,92 @@
                 <p class="review-note" *ngIf="review.estado === 'PENDIENTE'">
                   Tu valoración está pendiente de moderación.
                 </p>
+
+                <p class="review-note" *ngIf="review.estado === 'OCULTA'">
+                  Esta valoración no está visible públicamente.
+                </p>
+
+                <button
+                  type="button"
+                  class="secondary-review-button"
+                  (click)="startEditingReview(review)"
+                >
+                  <mat-icon>edit</mat-icon>
+                  Modificar valoración
+                </button>
               </div>
+
+              <form
+                class="review-form"
+                *ngIf="editingReviewId() === review.id"
+                (ngSubmit)="updateReview(review)"
+              >
+                <div
+                  class="review-rating-buttons"
+                  aria-label="Modificar puntuación"
+                >
+                  <button
+                    type="button"
+                    *ngFor="let star of ratingStars"
+                    [class.selected]="reviewForm(review.id).puntuacion >= star"
+                    (click)="setReviewRating(review.id, star)"
+                    [attr.aria-label]="'Valorar con ' + star + ' estrellas'"
+                  >
+                    <mat-icon>
+                      {{
+                        reviewForm(review.id).puntuacion >= star
+                          ? "star"
+                          : "star_border"
+                      }}
+                    </mat-icon>
+                  </button>
+                </div>
+
+                <textarea
+                  rows="3"
+                  placeholder="Actualiza tu opinión sobre este producto"
+                  [ngModel]="reviewForm(review.id).comentario"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="updateReviewComment(review.id, $event)"
+                ></textarea>
+
+                <p
+                  class="reviews-feedback error"
+                  *ngIf="updateReviewErrors()[review.id]"
+                >
+                  {{ updateReviewErrors()[review.id] }}
+                </p>
+
+                <div class="review-form-actions">
+                  <button
+                    type="submit"
+                    [disabled]="updatingReviewId() === review.id"
+                  >
+                    <mat-icon>
+                      {{
+                        updatingReviewId() === review.id
+                          ? "hourglass_empty"
+                          : "save"
+                      }}
+                    </mat-icon>
+
+                    {{
+                      updatingReviewId() === review.id
+                        ? "Guardando..."
+                        : "Guardar cambios"
+                    }}
+                  </button>
+
+                  <button
+                    type="button"
+                    class="secondary-review-button"
+                    [disabled]="updatingReviewId() === review.id"
+                    (click)="cancelEditingReview(review.id)"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
             </ng-container>
 
             <ng-template #reviewFormTemplate>

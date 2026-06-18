@@ -30,3 +30,8 @@ export interface CreateProductReviewRequest {
   puntuacion: number;
   comentario: string;
 }
+
+export interface UpdateProductReviewRequest {
+  puntuacion: number;
+  comentario: string;
+}

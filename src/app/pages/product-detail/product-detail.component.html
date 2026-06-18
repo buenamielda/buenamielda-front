@@ -110,6 +110,64 @@
           ENVÍO GRATUITO
         </p>
       </section>
+      <section class="product-reviews">
+        <div class="reviews-heading">
+          <div>
+            <p class="reviews-kicker">Opiniones</p>
+            <h2>Valoraciones del producto</h2>
+          </div>
+
+          <div class="reviews-summary" *ngIf="reviews().length > 0">
+            <div class="review-stars" aria-label="Puntuación media">
+              <mat-icon *ngFor="let star of ratingStars">
+                {{ starIcon(star, averageRating()) }}
+              </mat-icon>
+            </div>
+
+            <strong>{{ averageRating().toFixed(1).replace(".", ",") }}</strong>
+            <span>{{ reviews().length }} valoraciones</span>
+          </div>
+        </div>
+
+        <p class="reviews-feedback" *ngIf="reviewsLoading()">
+          Cargando valoraciones...
+        </p>
+
+        <p class="reviews-feedback error" *ngIf="reviewsError()">
+          {{ reviewsError() }}
+        </p>
+
+        <p
+          class="reviews-feedback"
+          *ngIf="!reviewsLoading() && !reviewsError() && reviews().length === 0"
+        >
+          Este producto todavía no tiene valoraciones publicadas.
+        </p>
+
+        <div
+          class="reviews-list"
+          *ngIf="!reviewsLoading() && !reviewsError() && reviews().length > 0"
+        >
+          <article class="review-card" *ngFor="let review of reviews()">
+            <header>
+              <div>
+                <strong>{{ review.nombreUsuario }}</strong>
+                <span>{{ formatReviewDate(review.fechaActualizacion) }}</span>
+              </div>
+
+              <div class="review-stars">
+                <mat-icon *ngFor="let star of ratingStars">
+                  {{ starIcon(star, review.puntuacion) }}
+                </mat-icon>
+              </div>
+            </header>
+
+            <p *ngIf="review.comentario">
+              {{ review.comentario }}
+            </p>
+          </article>
+        </div>
+      </section>
     </ng-container>
   </div>
 </main>

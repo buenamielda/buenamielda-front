@@ -8,6 +8,8 @@ import { ProductCatalogService } from '../../services/product-catalog.service';
 import { CartService } from '../../services/cart.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { ProductReviewCommentResponse } from '../../models/product-review.model';
+import { ProductReviewService } from '../../services/product-review.service';
 
 type ModoCompra = 'single' | 'subscription';
 
@@ -24,9 +26,15 @@ export class ProductDetailComponent implements OnInit {
   private readonly productCatalog = inject(ProductCatalogService);
   private readonly cartService = inject(CartService);
   private readonly authService = inject(AuthService);
+  private readonly productReviewService = inject(ProductReviewService);
 
   readonly cantidad = signal(1);
   readonly modoCompra = signal<ModoCompra>('single');
+  readonly reviewsLoading = signal(false);
+  readonly reviewsError = signal<string | null>(null);
+  readonly reviews = signal<ProductReviewCommentResponse[]>([]);
+  readonly averageRating = signal(0);
+  readonly ratingStars = [1, 2, 3, 4, 5];
 
   readonly cargando = this.productCatalog.cargando;
   readonly error = this.productCatalog.error;
@@ -58,6 +66,7 @@ export class ProductDetailComponent implements OnInit {
     }
 
     this.productCatalog.cargarProductoPorId(id);
+    this.loadProductReviews(id);
   }
 
   incrementarCantidad(): void {
@@ -125,5 +134,44 @@ export class ProductDetailComponent implements OnInit {
     }
 
     return 'No se ha podido añadir el producto al carrito.';
+  }
+
+  starIcon(star: number, rating: number): string {
+    if (rating >= star) {
+      return 'star';
+    }
+
+    if (rating >= star - 0.5) {
+      return 'star_half';
+    }
+
+    return 'star_border';
+  }
+
+  formatReviewDate(value: string): string {
+    return new Intl.DateTimeFormat('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(value));
+  }
+
+  private loadProductReviews(productId: number): void {
+    this.reviewsLoading.set(true);
+    this.reviewsError.set(null);
+
+    this.productReviewService.getProductReviews(productId).subscribe({
+      next: (response) => {
+        this.averageRating.set(response.puntuacionTotal ?? 0);
+        this.reviews.set(
+          response.valoracionProductoComentarioResponseDtos ?? [],
+        );
+        this.reviewsLoading.set(false);
+      },
+      error: () => {
+        this.reviewsError.set('No se han podido cargar las valoraciones.');
+        this.reviewsLoading.set(false);
+      },
+    });
   }
 }

@@ -8,6 +8,7 @@ import {
   ProductReviewsResponse,
   CreateProductReviewRequest,
   ProductReviewCommentResponse,
+  UpdateProductReviewRequest,
 } from '../models/product-review.model';
 
 @Injectable({
@@ -36,6 +37,15 @@ export class ProductReviewService {
   ): Observable<ProductReviewCommentResponse> {
     return this.http.post<ProductReviewCommentResponse>(
       `${this.productsApiUrl}/${lineOrderId}/valoraciones`,
+      request,
+    );
+  }
+  updateProductReview(
+    reviewId: number,
+    request: UpdateProductReviewRequest,
+  ): Observable<ProductReviewCommentResponse> {
+    return this.http.put<ProductReviewCommentResponse>(
+      `${this.productsApiUrl}/${reviewId}/valoraciones`,
       request,
     );
   }

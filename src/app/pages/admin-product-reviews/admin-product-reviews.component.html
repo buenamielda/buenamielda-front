@@ -1,0 +1,162 @@
+<main class="admin-reviews-page">
+  <div class="container-lg px-3 px-lg-4">
+    <header class="admin-header">
+      <div>
+        <p class="admin-kicker">Administración</p>
+        <h1>Moderación de valoraciones</h1>
+        <p>
+          Revisa las opiniones de productos y decide cuáles se muestran
+          públicamente en el catálogo.
+        </p>
+      </div>
+
+      <div class="admin-stats">
+        <article>
+          <strong>{{ pendingCount() }}</strong>
+          <span>Pendientes</span>
+        </article>
+
+        <article>
+          <strong>{{ publishedCount() }}</strong>
+          <span>Publicadas</span>
+        </article>
+
+        <article>
+          <strong>{{ hiddenCount() }}</strong>
+          <span>Ocultas</span>
+        </article>
+      </div>
+    </header>
+
+    <section class="reviews-panel">
+      <div class="list-toolbar">
+        <div>
+          <h2>Valoraciones registradas</h2>
+          <p>{{ filteredReviews().length }} resultados</p>
+        </div>
+
+        <label>
+          <mat-icon>search</mat-icon>
+
+          <input
+            type="search"
+            placeholder="Buscar por producto, usuario, comentario o estado"
+            [ngModel]="search()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="search.set($event)"
+          />
+        </label>
+      </div>
+
+      <p class="form-message success" *ngIf="statusMessage()">
+        {{ statusMessage() }}
+      </p>
+
+      <p class="form-message error" *ngIf="statusError()">
+        {{ statusError() }}
+      </p>
+
+      <div *ngIf="loading()" class="admin-feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando valoraciones...</p>
+      </div>
+
+      <div *ngIf="!loading() && error()" class="admin-feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <div
+        *ngIf="!loading() && !error() && filteredReviews().length === 0"
+        class="admin-feedback"
+      >
+        <mat-icon>rate_review</mat-icon>
+        <p>No hay valoraciones para mostrar.</p>
+      </div>
+
+      <div
+        class="reviews-list"
+        *ngIf="!loading() && !error() && filteredReviews().length > 0"
+      >
+        <article
+          class="review-card"
+          *ngFor="let review of filteredReviews()"
+          [class.inactive]="!review.activa"
+        >
+          <header>
+            <div>
+              <span>Valoración #{{ review.id }}</span>
+              <h2>{{ review.nombreProducto }}</h2>
+              <p>{{ review.nombreUsuario }}</p>
+            </div>
+
+            <span
+              class="status-pill"
+              [class.pending]="review.estado === 'PENDIENTE'"
+              [class.off]="review.estado === 'OCULTA' || !review.activa"
+            >
+              {{ review.activa ? formatStatus(review.estado) : "Retirada" }}
+            </span>
+          </header>
+
+          <div class="review-stars" aria-label="Puntuación">
+            <mat-icon *ngFor="let star of ratingStars">
+              {{ starIcon(star, review.puntuacion) }}
+            </mat-icon>
+          </div>
+
+          <p class="review-comment">
+            {{ review.comentario || "Sin comentario" }}
+          </p>
+
+          <footer>
+            <span>
+              Actualizada el {{ formatDate(review.fechaActualizacion) }}
+            </span>
+
+            <div class="review-actions">
+              <button
+                type="button"
+                [disabled]="
+                  updatingReviewId() === review.id ||
+                  review.estado === 'PUBLICADA' ||
+                  !review.activa
+                "
+                (click)="updateStatus(review, 'PUBLICADA')"
+              >
+                <mat-icon>visibility</mat-icon>
+                Publicar
+              </button>
+
+              <button
+                type="button"
+                [disabled]="
+                  updatingReviewId() === review.id ||
+                  review.estado === 'OCULTA' ||
+                  !review.activa
+                "
+                (click)="updateStatus(review, 'OCULTA')"
+              >
+                <mat-icon>visibility_off</mat-icon>
+                Ocultar
+              </button>
+
+              <button
+                type="button"
+                [disabled]="
+                  updatingReviewId() === review.id ||
+                  review.estado === 'PENDIENTE' ||
+                  !review.activa
+                "
+                (click)="updateStatus(review, 'PENDIENTE')"
+              >
+                <mat-icon>pending</mat-icon>
+                Pendiente
+              </button>
+            </div>
+          </footer>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>

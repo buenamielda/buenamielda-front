@@ -87,6 +87,10 @@
           {{ updateReviewMessage() }}
         </p>
 
+        <p class="reviews-feedback success" *ngIf="deleteReviewMessage()">
+          {{ deleteReviewMessage() }}
+        </p>
+
         <p class="reviews-feedback" *ngIf="reviewsLoading()">
           Cargando valoraciones...
         </p>
@@ -164,6 +168,34 @@
                   <mat-icon>edit</mat-icon>
                   Modificar valoración
                 </button>
+
+                <button
+                  type="button"
+                  class="danger-review-button"
+                  [disabled]="deletingReviewId() === review.id"
+                  (click)="deleteReview(review)"
+                >
+                  <mat-icon>
+                    {{
+                      deletingReviewId() === review.id
+                        ? "hourglass_empty"
+                        : "delete"
+                    }}
+                  </mat-icon>
+
+                  {{
+                    deletingReviewId() === review.id
+                      ? "Retirando..."
+                      : "Retirar valoración"
+                  }}
+                </button>
+
+                <p
+                  class="reviews-feedback error"
+                  *ngIf="deleteReviewErrors()[review.id]"
+                >
+                  {{ deleteReviewErrors()[review.id] }}
+                </p>
               </div>
 
               <form

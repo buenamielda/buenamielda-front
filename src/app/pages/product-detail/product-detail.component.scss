@@ -223,6 +223,129 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
+.product-reviews {
+  max-width: 920px;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba($brand-brown, 0.12);
+  font-family: $font-serif;
+}
+
+.reviews-heading {
+  display: flex;
+  gap: 1.5rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    margin: 0;
+    color: $brand-brown;
+    font-size: 1.6rem;
+  }
+}
+
+.reviews-kicker {
+  margin: 0 0 0.35rem;
+  color: $brand-gold;
+  font-weight: 700;
+}
+
+.reviews-summary {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: end;
+  color: $brand-mid;
+
+  strong {
+    color: $brand-brown;
+    font-size: 1.35rem;
+  }
+
+  span {
+    font-size: 0.9rem;
+  }
+}
+
+.review-stars {
+  display: inline-flex;
+  gap: 0.1rem;
+  color: $brand-gold;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.reviews-feedback {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba($brand-brown, 0.04);
+  color: rgba($brand-dark, 0.72);
+  text-align: center;
+
+  &.error {
+    background: #f9e9e6;
+    color: #8a2c1c;
+  }
+}
+
+.reviews-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.review-card {
+  padding: 1rem;
+  border: 1px solid rgba($brand-brown, 0.1);
+  border-radius: 8px;
+  background: #fff;
+
+  header {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: $brand-brown;
+  }
+
+  span {
+    margin-top: 0.15rem;
+    color: rgba($brand-dark, 0.58);
+    font-size: 0.9rem;
+  }
+
+  p {
+    margin: 0;
+    color: $brand-dark;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .reviews-heading,
+  .review-card header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .reviews-summary {
+    justify-items: start;
+  }
+}
+
 @media (max-width: 991.98px) {
   .product-layout,
   .product-summary,

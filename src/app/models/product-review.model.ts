@@ -25,3 +25,8 @@ export interface OrderReviewResponse {
   nombreProducto: string;
   nombreUsuario: string;
 }
+
+export interface CreateProductReviewRequest {
+  puntuacion: number;
+  comentario: string;
+}

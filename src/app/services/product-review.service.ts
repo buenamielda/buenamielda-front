@@ -6,6 +6,8 @@ import { Observable } from 'rxjs';
 import {
   OrderReviewResponse,
   ProductReviewsResponse,
+  CreateProductReviewRequest,
+  ProductReviewCommentResponse,
 } from '../models/product-review.model';
 
 @Injectable({
@@ -25,6 +27,16 @@ export class ProductReviewService {
   getOrderReviews(orderId: number): Observable<OrderReviewResponse[]> {
     return this.http.get<OrderReviewResponse[]>(
       `${this.ordersApiUrl}/${orderId}/valoraciones`,
+    );
+  }
+
+  createProductReview(
+    lineOrderId: number,
+    request: CreateProductReviewRequest,
+  ): Observable<ProductReviewCommentResponse> {
+    return this.http.post<ProductReviewCommentResponse>(
+      `${this.productsApiUrl}/${lineOrderId}/valoraciones`,
+      request,
     );
   }
 }

@@ -91,6 +91,15 @@ export const routes: Routes = [
     title: 'Administrar blog | Buena mielda',
   },
   {
+    path: 'admin/valoraciones',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-product-reviews/admin-product-reviews.component').then(
+        (m) => m.AdminProductReviewsComponent,
+      ),
+    title: 'Moderar valoraciones | Buena mielda',
+  },
+  {
     path: 'admin/usuarios',
     canActivate: [adminGuard],
     loadComponent: () =>

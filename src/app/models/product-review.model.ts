@@ -35,3 +35,7 @@ export interface UpdateProductReviewRequest {
   puntuacion: number;
   comentario: string;
 }
+
+export interface UpdateReviewStatusRequest {
+  estado: ReviewStatus;
+}

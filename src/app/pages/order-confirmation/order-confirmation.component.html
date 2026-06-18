@@ -69,6 +69,82 @@
           </div>
         </div>
       </aside>
+      <section class="order-reviews-panel">
+        <div class="reviews-heading">
+          <div>
+            <p class="order-number">VALORACIONES</p>
+            <h2>Valoraciones de este pedido</h2>
+          </div>
+
+          <span>{{ activeOrderReviews().length }} valoraciones</span>
+        </div>
+
+        <p class="reviews-feedback" *ngIf="reviewsLoading()">
+          Cargando valoraciones...
+        </p>
+
+        <p class="reviews-feedback error" *ngIf="reviewsError()">
+          {{ reviewsError() }}
+        </p>
+
+        <p
+          class="reviews-feedback"
+          *ngIf="
+            !reviewsLoading() &&
+            !reviewsError() &&
+            activeOrderReviews().length === 0
+          "
+        >
+          Todavía no has valorado ningún producto de este pedido.
+        </p>
+
+        <div
+          class="order-reviews-list"
+          *ngIf="
+            !reviewsLoading() &&
+            !reviewsError() &&
+            activeOrderReviews().length > 0
+          "
+        >
+          <article
+            class="order-review-card"
+            *ngFor="let review of activeOrderReviews()"
+          >
+            <header>
+              <div>
+                <strong>{{ review.nombreProducto }}</strong>
+                <span>{{ formatReviewDate(review.fechaActualizacion) }}</span>
+              </div>
+
+              <span
+                class="review-status"
+                [class.pending]="review.estado === 'PENDIENTE'"
+                [class.hidden]="review.estado === 'OCULTA'"
+              >
+                {{ formatReviewStatus(review.estado) }}
+              </span>
+            </header>
+
+            <div class="review-stars" aria-label="Puntuación de la valoración">
+              <mat-icon *ngFor="let star of ratingStars">
+                {{ starIcon(star, review.puntuacion) }}
+              </mat-icon>
+            </div>
+
+            <p *ngIf="review.comentario">
+              {{ review.comentario }}
+            </p>
+
+            <p class="review-note" *ngIf="review.estado === 'PENDIENTE'">
+              Tu valoración está pendiente de moderación.
+            </p>
+
+            <p class="review-note" *ngIf="review.estado === 'OCULTA'">
+              Esta valoración no está visible públicamente.
+            </p>
+          </article>
+        </div>
+      </section>
     </section>
   </div>
 </main>

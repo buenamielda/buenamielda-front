@@ -170,3 +170,134 @@ h1 {
   font-size: 1rem;
   cursor: pointer;
 }
+
+.order-reviews-panel {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+  padding: 1.4rem;
+  border: 1px solid rgba($brand-brown, 0.1);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.reviews-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+
+  h2 {
+    margin: 0;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.35rem;
+  }
+
+  span {
+    color: rgba($brand-dark, 0.65);
+    font-family: $font-serif;
+  }
+}
+
+.reviews-feedback {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba($brand-brown, 0.04);
+  color: rgba($brand-dark, 0.72);
+  font-family: $font-serif;
+  text-align: center;
+
+  &.error {
+    background: #f9e9e6;
+    color: #8a2c1c;
+  }
+}
+
+.order-reviews-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.order-review-card {
+  padding: 1rem;
+  border: 1px solid rgba($brand-brown, 0.1);
+  border-radius: 8px;
+  background: #f8f5f0;
+  font-family: $font-serif;
+
+  header {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: $brand-brown;
+  }
+
+  header span {
+    margin-top: 0.15rem;
+    color: rgba($brand-dark, 0.58);
+    font-size: 0.9rem;
+  }
+
+  p {
+    margin: 0.75rem 0 0;
+    color: $brand-dark;
+    line-height: 1.6;
+  }
+}
+
+.review-stars {
+  display: inline-flex;
+  gap: 0.1rem;
+  color: $brand-gold;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.review-status {
+  display: inline-flex !important;
+  width: fit-content;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba($brand-gold, 0.16);
+  color: $brand-brown !important;
+  font-size: 0.82rem !important;
+  font-weight: 700;
+
+  &.pending {
+    background: rgba($brand-gold, 0.22);
+  }
+
+  &.hidden {
+    background: rgba($brand-dark, 0.08);
+    color: rgba($brand-dark, 0.72) !important;
+  }
+}
+
+.review-note {
+  color: rgba($brand-dark, 0.65) !important;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 575.98px) {
+  .reviews-heading,
+  .order-review-card header {
+    align-items: start;
+    flex-direction: column;
+  }
+}

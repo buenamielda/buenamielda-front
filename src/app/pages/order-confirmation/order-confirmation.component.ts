@@ -44,6 +44,10 @@ export class OrderConfirmationComponent implements OnInit {
   readonly updateReviewErrors = signal<Record<number, string>>({});
   readonly updateReviewMessage = signal<string | null>(null);
 
+  readonly deletingReviewId = signal<number | null>(null);
+  readonly deleteReviewErrors = signal<Record<number, string>>({});
+  readonly deleteReviewMessage = signal<string | null>(null);
+
   readonly activeOrderReviews = computed(() =>
     this.orderReviews().filter((review) => review.activa),
   );
@@ -294,6 +298,63 @@ export class OrderConfirmationComponent implements OnInit {
 
   private clearUpdateReviewError(reviewId: number): void {
     this.updateReviewErrors.update((errors) => {
+      const next = { ...errors };
+      delete next[reviewId];
+      return next;
+    });
+  }
+
+  deleteReview(review: OrderReviewResponse): void {
+    const order = this.order();
+
+    this.deleteReviewMessage.set(null);
+    this.clearDeleteReviewError(review.id);
+
+    if (!order) {
+      this.setDeleteReviewError(review.id, 'No se ha encontrado el pedido.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `¿Quieres retirar la valoración de "${review.nombreProducto}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.deletingReviewId.set(review.id);
+
+    this.productReviewService.deleteProductReview(review.id).subscribe({
+      next: () => {
+        this.deleteReviewMessage.set(
+          `La valoración de "${review.nombreProducto}" se ha retirado correctamente.`,
+        );
+
+        this.deletingReviewId.set(null);
+        this.editingReviewId.set(null);
+        this.loadOrderReviews(order.id);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.setDeleteReviewError(
+          review.id,
+          error.error?.message ?? 'No se ha podido retirar la valoración.',
+        );
+
+        this.deletingReviewId.set(null);
+      },
+    });
+  }
+
+  private setDeleteReviewError(reviewId: number, message: string): void {
+    this.deleteReviewErrors.update((errors) => ({
+      ...errors,
+      [reviewId]: message,
+    }));
+  }
+
+  private clearDeleteReviewError(reviewId: number): void {
+    this.deleteReviewErrors.update((errors) => {
       const next = { ...errors };
       delete next[reviewId];
       return next;

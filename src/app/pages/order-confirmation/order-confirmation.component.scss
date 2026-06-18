@@ -459,3 +459,30 @@ h1 {
   gap: 0.75rem;
   align-items: center;
 }
+
+.danger-review-button {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  width: fit-content;
+  min-height: 38px;
+  padding: 0 0.9rem;
+  border: 1px solid rgba(138, 44, 28, 0.25);
+  border-radius: 8px;
+  background: #fff;
+  color: #8a2c1c;
+  font-family: $font-serif;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}

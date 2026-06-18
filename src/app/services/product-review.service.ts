@@ -49,4 +49,10 @@ export class ProductReviewService {
       request,
     );
   }
+
+  deleteProductReview(reviewId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.productsApiUrl}/${reviewId}/valoraciones`,
+    );
+  }
 }

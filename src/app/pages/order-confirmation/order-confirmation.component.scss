@@ -301,3 +301,127 @@ h1 {
     flex-direction: column;
   }
 }
+
+.line-reviews-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.line-review-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba($brand-brown, 0.1);
+  border-radius: 8px;
+  background: #f8f5f0;
+  font-family: $font-serif;
+}
+
+.line-review-product {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+
+  img {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    object-fit: contain;
+    background: $brand-soft;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: $brand-brown;
+  }
+
+  span {
+    margin-top: 0.2rem;
+    color: rgba($brand-dark, 0.65);
+  }
+}
+
+.review-form {
+  display: grid;
+  gap: 0.85rem;
+
+  textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid rgba($brand-brown, 0.16);
+    border-radius: 8px;
+    background: #fff;
+    color: $brand-dark;
+    font-family: $font-serif;
+    resize: vertical;
+    outline: none;
+
+    &:focus {
+      border-color: $brand-gold;
+      box-shadow: 0 0 0 3px rgba($brand-gold, 0.12);
+    }
+  }
+
+  button[type="submit"] {
+    display: inline-flex;
+    gap: 0.45rem;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-height: 42px;
+    padding: 0 1.1rem;
+    border: 0;
+    border-radius: 8px;
+    background: $brand-gold;
+    color: #fff;
+    font-family: $font-serif;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+  }
+}
+
+.review-rating-buttons {
+  display: inline-flex;
+  gap: 0.15rem;
+
+  button {
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: rgba($brand-dark, 0.35);
+    cursor: pointer;
+
+    &.selected {
+      color: $brand-gold;
+    }
+  }
+}
+
+.existing-review {
+  display: grid;
+  gap: 0.55rem;
+
+  p {
+    margin: 0;
+    color: $brand-dark;
+    line-height: 1.6;
+  }
+}
+
+.reviews-feedback.success {
+  background: #e9f5ec;
+  color: #216a35;
+}

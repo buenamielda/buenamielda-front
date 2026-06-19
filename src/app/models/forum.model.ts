@@ -1,5 +1,14 @@
 export type ForumStatus = 'PUBLICADA' | 'ELIMINADA';
 
+export interface ForumQuestionCreateRequest {
+  titulo: string;
+  contenido: string;
+}
+
+export interface ForumAnswerCreateRequest {
+  contenido: string;
+}
+
 export interface ForumQuestionListResponse {
   id: number;
   titulo: string;

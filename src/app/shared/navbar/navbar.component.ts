@@ -63,7 +63,10 @@ export class NavbarComponent implements OnInit {
     return this.authService.hasActiveSession() && this.authService.isAdmin();
   });
 
-  apiculturaLinks = [{ label: 'Blog educativo', route: '/blog' }];
+  apiculturaLinks = [
+    { label: 'Blog educativo', route: '/blog' },
+    { label: 'Temporadas', route: '/aprende/temporadas' },
+  ];
 
   ngOnInit(): void {
     if (!this.authService.hasActiveSession()) {

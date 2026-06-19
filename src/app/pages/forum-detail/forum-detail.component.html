@@ -31,7 +31,7 @@
         </article>
 
         <section class="answers-panel">
-          <header>
+          <header class="answers-header">
             <div>
               <p class="forum-kicker">Respuestas</p>
               <h2>Conversación</h2>
@@ -66,6 +66,73 @@
             <mat-icon>chat_bubble_outline</mat-icon>
             <p>Todavía no hay respuestas publicadas para esta pregunta.</p>
           </div>
+        </section>
+
+        <section class="answer-create-block">
+          <header class="answer-create-header">
+            <div>
+              <p class="forum-kicker">Participa</p>
+              <h2>Responder pregunta</h2>
+              <p>
+                Aporta una respuesta clara y útil para ayudar a otros usuarios
+                de la comunidad.
+              </p>
+            </div>
+          </header>
+
+          <section class="answer-create-layout">
+            <form class="answer-form" (ngSubmit)="createAnswer()" novalidate>
+              <label>
+                Tu respuesta
+                <textarea
+                  [ngModel]="answerContent()"
+                  (ngModelChange)="updateAnswerContent($event)"
+                  name="answerContent"
+                  rows="10"
+                  placeholder="Escribe una respuesta clara y útil para la comunidad"
+                ></textarea>
+              </label>
+
+              <p *ngIf="answerError()" class="form-error">
+                {{ answerError() }}
+              </p>
+
+              <p *ngIf="answerSuccess()" class="form-success">
+                {{ answerSuccess() }}
+              </p>
+
+              <div class="form-actions">
+                <button
+                  type="submit"
+                  class="primary-button"
+                  [disabled]="submittingAnswer()"
+                >
+                  {{
+                    submittingAnswer()
+                      ? "Publicando..."
+                      : "Publicar respuesta"
+                  }}
+                </button>
+              </div>
+            </form>
+
+            <aside class="preview-panel">
+              <p class="forum-kicker">Vista previa</p>
+
+              <article class="preview-card">
+                <div class="preview-card-body">
+                  <span>Respuesta del foro</span>
+                  <h3>Tu aportación</h3>
+                  <p>
+                    {{
+                      answerContent() ||
+                        "Aquí se verá la respuesta que publicarás en esta conversación."
+                    }}
+                  </p>
+                </div>
+              </article>
+            </aside>
+          </section>
         </section>
       </ng-container>
     </div>

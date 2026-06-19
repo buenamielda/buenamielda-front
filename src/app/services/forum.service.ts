@@ -1,6 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import {
+  ForumAnswerCreateRequest,
+  ForumAnswerResponse,
+  ForumQuestionCreateRequest,
   ForumQuestionListResponse,
   ForumQuestionResponse,
 } from '../models/forum.model';
@@ -65,6 +69,30 @@ export class ForumService {
         this.detailLoading.set(false);
       },
     });
+  }
+
+  createQuestion(
+    request: ForumQuestionCreateRequest,
+  ): Observable<ForumQuestionResponse> {
+    return this.http.post<ForumQuestionResponse>(this.apiUrl, request).pipe(
+      tap(() => {
+        this.loadQuestions();
+      }),
+    );
+  }
+
+  createAnswer(
+    questionId: number,
+    request: ForumAnswerCreateRequest,
+  ): Observable<ForumAnswerResponse> {
+    return this.http
+      .post<ForumAnswerResponse>(`${this.apiUrl}/${questionId}`, request)
+      .pipe(
+        tap(() => {
+          this.loadQuestionById(questionId);
+          this.loadQuestions();
+        }),
+      );
   }
 
   clearSelectedQuestion(): void {

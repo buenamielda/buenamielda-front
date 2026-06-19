@@ -16,7 +16,9 @@
         <p>{{ error() }}</p>
       </div>
 
-      <ng-container *ngIf="!loading() && !error() && question() as questionData">
+      <ng-container
+        *ngIf="!loading() && !error() && question() as questionData"
+      >
         <article class="question-panel">
           <p class="forum-kicker">Pregunta #{{ questionData.id }}</p>
 
@@ -28,6 +30,20 @@
           </p>
 
           <p class="question-content">{{ questionData.contenido }}</p>
+          <div
+            *ngIf="canDeleteContent(questionData.usuarioId)"
+            class="question-actions"
+          >
+            <button
+              type="button"
+              class="danger-button"
+              [disabled]="deletingQuestion()"
+              (click)="deleteQuestion()"
+            >
+              <mat-icon>delete</mat-icon>
+              {{ deletingQuestion() ? "Eliminando..." : "Eliminar pregunta" }}
+            </button>
+          </div>
         </article>
 
         <section class="answers-panel">
@@ -54,8 +70,27 @@
             <p>{{ answer.contenido }}</p>
 
             <footer>
-              <span>{{ answer.nombreUsuario || "Usuario" }}</span>
-              <time>{{ answer.fechaCreacion | date: "dd/MM/yyyy HH:mm" }}</time>
+              <div>
+                <span>{{ answer.nombreUsuario || "Usuario" }}</span>
+                <time>{{
+                  answer.fechaCreacion | date: "dd/MM/yyyy HH:mm"
+                }}</time>
+              </div>
+
+              <button
+                *ngIf="canDeleteContent(answer.usuarioId)"
+                type="button"
+                class="answer-delete-button"
+                [disabled]="deletingAnswerId() === answer.id"
+                (click)="deleteAnswer(answer.id)"
+              >
+                <mat-icon>delete</mat-icon>
+                {{
+                  deletingAnswerId() === answer.id
+                    ? "Eliminando..."
+                    : "Eliminar"
+                }}
+              </button>
             </footer>
           </article>
 
@@ -67,6 +102,14 @@
             <p>Todavía no hay respuestas publicadas para esta pregunta.</p>
           </div>
         </section>
+
+        <p *ngIf="deleteError()" class="form-error">
+          {{ deleteError() }}
+        </p>
+
+        <p *ngIf="deleteSuccess()" class="form-success">
+          {{ deleteSuccess() }}
+        </p>
 
         <section class="answer-create-block">
           <header class="answer-create-header">
@@ -108,9 +151,7 @@
                   [disabled]="submittingAnswer()"
                 >
                   {{
-                    submittingAnswer()
-                      ? "Publicando..."
-                      : "Publicar respuesta"
+                    submittingAnswer() ? "Publicando..." : "Publicar respuesta"
                   }}
                 </button>
               </div>

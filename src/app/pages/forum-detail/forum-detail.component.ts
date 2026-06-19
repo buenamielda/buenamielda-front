@@ -28,6 +28,11 @@ export class ForumDetailComponent implements OnInit, OnDestroy {
   readonly answerError = signal<string | null>(null);
   readonly answerSuccess = signal<string | null>(null);
 
+  readonly deleteError = signal<string | null>(null);
+  readonly deleteSuccess = signal<string | null>(null);
+  readonly deletingQuestion = signal(false);
+  readonly deletingAnswerId = signal<number | null>(null);
+
   private questionId: number | null = null;
 
   ngOnInit(): void {
@@ -48,6 +53,21 @@ export class ForumDetailComponent implements OnInit, OnDestroy {
 
   updateAnswerContent(value: string): void {
     this.answerContent.set(value);
+  }
+
+  canDeleteContent(ownerId: number): boolean {
+    if (!this.authService.hasActiveSession()) {
+      return false;
+    }
+
+    if (this.authService.isAdmin()) {
+      return true;
+    }
+
+    return (
+      this.authService.hasRole('USUARIO') &&
+      this.authService.getAuthenticatedUserId() === ownerId
+    );
   }
 
   createAnswer(): void {
@@ -73,18 +93,72 @@ export class ForumDetailComponent implements OnInit, OnDestroy {
 
     this.submittingAnswer.set(true);
 
-    this.forumService
-      .createAnswer(this.questionId, { contenido })
-      .subscribe({
-        next: () => {
-          this.submittingAnswer.set(false);
-          this.answerContent.set('');
-          this.answerSuccess.set('Respuesta publicada correctamente.');
-        },
-        error: () => {
-          this.submittingAnswer.set(false);
-          this.answerError.set('No se ha podido publicar la respuesta.');
-        },
-      });
+    this.forumService.createAnswer(this.questionId, { contenido }).subscribe({
+      next: () => {
+        this.submittingAnswer.set(false);
+        this.answerContent.set('');
+        this.answerSuccess.set('Respuesta publicada correctamente.');
+      },
+      error: () => {
+        this.submittingAnswer.set(false);
+        this.answerError.set('No se ha podido publicar la respuesta.');
+      },
+    });
+  }
+
+  deleteQuestion(): void {
+    if (!this.questionId) {
+      return;
+    }
+
+    const confirmed = confirm(
+      '¿Seguro que quieres eliminar esta pregunta? También se ocultarán sus respuestas.',
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.deleteError.set(null);
+    this.deleteSuccess.set(null);
+    this.deletingQuestion.set(true);
+
+    this.forumService.deleteQuestion(this.questionId).subscribe({
+      next: () => {
+        this.deletingQuestion.set(false);
+        this.router.navigate(['/foro']);
+      },
+      error: () => {
+        this.deletingQuestion.set(false);
+        this.deleteError.set('No se ha podido eliminar la pregunta.');
+      },
+    });
+  }
+
+  deleteAnswer(answerId: number): void {
+    if (!this.questionId) {
+      return;
+    }
+
+    const confirmed = confirm('¿Seguro que quieres eliminar esta respuesta?');
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.deleteError.set(null);
+    this.deleteSuccess.set(null);
+    this.deletingAnswerId.set(answerId);
+
+    this.forumService.deleteAnswer(this.questionId, answerId).subscribe({
+      next: () => {
+        this.deletingAnswerId.set(null);
+        this.deleteSuccess.set('Respuesta eliminada correctamente.');
+      },
+      error: () => {
+        this.deletingAnswerId.set(null);
+        this.deleteError.set('No se ha podido eliminar la respuesta.');
+      },
+    });
   }
 }

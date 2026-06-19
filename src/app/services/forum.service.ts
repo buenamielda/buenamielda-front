@@ -95,6 +95,28 @@ export class ForumService {
       );
   }
 
+  deleteQuestion(questionId: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.apiUrl}/pregunta/${questionId}`)
+      .pipe(
+        tap(() => {
+          this.selectedQuestionSignal.set(null);
+          this.loadQuestions();
+        }),
+      );
+  }
+
+  deleteAnswer(questionId: number, answerId: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.apiUrl}/respuesta/${answerId}`)
+      .pipe(
+        tap(() => {
+          this.loadQuestionById(questionId);
+          this.loadQuestions();
+        }),
+      );
+  }
+
   clearSelectedQuestion(): void {
     this.selectedQuestionSignal.set(null);
     this.detailError.set(null);

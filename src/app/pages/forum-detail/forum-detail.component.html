@@ -1,0 +1,73 @@
+<main class="forum-detail-page">
+  <section class="forum-detail-hero">
+    <div class="container-lg px-3 px-lg-4">
+      <a routerLink="/foro" class="back-link">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+        Volver al foro
+      </a>
+
+      <div *ngIf="loading()" class="forum-feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando conversación...</p>
+      </div>
+
+      <div *ngIf="!loading() && error()" class="forum-feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <ng-container *ngIf="!loading() && !error() && question() as questionData">
+        <article class="question-panel">
+          <p class="forum-kicker">Pregunta #{{ questionData.id }}</p>
+
+          <h1>{{ questionData.titulo }}</h1>
+
+          <p class="question-meta">
+            Publicada por {{ questionData.nombreUsuario || "Usuario" }} ·
+            {{ questionData.fechaCreacion | date: "dd/MM/yyyy HH:mm" }}
+          </p>
+
+          <p class="question-content">{{ questionData.contenido }}</p>
+        </article>
+
+        <section class="answers-panel">
+          <header>
+            <div>
+              <p class="forum-kicker">Respuestas</p>
+              <h2>Conversación</h2>
+            </div>
+
+            <span>
+              {{ questionData.respuestas.length }}
+              {{
+                questionData.respuestas.length === 1
+                  ? "respuesta"
+                  : "respuestas"
+              }}
+            </span>
+          </header>
+
+          <article
+            *ngFor="let answer of questionData.respuestas"
+            class="answer-card"
+          >
+            <p>{{ answer.contenido }}</p>
+
+            <footer>
+              <span>{{ answer.nombreUsuario || "Usuario" }}</span>
+              <time>{{ answer.fechaCreacion | date: "dd/MM/yyyy HH:mm" }}</time>
+            </footer>
+          </article>
+
+          <div
+            *ngIf="questionData.respuestas.length === 0"
+            class="forum-feedback compact"
+          >
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <p>Todavía no hay respuestas publicadas para esta pregunta.</p>
+          </div>
+        </section>
+      </ng-container>
+    </div>
+  </section>
+</main>

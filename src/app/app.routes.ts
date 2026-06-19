@@ -210,6 +210,20 @@ export const routes: Routes = [
     title: 'Método de envío | Buena mielda',
   },
   {
+    path: 'foro',
+    loadComponent: () =>
+      import('./pages/forum/forum.component').then((m) => m.ForumComponent),
+    title: 'Foro | Buena mielda',
+  },
+  {
+    path: 'foro/:id',
+    loadComponent: () =>
+      import('./pages/forum-detail/forum-detail.component').then(
+        (m) => m.ForumDetailComponent,
+      ),
+    title: 'Detalle del foro | Buena mielda',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

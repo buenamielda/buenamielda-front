@@ -86,10 +86,10 @@
           </div>
 
           <a
-            routerLink="/blog"
+            routerLink="/foro"
             routerLinkActive="link-active"
             class="nav-link-btn"
-            >Blog</a
+            >Foro</a
           >
           <a
             routerLink="/sobre-nosotros"
@@ -281,22 +281,12 @@
         </mat-expansion-panel-header>
         <mat-nav-list class="submenu-list">
           <a
+            *ngFor="let item of apiculturaLinks"
             mat-list-item
-            routerLink="/admin/productos"
+            [routerLink]="item.route"
             (click)="closeMobileMenu()"
           >
-            <span matListItemTitle>Productos y stock</span>
-          </a>
-
-          <a mat-list-item routerLink="/admin/blog" (click)="closeMobileMenu()">
-            <span matListItemTitle>Blog educativo</span>
-          </a>
-          <a
-            mat-list-item
-            routerLink="/admin/valoraciones"
-            (click)="closeMobileMenu()"
-          >
-            <span matListItemTitle>Valoraciones</span>
+            <span matListItemTitle>{{ item.label }}</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
@@ -347,9 +337,9 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <a mat-list-item routerLink="/blog" (click)="closeMobileMenu()"
-        ><span matListItemTitle>Blog</span></a
-      >
+      <a mat-list-item routerLink="/foro" (click)="closeMobileMenu()">
+        <span matListItemTitle>Foro</span>
+      </a>
       <a mat-list-item routerLink="/sobre-nosotros" (click)="closeMobileMenu()"
         ><span matListItemTitle>Sobre nosotros</span></a
       >

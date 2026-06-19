@@ -64,10 +64,8 @@ export class NavbarComponent implements OnInit {
   });
 
   apiculturaLinks = [
-    { label: 'Guía del apicultor', route: '/aprende/guia' },
-    { label: 'Tipos de colmenas', route: '/aprende/colmenas' },
+    { label: 'Blog educativo', route: '/blog' },
     { label: 'Temporadas', route: '/aprende/temporadas' },
-    { label: 'Primeros pasos', route: '/aprende/primeros-pasos' },
   ];
 
   ngOnInit(): void {

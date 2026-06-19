@@ -1,0 +1,96 @@
+<main class="forum-page">
+  <section class="forum-hero">
+    <div class="container-lg px-3 px-lg-4">
+      <p class="forum-kicker">Foro</p>
+      <h1>Preguntas y respuestas de la comunidad</h1>
+      <p>
+        Consulta conversaciones publicadas por otros usuarios, resuelve dudas y
+        descubre experiencias compartidas sobre miel, colmenas y apicultura.
+      </p>
+    </div>
+  </section>
+
+  <section class="forum-content">
+    <div class="container-lg px-3 px-lg-4">
+      <div class="forum-toolbar">
+        <label for="forum-search">
+          Buscar en el foro
+          <span class="search-box">
+            <mat-icon aria-hidden="true">search</mat-icon>
+            <input
+              id="forum-search"
+              type="search"
+              [ngModel]="search()"
+              (ngModelChange)="updateSearch($event)"
+              placeholder="Título, autor o estado"
+            />
+          </span>
+        </label>
+
+        <div class="forum-count">
+          <strong>{{ filteredQuestions().length }}</strong>
+          <span>resultados</span>
+        </div>
+      </div>
+
+      <div *ngIf="loading()" class="forum-feedback">
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>Cargando preguntas del foro...</p>
+      </div>
+
+      <div *ngIf="!loading() && error()" class="forum-feedback error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+      </div>
+
+      <div
+        *ngIf="!loading() && !error() && filteredQuestions().length === 0"
+        class="forum-feedback"
+      >
+        <mat-icon>forum</mat-icon>
+        <p>No hay preguntas publicadas en el foro.</p>
+      </div>
+
+      <div
+        *ngIf="!loading() && !error() && filteredQuestions().length > 0"
+        class="forum-list"
+      >
+        <article
+          *ngFor="let question of filteredQuestions()"
+          class="forum-card"
+        >
+          <div class="forum-card-main">
+            <div class="forum-meta">
+              <span>Pregunta #{{ question.id }}</span>
+              <time [attr.datetime]="question.fechaCreacion">
+                {{ question.fechaCreacion | date: "dd/MM/yyyy" }}
+              </time>
+            </div>
+
+            <h2>{{ question.titulo }}</h2>
+
+            <p class="forum-author">
+              Publicada por {{ question.nombreUsuario || "Usuario" }}
+            </p>
+          </div>
+
+          <div class="forum-card-side">
+            <span class="status-pill">
+              {{ formatStatus(question.estado) }}
+            </span>
+
+            <span class="answers-count">
+              {{ question.totalRespuestas }}
+              {{ question.totalRespuestas === 1 ? "respuesta" : "respuestas" }}
+            </span>
+
+            <a [routerLink]="['/foro', question.id]" class="forum-link">
+              Ver conversación
+              <mat-icon>arrow_forward</mat-icon>
+            </a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>

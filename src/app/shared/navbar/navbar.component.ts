@@ -63,12 +63,7 @@ export class NavbarComponent implements OnInit {
     return this.authService.hasActiveSession() && this.authService.isAdmin();
   });
 
-  apiculturaLinks = [
-    { label: 'Guía del apicultor', route: '/aprende/guia' },
-    { label: 'Tipos de colmenas', route: '/aprende/colmenas' },
-    { label: 'Temporadas', route: '/aprende/temporadas' },
-    { label: 'Primeros pasos', route: '/aprende/primeros-pasos' },
-  ];
+  apiculturaLinks = [{ label: 'Blog educativo', route: '/blog' }];
 
   ngOnInit(): void {
     if (!this.authService.hasActiveSession()) {

@@ -1,1 +1,86 @@
-<p>forum works!</p>
+<section class="forum-page">
+  <header class="forum-hero">
+    <div>
+      <p class="eyebrow">Foro de la colmena</p>
+      <h1>Preguntas y conversaciones de la comunidad</h1>
+      <p>
+        Consulta dudas publicadas por otros usuarios y revisa las respuestas de
+        la comunidad Buena mielda.
+      </p>
+    </div>
+
+    <div class="forum-summary" aria-label="Resumen del foro">
+      <strong>{{ questions().length }}</strong>
+      <span>preguntas</span>
+      <strong>{{ totalAnswers() }}</strong>
+      <span>respuestas</span>
+    </div>
+  </header>
+
+  <section class="forum-toolbar">
+    <label for="forum-search">Buscar en el foro</label>
+    <div class="search-box">
+      <mat-icon aria-hidden="true">search</mat-icon>
+      <input
+        id="forum-search"
+        type="search"
+        [ngModel]="search()"
+        (ngModelChange)="updateSearch($event)"
+        placeholder="Título, autor o estado"
+      />
+    </div>
+
+    <p>{{ filteredQuestions().length }} resultados</p>
+  </section>
+
+  <p *ngIf="loading()" class="forum-message">Cargando preguntas del foro...</p>
+
+  <p *ngIf="error()" class="forum-message forum-message-error">
+    {{ error() }}
+  </p>
+
+  <section
+    *ngIf="!loading() && !error() && filteredQuestions().length > 0"
+    class="forum-list"
+  >
+    <article
+      *ngFor="let question of filteredQuestions()"
+      class="forum-card"
+    >
+      <div>
+        <p class="forum-card-meta">
+          Pregunta #{{ question.id }} ·
+          {{ question.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}
+        </p>
+
+        <h2>{{ question.titulo }}</h2>
+
+        <p class="forum-card-author">
+          Publicada por {{ question.nombreUsuario || 'Usuario' }}
+        </p>
+      </div>
+
+      <div class="forum-card-side">
+        <span class="status-pill">
+          {{ formatStatus(question.estado) }}
+        </span>
+
+        <span class="answers-count">
+          {{ question.totalRespuestas }}
+          {{ question.totalRespuestas === 1 ? 'respuesta' : 'respuestas' }}
+        </span>
+
+        <a [routerLink]="['/foro', question.id]" class="primary-link">
+          Ver conversación
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <p
+    *ngIf="!loading() && !error() && filteredQuestions().length === 0"
+    class="forum-message"
+  >
+    No hay preguntas publicadas en el foro.
+  </p>
+</section>

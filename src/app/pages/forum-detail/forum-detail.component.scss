@@ -1,0 +1,133 @@
+.forum-detail-page {
+  width: min(100% - 32px, 1590px);
+  margin: 0 auto;
+  padding: 64px 0 96px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 36px;
+  color: #d38a00;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.question-panel,
+.answers-panel {
+  border: 1px solid #ece4d8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.question-panel {
+  padding: 48px;
+  margin-bottom: 32px;
+
+  h1 {
+    max-width: 980px;
+    margin: 0;
+    color: #2d180f;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2.4rem, 5vw, 4.5rem);
+    line-height: 1;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: #e5a900;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.question-meta {
+  margin: 22px 0 0;
+  color: #6f7680;
+}
+
+.question-content {
+  max-width: 980px;
+  margin: 34px 0 0;
+  color: #2d180f;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.answers-panel {
+  padding: 34px;
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    margin: 0;
+    color: #2d180f;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+  }
+
+  header span {
+    color: #5d6673;
+    font-size: 1.05rem;
+  }
+}
+
+.answer-card {
+  padding: 24px 0;
+  border-top: 1px solid #ece4d8;
+
+  p {
+    margin: 0;
+    color: #2d180f;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 18px;
+    color: #6f7680;
+  }
+
+  footer span {
+    font-weight: 800;
+  }
+}
+
+.forum-message {
+  margin: 0;
+  padding: 28px;
+  border-radius: 8px;
+  background: #f8f5ef;
+  color: #5d6673;
+  text-align: center;
+}
+
+.forum-message-error {
+  background: #f2e3dc;
+  color: #8a1f11;
+}
+
+@media (max-width: 700px) {
+  .question-panel,
+  .answers-panel {
+    padding: 24px;
+  }
+
+  .answers-panel header,
+  .answer-card footer {
+    display: grid;
+  }
+}

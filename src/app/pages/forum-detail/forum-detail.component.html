@@ -1,0 +1,57 @@
+<section class="forum-detail-page">
+  <a routerLink="/foro" class="back-link">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    Volver al foro
+  </a>
+
+  <p *ngIf="loading()" class="forum-message">Cargando conversación...</p>
+
+  <p *ngIf="error()" class="forum-message forum-message-error">
+    {{ error() }}
+  </p>
+
+  <ng-container *ngIf="!loading() && !error() && question() as questionData">
+    <article class="question-panel">
+      <p class="eyebrow">Pregunta #{{ questionData.id }}</p>
+
+      <h1>{{ questionData.titulo }}</h1>
+
+      <p class="question-meta">
+        Publicada por {{ questionData.nombreUsuario || 'Usuario' }} ·
+        {{ questionData.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}
+      </p>
+
+      <p class="question-content">{{ questionData.contenido }}</p>
+    </article>
+
+    <section class="answers-panel">
+      <header>
+        <div>
+          <p class="eyebrow">Respuestas</p>
+          <h2>Conversación</h2>
+        </div>
+
+        <span>
+          {{ questionData.respuestas.length }}
+          {{ questionData.respuestas.length === 1 ? 'respuesta' : 'respuestas' }}
+        </span>
+      </header>
+
+      <article
+        *ngFor="let answer of questionData.respuestas"
+        class="answer-card"
+      >
+        <p>{{ answer.contenido }}</p>
+
+        <footer>
+          <span>{{ answer.nombreUsuario || 'Usuario' }}</span>
+          <time>{{ answer.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</time>
+        </footer>
+      </article>
+
+      <p *ngIf="questionData.respuestas.length === 0" class="forum-message">
+        Todavía no hay respuestas publicadas para esta pregunta.
+      </p>
+    </section>
+  </ng-container>
+</section>

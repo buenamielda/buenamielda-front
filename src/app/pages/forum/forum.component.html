@@ -7,11 +7,112 @@
         Consulta conversaciones publicadas por otros usuarios, resuelve dudas y
         descubre experiencias compartidas sobre miel, colmenas y apicultura.
       </p>
+
+      <button
+        type="button"
+        class="primary-button hero-button"
+        (click)="toggleQuestionForm()"
+      >
+        Crear pregunta
+        <mat-icon>edit</mat-icon>
+      </button>
     </div>
   </section>
 
   <section class="forum-content">
     <div class="container-lg px-3 px-lg-4">
+      <section *ngIf="formOpen()" class="question-create-block">
+        <header class="question-create-header">
+          <div>
+            <p class="forum-kicker">Foro</p>
+            <h2>Crear pregunta</h2>
+            <p>
+              Comparte tu duda con la comunidad para que otros usuarios puedan
+              responder y aportar su experiencia.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="back-link"
+            (click)="toggleQuestionForm()"
+          >
+            <mat-icon>arrow_back</mat-icon>
+            Volver al foro
+          </button>
+        </header>
+
+        <section class="question-create-layout">
+          <form class="question-form" (ngSubmit)="createQuestion()" novalidate>
+            <label>
+              Título
+              <input
+                type="text"
+                [ngModel]="questionTitle()"
+                (ngModelChange)="updateQuestionTitle($event)"
+                name="questionTitle"
+                placeholder="Resume tu duda en una frase"
+              />
+            </label>
+
+            <label>
+              Pregunta
+              <textarea
+                [ngModel]="questionContent()"
+                (ngModelChange)="updateQuestionContent($event)"
+                name="questionContent"
+                rows="10"
+                placeholder="Explica tu pregunta para que la comunidad pueda ayudarte"
+              ></textarea>
+            </label>
+
+            <p *ngIf="formError()" class="form-error">
+              {{ formError() }}
+            </p>
+
+            <p *ngIf="formSuccess()" class="form-success">
+              {{ formSuccess() }}
+            </p>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="ghost-button"
+                [disabled]="submitting()"
+                (click)="toggleQuestionForm()"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                class="primary-button"
+                [disabled]="submitting()"
+              >
+                {{ submitting() ? "Publicando..." : "Publicar pregunta" }}
+              </button>
+            </div>
+          </form>
+
+          <aside class="preview-panel">
+            <p class="forum-kicker">Vista previa</p>
+
+            <article class="preview-card">
+              <div class="preview-card-body">
+                <span>Pregunta del foro</span>
+                <h3>{{ questionTitle() || "Título de la pregunta" }}</h3>
+                <p>
+                  {{
+                    questionContent() ||
+                      "Aquí se verá el contenido de la pregunta que publicará el usuario en el foro."
+                  }}
+                </p>
+              </div>
+            </article>
+          </aside>
+        </section>
+      </section>
+
       <div class="forum-toolbar">
         <label for="forum-search">
           Buscar en el foro

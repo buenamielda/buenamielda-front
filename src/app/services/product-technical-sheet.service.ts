@@ -17,9 +17,12 @@ export class ProductTechnicalSheetService {
     productId: number,
   ): Observable<ProductTechnicalSheet | null> {
     return this.http
-      .get<ProductTechnicalSheet>(`${this.apiUrl}/${productId}/ficha-ampliada`, {
-        observe: 'response',
-      })
+      .get<ProductTechnicalSheet>(
+        `${this.apiUrl}/${productId}/ficha-ampliada`,
+        {
+          observe: 'response',
+        },
+      )
       .pipe(
         map((response: HttpResponse<ProductTechnicalSheet>) => {
           if (response.status === 204 || !response.body) {
@@ -55,6 +58,16 @@ export class ProductTechnicalSheetService {
     return this.http.put<ProductTechnicalSheet>(
       `${this.apiUrl}/${productId}/ficha-ampliada`,
       this.toRequest(payload),
+    );
+  }
+
+  updatePublished(
+    productId: number,
+    publicada: boolean,
+  ): Observable<ProductTechnicalSheet> {
+    return this.http.patch<ProductTechnicalSheet>(
+      `${this.apiUrl}/${productId}/ficha-ampliada/publicada`,
+      { publicada },
     );
   }
 

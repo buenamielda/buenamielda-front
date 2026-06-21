@@ -1,0 +1,81 @@
+<main class="user-order-detail-page">
+  <div class="container-lg px-3 px-lg-4">
+    <a routerLink="/pedidos" class="back-link">
+      <mat-icon>arrow_back</mat-icon>
+      Volver a mis pedidos
+    </a>
+
+    <div *ngIf="cargando()" class="order-feedback">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Cargando pedido...</p>
+    </div>
+
+    <div *ngIf="!cargando() && error()" class="order-feedback error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+    </div>
+
+    <ng-container *ngIf="!cargando() && !error() && pedido() as pedidoActual">
+      <header class="order-header">
+        <div>
+          <p class="order-kicker">Pedido #{{ pedidoActual.id }}</p>
+          <h1>Detalle del pedido</h1>
+          <p>
+            {{ pedidoActual.fechaPedido | date: "dd/MM/yyyy 'a las' HH:mm" }}
+          </p>
+        </div>
+
+        <span class="status-pill" [class.off]="pedidoActual.estado === 'CANCELADO'">
+          {{ formatearEstado(pedidoActual.estado) }}
+        </span>
+      </header>
+
+      <section class="order-layout">
+        <section class="order-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="order-kicker">Productos</p>
+              <h2>Resumen de compra</h2>
+            </div>
+
+            <span>{{ pedidoActual.lineas.length }} productos</span>
+          </div>
+
+          <div class="order-lines" *ngIf="pedidoActual.lineas.length > 0">
+            <article class="order-line" *ngFor="let linea of pedidoActual.lineas">
+              <div>
+                <h3>{{ linea.nombreProducto }}</h3>
+                <p>
+                  {{ linea.cantidad }} x
+                  {{ linea.precioUnitario | currency: "EUR" }}
+                </p>
+              </div>
+
+              <strong>{{ linea.subtotal | currency: "EUR" }}</strong>
+            </article>
+          </div>
+        </section>
+
+        <aside class="order-summary">
+          <p class="order-kicker">Entrega</p>
+          <h2>Dirección de envío</h2>
+
+          <address>
+            <span *ngIf="pedidoActual.direccion">{{ pedidoActual.direccion }}</span>
+            <span *ngIf="pedidoActual.codigoPostal || pedidoActual.localidad">
+              {{ pedidoActual.codigoPostal }} {{ pedidoActual.localidad }}
+            </span>
+            <span *ngIf="pedidoActual.provincia">{{ pedidoActual.provincia }}</span>
+            <span *ngIf="pedidoActual.pais">{{ pedidoActual.pais }}</span>
+            <span *ngIf="pedidoActual.telefono">{{ pedidoActual.telefono }}</span>
+          </address>
+
+          <div class="summary-total">
+            <span>Total</span>
+            <strong>{{ pedidoActual.total | currency: "EUR" }}</strong>
+          </div>
+        </aside>
+      </section>
+    </ng-container>
+  </div>
+</main>

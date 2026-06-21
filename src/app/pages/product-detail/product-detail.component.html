@@ -110,6 +110,40 @@
           ENVÍO GRATUITO
         </p>
       </section>
+
+      <section class="technical-sheet" *ngIf="technicalSheet() as sheet">
+        <div class="technical-sheet-heading">
+          <p class="technical-sheet-kicker">Ficha ampliada</p>
+          <h2>{{ sheet.titulo }}</h2>
+        </div>
+
+        <p class="technical-sheet-description">
+          {{ sheet.descripcionAmpliada }}
+        </p>
+
+        <div class="technical-sheet-grid">
+          <article *ngIf="sheet.propiedades">
+            <h3>Propiedades</h3>
+            <p>{{ sheet.propiedades }}</p>
+          </article>
+
+          <article *ngIf="sheet.origen">
+            <h3>Origen</h3>
+            <p>{{ sheet.origen }}</p>
+          </article>
+
+          <article *ngIf="sheet.usoRecomendado">
+            <h3>Uso recomendado</h3>
+            <p>{{ sheet.usoRecomendado }}</p>
+          </article>
+
+          <article *ngIf="sheet.conservacion">
+            <h3>Conservación</h3>
+            <p>{{ sheet.conservacion }}</p>
+          </article>
+        </div>
+      </section>
+
       <section class="product-reviews">
         <div class="reviews-heading">
           <div>

@@ -409,12 +409,30 @@
               </p>
             </div>
 
-            <span
-              class="status-pill"
-              [class.off]="!technicalSheetForm().publicada"
-            >
-              {{ technicalSheetForm().publicada ? "Publicada" : "Oculta" }}
-            </span>
+            <div class="technical-sheet-status-actions">
+              <span
+                class="status-pill"
+                [class.off]="!technicalSheetForm().publicada"
+              >
+                {{ technicalSheetForm().publicada ? "Publicada" : "Oculta" }}
+              </span>
+
+              <button
+                *ngIf="technicalSheet()"
+                type="button"
+                class="ghost-button"
+                [disabled]="technicalSheetPublishing()"
+                (click)="alternarPublicacionFicha()"
+              >
+                {{
+                  technicalSheetPublishing()
+                    ? "Actualizando..."
+                    : technicalSheet()?.publicada
+                      ? "Ocultar"
+                      : "Publicar"
+                }}
+              </button>
+            </div>
           </div>
 
           <p *ngIf="technicalSheetLoading()">Cargando ficha ampliada...</p>
@@ -485,16 +503,6 @@
               [ngModelOptions]="{ standalone: true }"
               (ngModelChange)="cambiarCampoFicha('conservacion', $event)"
             ></textarea>
-          </label>
-
-          <label class="status-check">
-            <input
-              type="checkbox"
-              [ngModel]="technicalSheetForm().publicada"
-              [ngModelOptions]="{ standalone: true }"
-              (ngModelChange)="cambiarCampoFicha('publicada', $event)"
-            />
-            Publicar ficha ampliada en la página del producto
           </label>
 
           <button

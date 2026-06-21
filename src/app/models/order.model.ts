@@ -28,6 +28,13 @@ export interface PedidoResponseDto {
   total: number;
   idUsuario: number;
   lineas: LineaPedidoResponseDto[];
+
+  telefono?: string;
+  direccion?: string;
+  codigoPostal?: string;
+  localidad?: string;
+  provincia?: string;
+  pais?: string;
 }
 
 export interface PagoRequestDto {

@@ -17,6 +17,12 @@ interface PedidoApiResponseDto {
   estado: string;
   total: number;
   idUsuario: number;
+  telefono?: string;
+  direccion?: string;
+  codigoPostal?: string;
+  localidad?: string;
+  provincia?: string;
+  pais?: string;
   lineas: LineaPedidoApiResponseDto[];
 }
 
@@ -66,9 +72,15 @@ export class OrderService {
 
   readonly lastOrder = this.lastCreatedOrder.asReadonly();
 
-  createFromCart(idDireccionEnvio: number, stripeToken: string): Observable<PedidoResponseDto> {
+  createFromCart(
+    idDireccionEnvio: number,
+    stripeToken: string,
+  ): Observable<PedidoResponseDto> {
     return this.http
-      .post<PedidoApiResponseDto>(this.apiUrl, { idDireccionEnvio, stripeToken })
+      .post<PedidoApiResponseDto>(this.apiUrl, {
+        idDireccionEnvio,
+        stripeToken,
+      })
       .pipe(
         map((response) => this.mapApiOrder(response)),
         tap((pedido) => {
@@ -109,6 +121,13 @@ export class OrderService {
       );
   }
 
+  getOrdersFromApi(): Observable<PedidoResponseDto[]> {
+    return this.http.get<PedidoApiResponseDto[]>(this.apiUrl).pipe(
+      map((response) => response.map((pedido) => this.mapApiOrder(pedido))),
+      catchError((error: HttpErrorResponse) => this.handleGetOrderError(error)),
+    );
+  }
+
   private mapApiOrder(response: PedidoApiResponseDto): PedidoResponseDto {
     return {
       id: response.idPedido,
@@ -116,6 +135,12 @@ export class OrderService {
       estado: response.estado as PedidoEstado,
       total: Number(response.total),
       idUsuario: response.idUsuario,
+      telefono: response.telefono,
+      direccion: response.direccion,
+      codigoPostal: response.codigoPostal,
+      localidad: response.localidad,
+      provincia: response.provincia,
+      pais: response.pais,
       lineas: response.lineas.map((line) => this.mapApiLine(line)),
     };
   }

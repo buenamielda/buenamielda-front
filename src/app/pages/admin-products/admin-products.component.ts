@@ -66,6 +66,8 @@ export class AdminProductsComponent implements OnInit {
   readonly resolveAlertError = signal('');
   readonly resolveAlertSuccess = signal('');
 
+  readonly technicalSheetPublishing = signal(false);
+
   readonly technicalSheet = signal<ProductTechnicalSheet | null>(null);
   readonly technicalSheetForm = signal<FormularioFichaTecnica>(
     this.formularioFichaVacio(),
@@ -529,5 +531,44 @@ export class AdminProductsComponent implements OnInit {
       conservacion: form.conservacion.trim(),
       publicada: form.publicada,
     };
+  }
+
+  alternarPublicacionFicha(): void {
+    const productId = this.editingId();
+    const ficha = this.technicalSheet();
+
+    if (!productId || !ficha) {
+      this.technicalSheetError.set(
+        'Guarda primero la ficha ampliada antes de cambiar su publicación.',
+      );
+      return;
+    }
+
+    const publicada = !ficha.publicada;
+
+    this.technicalSheetPublishing.set(true);
+    this.technicalSheetError.set('');
+    this.technicalSheetSuccess.set('');
+
+    this.technicalSheetService.updatePublished(productId, publicada).subscribe({
+      next: (technicalSheet) => {
+        this.technicalSheet.set(technicalSheet);
+        this.technicalSheetForm.set(
+          this.formularioFichaDesdeDto(technicalSheet),
+        );
+        this.technicalSheetSuccess.set(
+          technicalSheet.publicada
+            ? 'Ficha ampliada publicada correctamente.'
+            : 'Ficha ampliada ocultada correctamente.',
+        );
+        this.technicalSheetPublishing.set(false);
+      },
+      error: () => {
+        this.technicalSheetError.set(
+          'No se ha podido cambiar el estado de publicación de la ficha.',
+        );
+        this.technicalSheetPublishing.set(false);
+      },
+    });
   }
 }

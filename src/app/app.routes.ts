@@ -174,6 +174,24 @@ export const routes: Routes = [
     title: 'Iniciar sesión | Buena mielda',
   },
   {
+    path: 'pedidos',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/user-orders/user-orders.component').then(
+        (m) => m.UserOrdersComponent,
+      ),
+    title: 'Mis pedidos | Buena mielda',
+  },
+  {
+    path: 'pedidos/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/user-order-detail/user-order-detail.component').then(
+        (m) => m.UserOrderDetailComponent,
+      ),
+    title: 'Detalle de pedido | Buena mielda',
+  },
+  {
     path: 'pedido-confirmado',
     canActivate: [authGuard],
     loadComponent: () =>

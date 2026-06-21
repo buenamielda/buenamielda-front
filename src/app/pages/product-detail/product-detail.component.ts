@@ -10,6 +10,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { ProductReviewCommentResponse } from '../../models/product-review.model';
 import { ProductReviewService } from '../../services/product-review.service';
+import { ProductTechnicalSheet } from '../../models/product-technical-sheet.model';
+import { ProductTechnicalSheetService } from '../../services/product-technical-sheet.service';
 
 type ModoCompra = 'single' | 'subscription';
 
@@ -27,6 +29,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly authService = inject(AuthService);
   private readonly productReviewService = inject(ProductReviewService);
+  private readonly technicalSheetService = inject(ProductTechnicalSheetService);
 
   readonly cantidad = signal(1);
   readonly modoCompra = signal<ModoCompra>('single');
@@ -39,6 +42,9 @@ export class ProductDetailComponent implements OnInit {
   readonly cargando = this.productCatalog.cargando;
   readonly error = this.productCatalog.error;
   readonly cartError = signal('');
+  readonly technicalSheet = signal<ProductTechnicalSheet | null>(null);
+  readonly technicalSheetLoading = signal(false);
+
   readonly idProducto = computed(() =>
     Number(this.route.snapshot.paramMap.get('id')),
   );
@@ -67,6 +73,7 @@ export class ProductDetailComponent implements OnInit {
 
     this.productCatalog.cargarProductoPorId(id);
     this.loadProductReviews(id);
+    this.loadTechnicalSheet(id);
   }
 
   incrementarCantidad(): void {
@@ -171,6 +178,21 @@ export class ProductDetailComponent implements OnInit {
       error: () => {
         this.reviewsError.set('No se han podido cargar las valoraciones.');
         this.reviewsLoading.set(false);
+      },
+    });
+  }
+  private loadTechnicalSheet(productId: number): void {
+    this.technicalSheetLoading.set(true);
+    this.technicalSheet.set(null);
+
+    this.technicalSheetService.getPublicByProductId(productId).subscribe({
+      next: (technicalSheet) => {
+        this.technicalSheet.set(technicalSheet);
+        this.technicalSheetLoading.set(false);
+      },
+      error: () => {
+        this.technicalSheet.set(null);
+        this.technicalSheetLoading.set(false);
       },
     });
   }

@@ -6,6 +6,11 @@ import { Producto, ProductoPayload } from '../../models/product.model';
 import { ProductCatalogService } from '../../services/product-catalog.service';
 import { AdminProductoStockResponseDto } from '../../models/admin-stock.model';
 import { AdminStockService } from '../../services/admin-stock.service';
+import {
+  ProductTechnicalSheet,
+  ProductTechnicalSheetPayload,
+} from '../../models/product-technical-sheet.model';
+import { ProductTechnicalSheetService } from '../../services/product-technical-sheet.service';
 
 interface FormularioProducto {
   nombre: string;
@@ -20,6 +25,16 @@ interface FormularioProducto {
   detallesTexto: string;
 }
 
+interface FormularioFichaTecnica {
+  titulo: string;
+  descripcionAmpliada: string;
+  propiedades: string;
+  origen: string;
+  usoRecomendado: string;
+  conservacion: string;
+  publicada: boolean;
+}
+
 @Component({
   selector: 'app-admin-products',
   standalone: true,
@@ -30,6 +45,7 @@ interface FormularioProducto {
 export class AdminProductsComponent implements OnInit {
   private readonly catalogoProductos = inject(ProductCatalogService);
   private readonly adminStockService = inject(AdminStockService);
+  private readonly technicalSheetService = inject(ProductTechnicalSheetService);
 
   readonly productos = this.catalogoProductos.todosLosProductos;
   readonly error = this.catalogoProductos.error;
@@ -49,6 +65,15 @@ export class AdminProductsComponent implements OnInit {
   readonly resolvingAlertId = signal<number | null>(null);
   readonly resolveAlertError = signal('');
   readonly resolveAlertSuccess = signal('');
+
+  readonly technicalSheet = signal<ProductTechnicalSheet | null>(null);
+  readonly technicalSheetForm = signal<FormularioFichaTecnica>(
+    this.formularioFichaVacio(),
+  );
+  readonly technicalSheetLoading = signal(false);
+  readonly technicalSheetSaving = signal(false);
+  readonly technicalSheetError = signal('');
+  readonly technicalSheetSuccess = signal('');
 
   readonly productosFiltrados = computed(() => {
     const textoBusqueda = this.busqueda().trim().toLowerCase();
@@ -167,11 +192,16 @@ export class AdminProductsComponent implements OnInit {
       descripcion: producto.descripcion ?? '',
       detallesTexto: producto.detalles?.join('\n') ?? '',
     });
+    this.cargarFichaTecnica(producto.id);
   }
 
   reiniciarFormulario(): void {
     this.editingId.set(null);
     this.form.set(this.formularioVacio());
+    this.technicalSheet.set(null);
+    this.technicalSheetForm.set(this.formularioFichaVacio());
+    this.technicalSheetError.set('');
+    this.technicalSheetSuccess.set('');
   }
 
   alternarEstadoProducto(producto: Producto): void {
@@ -373,5 +403,131 @@ export class AdminProductsComponent implements OnInit {
     }
 
     return 'Miel';
+  }
+
+  cambiarCampoFicha<K extends keyof FormularioFichaTecnica>(
+    campo: K,
+    valor: FormularioFichaTecnica[K],
+  ): void {
+    this.technicalSheetForm.update((actual) => ({ ...actual, [campo]: valor }));
+  }
+
+  guardarFichaTecnica(): void {
+    const productId = this.editingId();
+
+    if (!productId) {
+      this.technicalSheetError.set(
+        'Selecciona primero un producto para gestionar su ficha ampliada.',
+      );
+      return;
+    }
+
+    const payload = this.convertirFormularioFichaAPayload(
+      this.technicalSheetForm(),
+    );
+
+    if (!payload.titulo || !payload.descripcionAmpliada) {
+      this.technicalSheetError.set(
+        'El título y la descripción ampliada son obligatorios.',
+      );
+      return;
+    }
+
+    this.technicalSheetSaving.set(true);
+    this.technicalSheetError.set('');
+    this.technicalSheetSuccess.set('');
+
+    const request$ = this.technicalSheet()
+      ? this.technicalSheetService.update(productId, payload)
+      : this.technicalSheetService.create(productId, payload);
+
+    request$.subscribe({
+      next: (technicalSheet) => {
+        this.technicalSheet.set(technicalSheet);
+        this.technicalSheetForm.set(
+          this.formularioFichaDesdeDto(technicalSheet),
+        );
+        this.technicalSheetSuccess.set(
+          this.technicalSheet()
+            ? 'Ficha ampliada guardada correctamente.'
+            : 'Ficha ampliada creada correctamente.',
+        );
+        this.technicalSheetSaving.set(false);
+      },
+      error: () => {
+        this.technicalSheetError.set(
+          'No se ha podido guardar la ficha ampliada.',
+        );
+        this.technicalSheetSaving.set(false);
+      },
+    });
+  }
+
+  private cargarFichaTecnica(productId: number): void {
+    this.technicalSheetLoading.set(true);
+    this.technicalSheetError.set('');
+    this.technicalSheetSuccess.set('');
+    this.technicalSheet.set(null);
+    this.technicalSheetForm.set(this.formularioFichaVacio());
+
+    this.technicalSheetService.getAdminByProductId(productId).subscribe({
+      next: (technicalSheet) => {
+        this.technicalSheet.set(technicalSheet);
+
+        if (technicalSheet) {
+          this.technicalSheetForm.set(
+            this.formularioFichaDesdeDto(technicalSheet),
+          );
+        }
+
+        this.technicalSheetLoading.set(false);
+      },
+      error: () => {
+        this.technicalSheetError.set(
+          'No se ha podido cargar la ficha ampliada del producto.',
+        );
+        this.technicalSheetLoading.set(false);
+      },
+    });
+  }
+
+  private formularioFichaVacio(): FormularioFichaTecnica {
+    return {
+      titulo: '',
+      descripcionAmpliada: '',
+      propiedades: '',
+      origen: '',
+      usoRecomendado: '',
+      conservacion: '',
+      publicada: true,
+    };
+  }
+
+  private formularioFichaDesdeDto(
+    ficha: ProductTechnicalSheet,
+  ): FormularioFichaTecnica {
+    return {
+      titulo: ficha.titulo,
+      descripcionAmpliada: ficha.descripcionAmpliada,
+      propiedades: ficha.propiedades ?? '',
+      origen: ficha.origen ?? '',
+      usoRecomendado: ficha.usoRecomendado ?? '',
+      conservacion: ficha.conservacion ?? '',
+      publicada: ficha.publicada,
+    };
+  }
+
+  private convertirFormularioFichaAPayload(
+    form: FormularioFichaTecnica,
+  ): ProductTechnicalSheetPayload {
+    return {
+      titulo: form.titulo.trim(),
+      descripcionAmpliada: form.descripcionAmpliada.trim(),
+      propiedades: form.propiedades.trim(),
+      origen: form.origen.trim(),
+      usoRecomendado: form.usoRecomendado.trim(),
+      conservacion: form.conservacion.trim(),
+      publicada: form.publicada,
+    };
   }
 }

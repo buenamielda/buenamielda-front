@@ -669,6 +669,36 @@ textarea:focus {
   }
 }
 
+.technical-sheet-admin {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba($brand-brown, 0.1);
+
+  h3 {
+    margin: 0;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  p:not(.admin-kicker):not(.stock-error):not(.stock-success) {
+    margin: 0.35rem 0 0;
+    color: rgba($brand-dark, 0.68);
+    font-family: $font-serif;
+    line-height: 1.55;
+  }
+}
+
+.technical-sheet-admin-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+}
+
 @media (max-width: 991.98px) {
   .admin-header,
   .admin-layout,

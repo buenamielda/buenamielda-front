@@ -13,3 +13,13 @@ export interface ProductTechnicalSheet {
   usuarioId: number;
   nombreUsuario: string;
 }
+
+export interface ProductTechnicalSheetPayload {
+  titulo: string;
+  descripcionAmpliada: string;
+  propiedades: string;
+  origen: string;
+  usoRecomendado: string;
+  conservacion: string;
+  publicada: boolean;
+}

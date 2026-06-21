@@ -391,6 +391,127 @@
         <button class="primary-button" type="submit">
           {{ editingId() ? "Guardar cambios" : "Crear producto" }}
         </button>
+
+        <section class="technical-sheet-admin" *ngIf="editingId()">
+          <div class="technical-sheet-admin-heading">
+            <div>
+              <p class="admin-kicker">Ficha ampliada</p>
+              <h3>
+                {{
+                  technicalSheet()
+                    ? "Modificar ficha ampliada"
+                    : "Crear ficha ampliada"
+                }}
+              </h3>
+              <p>
+                Añade información técnica y recomendaciones que se mostrarán en
+                la página pública del producto cuando la ficha esté publicada.
+              </p>
+            </div>
+
+            <span
+              class="status-pill"
+              [class.off]="!technicalSheetForm().publicada"
+            >
+              {{ technicalSheetForm().publicada ? "Publicada" : "Oculta" }}
+            </span>
+          </div>
+
+          <p *ngIf="technicalSheetLoading()">Cargando ficha ampliada...</p>
+
+          <p class="stock-error" *ngIf="technicalSheetError()">
+            {{ technicalSheetError() }}
+          </p>
+
+          <p class="stock-success" *ngIf="technicalSheetSuccess()">
+            {{ technicalSheetSuccess() }}
+          </p>
+
+          <label>
+            Título
+            <input
+              type="text"
+              [ngModel]="technicalSheetForm().titulo"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarCampoFicha('titulo', $event)"
+            />
+          </label>
+
+          <label>
+            Descripción ampliada
+            <textarea
+              rows="5"
+              [ngModel]="technicalSheetForm().descripcionAmpliada"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarCampoFicha('descripcionAmpliada', $event)"
+            ></textarea>
+          </label>
+
+          <label>
+            Propiedades
+            <textarea
+              rows="3"
+              [ngModel]="technicalSheetForm().propiedades"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarCampoFicha('propiedades', $event)"
+            ></textarea>
+          </label>
+
+          <label>
+            Origen
+            <textarea
+              rows="3"
+              [ngModel]="technicalSheetForm().origen"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarCampoFicha('origen', $event)"
+            ></textarea>
+          </label>
+
+          <label>
+            Uso recomendado
+            <textarea
+              rows="3"
+              [ngModel]="technicalSheetForm().usoRecomendado"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarCampoFicha('usoRecomendado', $event)"
+            ></textarea>
+          </label>
+
+          <label>
+            Conservación
+            <textarea
+              rows="3"
+              [ngModel]="technicalSheetForm().conservacion"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarCampoFicha('conservacion', $event)"
+            ></textarea>
+          </label>
+
+          <label class="status-check">
+            <input
+              type="checkbox"
+              [ngModel]="technicalSheetForm().publicada"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="cambiarCampoFicha('publicada', $event)"
+            />
+            Publicar ficha ampliada en la página del producto
+          </label>
+
+          <button
+            class="primary-button"
+            type="button"
+            [disabled]="technicalSheetSaving() || technicalSheetLoading()"
+            (click)="guardarFichaTecnica()"
+          >
+            {{
+              technicalSheetSaving()
+                ? "Guardando ficha..."
+                : technicalSheet()
+                  ? "Guardar ficha ampliada"
+                  : "Crear ficha ampliada"
+            }}
+          </button>
+        </section>
       </form>
 
       <section class="product-admin-list">

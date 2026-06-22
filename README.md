@@ -4,7 +4,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Release
 
-Current version: `5.1.0`
+Current version: `6.0.0`
 
 ## Development server
 

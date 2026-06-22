@@ -81,7 +81,7 @@
 
           <a [routerLink]="['/pedidos', pedido.id]" class="detail-button">
             <mat-icon>{{ puedeValorar(pedido) ? "rate_review" : "visibility" }}</mat-icon>
-            {{ puedeValorar(pedido) ? "Ver / valorar" : "Ver detalle" }}
+            {{ puedeValorar(pedido) ? "Valorar" : "Ver detalle" }}
           </a>
         </article>
       </div>

@@ -10,7 +10,14 @@ import { OrderService } from '../../services/order.service';
 @Component({
   selector: 'app-user-orders',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule, RouterLink, MatIconModule],
+  imports: [
+    CommonModule,
+    CurrencyPipe,
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    MatIconModule,
+  ],
   templateUrl: './user-orders.component.html',
   styleUrl: './user-orders.component.scss',
 })
@@ -58,7 +65,8 @@ export class UserOrdersComponent implements OnInit {
   );
 
   readonly totalEntregados = computed(
-    () => this.pedidos().filter((pedido) => pedido.estado === 'ENTREGADO').length,
+    () =>
+      this.pedidos().filter((pedido) => pedido.estado === 'ENTREGADO').length,
   );
 
   ngOnInit(): void {
@@ -79,6 +87,10 @@ export class UserOrdersComponent implements OnInit {
         this.cargando.set(false);
       },
     });
+  }
+
+  puedeValorar(pedido: PedidoResponseDto): boolean {
+    return pedido.estado === 'ENTREGADO';
   }
 
   formatearEstado(estado: PedidoEstado): string {

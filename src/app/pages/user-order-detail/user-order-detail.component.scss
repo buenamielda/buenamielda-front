@@ -73,7 +73,8 @@ $font-serif: "Georgia", "Times New Roman", serif;
 }
 
 .order-panel,
-.order-summary {
+.order-summary,
+.order-reviews-panel {
   border: 1px solid rgba($brand-brown, 0.08);
   border-radius: 12px;
   background: #fff;
@@ -84,7 +85,8 @@ $font-serif: "Georgia", "Times New Roman", serif;
   padding: 1.35rem;
 }
 
-.panel-heading {
+.panel-heading,
+.reviews-heading {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -205,9 +207,273 @@ $font-serif: "Georgia", "Times New Roman", serif;
   }
 }
 
+.order-reviews-panel {
+  margin-top: 1.5rem;
+  padding: 1.35rem;
+}
+
+.locked-review-panel {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  padding: 1rem;
+  border-radius: 8px;
+  background: $brand-bg;
+  color: rgba($brand-dark, 0.72);
+  font-family: $font-serif;
+
+  mat-icon {
+    color: $brand-gold;
+  }
+
+  h3 {
+    margin: 0 0 0.35rem;
+    color: $brand-brown;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+.reviews-feedback {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba($brand-brown, 0.04);
+  color: rgba($brand-dark, 0.72);
+  font-family: $font-serif;
+  text-align: center;
+
+  &.success {
+    background: #e9f5ec;
+    color: #216a35;
+  }
+
+  &.error {
+    background: #f9e9e6;
+    color: #8a2c1c;
+  }
+}
+
+.line-reviews-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.line-review-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba($brand-brown, 0.1);
+  border-radius: 8px;
+  background: $brand-bg;
+  font-family: $font-serif;
+}
+
+.line-review-product {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+
+  img {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    object-fit: contain;
+    background: $brand-soft;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: $brand-brown;
+  }
+
+  span {
+    margin-top: 0.2rem;
+    color: rgba($brand-dark, 0.65);
+  }
+}
+
+.review-stars {
+  display: inline-flex;
+  gap: 0.1rem;
+  color: $brand-gold;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.review-status {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba($brand-gold, 0.16);
+  color: $brand-brown;
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  &.pending {
+    background: rgba($brand-gold, 0.22);
+  }
+
+  &.hidden {
+    background: rgba($brand-dark, 0.08);
+    color: rgba($brand-dark, 0.72);
+  }
+}
+
+.review-note {
+  color: rgba($brand-dark, 0.65);
+  font-size: 0.92rem;
+}
+
+.existing-review {
+  display: grid;
+  gap: 0.55rem;
+
+  p {
+    margin: 0;
+    color: $brand-dark;
+    line-height: 1.6;
+  }
+}
+
+.review-form {
+  display: grid;
+  gap: 0.85rem;
+
+  textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid rgba($brand-brown, 0.16);
+    border-radius: 8px;
+    background: #fff;
+    color: $brand-dark;
+    font-family: $font-serif;
+    resize: vertical;
+    outline: none;
+
+    &:focus {
+      border-color: $brand-gold;
+      box-shadow: 0 0 0 3px rgba($brand-gold, 0.12);
+    }
+  }
+
+  button[type="submit"] {
+    display: inline-flex;
+    gap: 0.45rem;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-height: 42px;
+    padding: 0 1.1rem;
+    border: 0;
+    border-radius: 8px;
+    background: $brand-gold;
+    color: #fff;
+    font-family: $font-serif;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+  }
+}
+
+.review-rating-buttons {
+  display: inline-flex;
+  gap: 0.15rem;
+
+  button {
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: rgba($brand-dark, 0.35);
+    cursor: pointer;
+
+    &.selected {
+      color: $brand-gold;
+    }
+  }
+}
+
+.review-actions,
+.review-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.secondary-review-button,
+.danger-review-button {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  width: fit-content;
+  min-height: 38px;
+  padding: 0 0.9rem;
+  border-radius: 8px;
+  background: #fff;
+  font-family: $font-serif;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.secondary-review-button {
+  border: 1px solid rgba($brand-brown, 0.16);
+  color: $brand-brown;
+}
+
+.danger-review-button {
+  border: 1px solid rgba(138, 44, 28, 0.25);
+  color: #8a2c1c;
+}
+
 @media (max-width: 991.98px) {
   .order-header,
   .order-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .panel-heading,
+  .reviews-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .locked-review-panel {
     grid-template-columns: 1fr;
   }
 }

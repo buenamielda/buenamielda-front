@@ -25,7 +25,10 @@
           </p>
         </div>
 
-        <span class="status-pill" [class.off]="pedidoActual.estado === 'CANCELADO'">
+        <span
+          class="status-pill"
+          [class.off]="pedidoActual.estado === 'CANCELADO'"
+        >
           {{ formatearEstado(pedidoActual.estado) }}
         </span>
       </header>
@@ -42,7 +45,10 @@
           </div>
 
           <div class="order-lines" *ngIf="pedidoActual.lineas.length > 0">
-            <article class="order-line" *ngFor="let linea of pedidoActual.lineas">
+            <article
+              class="order-line"
+              *ngFor="let linea of pedidoActual.lineas"
+            >
               <div>
                 <h3>{{ linea.nombreProducto }}</h3>
                 <p>
@@ -61,13 +67,19 @@
           <h2>Dirección de envío</h2>
 
           <address>
-            <span *ngIf="pedidoActual.direccion">{{ pedidoActual.direccion }}</span>
+            <span *ngIf="pedidoActual.direccion">
+              {{ pedidoActual.direccion }}
+            </span>
             <span *ngIf="pedidoActual.codigoPostal || pedidoActual.localidad">
               {{ pedidoActual.codigoPostal }} {{ pedidoActual.localidad }}
             </span>
-            <span *ngIf="pedidoActual.provincia">{{ pedidoActual.provincia }}</span>
+            <span *ngIf="pedidoActual.provincia">
+              {{ pedidoActual.provincia }}
+            </span>
             <span *ngIf="pedidoActual.pais">{{ pedidoActual.pais }}</span>
-            <span *ngIf="pedidoActual.telefono">{{ pedidoActual.telefono }}</span>
+            <span *ngIf="pedidoActual.telefono">
+              {{ pedidoActual.telefono }}
+            </span>
           </address>
 
           <div class="summary-total">
@@ -75,6 +87,285 @@
             <strong>{{ pedidoActual.total | currency: "EUR" }}</strong>
           </div>
         </aside>
+      </section>
+
+      <section class="order-reviews-panel">
+        <div class="reviews-heading">
+          <div>
+            <p class="order-kicker">Valoraciones</p>
+            <h2>Valoraciones de este pedido</h2>
+          </div>
+
+          <span>{{ activeOrderReviews().length }} valoraciones</span>
+        </div>
+
+        <div class="locked-review-panel" *ngIf="!canReviewOrder()">
+          <mat-icon>local_shipping</mat-icon>
+          <div>
+            <h3>Podrás valorar cuando el pedido esté entregado</h3>
+            <p>
+              Este pedido todavía está en estado
+              <strong>{{ formatearEstado(pedidoActual.estado) }}</strong>.
+              Cuando administración lo marque como entregado, podrás valorar los
+              productos comprados desde esta misma pantalla.
+            </p>
+          </div>
+        </div>
+
+        <p class="reviews-feedback success" *ngIf="createReviewMessage()">
+          {{ createReviewMessage() }}
+        </p>
+
+        <p class="reviews-feedback success" *ngIf="updateReviewMessage()">
+          {{ updateReviewMessage() }}
+        </p>
+
+        <p class="reviews-feedback success" *ngIf="deleteReviewMessage()">
+          {{ deleteReviewMessage() }}
+        </p>
+
+        <p class="reviews-feedback" *ngIf="reviewsLoading()">
+          Cargando valoraciones...
+        </p>
+
+        <p class="reviews-feedback error" *ngIf="reviewsError()">
+          {{ reviewsError() }}
+        </p>
+
+        <div
+          class="line-reviews-list"
+          *ngIf="canReviewOrder() && !reviewsLoading() && !reviewsError()"
+        >
+          <article
+            class="line-review-card"
+            *ngFor="let line of pedidoActual.lineas"
+          >
+            <div class="line-review-product">
+              <img
+                [src]="line.imagenProducto || 'assets/images/placeholder.svg'"
+                [alt]="line.nombreProducto"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'assets/images/placeholder.svg';
+                "
+              />
+
+              <div>
+                <strong>{{ line.nombreProducto }}</strong>
+                <span>
+                  {{ line.cantidad }} x
+                  {{ line.precioUnitario | currency: "EUR" }}
+                </span>
+              </div>
+            </div>
+
+            <ng-container
+              *ngIf="getReviewForLine(line) as review; else reviewFormTemplate"
+            >
+              <div
+                class="existing-review"
+                *ngIf="editingReviewId() !== review.id"
+              >
+                <div
+                  class="review-stars"
+                  aria-label="Puntuación de la valoración"
+                >
+                  <mat-icon *ngFor="let star of ratingStars">
+                    {{ starIcon(star, review.puntuacion) }}
+                  </mat-icon>
+                </div>
+
+                <span
+                  class="review-status"
+                  [class.pending]="review.estado === 'PENDIENTE'"
+                  [class.hidden]="review.estado === 'OCULTA'"
+                >
+                  {{ formatReviewStatus(review.estado) }}
+                </span>
+
+                <p *ngIf="review.comentario">{{ review.comentario }}</p>
+
+                <p class="review-note" *ngIf="review.estado === 'PENDIENTE'">
+                  Tu valoración está pendiente de moderación.
+                </p>
+
+                <p class="review-note" *ngIf="review.estado === 'OCULTA'">
+                  Esta valoración no está visible públicamente.
+                </p>
+
+                <div class="review-actions">
+                  <button
+                    type="button"
+                    class="secondary-review-button"
+                    (click)="startEditingReview(review)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                    Modificar valoración
+                  </button>
+
+                  <button
+                    type="button"
+                    class="danger-review-button"
+                    [disabled]="deletingReviewId() === review.id"
+                    (click)="deleteReview(review)"
+                  >
+                    <mat-icon>
+                      {{
+                        deletingReviewId() === review.id
+                          ? "hourglass_empty"
+                          : "delete"
+                      }}
+                    </mat-icon>
+
+                    {{
+                      deletingReviewId() === review.id
+                        ? "Retirando..."
+                        : "Retirar valoración"
+                    }}
+                  </button>
+                </div>
+
+                <p
+                  class="reviews-feedback error"
+                  *ngIf="deleteReviewErrors()[review.id]"
+                >
+                  {{ deleteReviewErrors()[review.id] }}
+                </p>
+              </div>
+
+              <form
+                class="review-form"
+                *ngIf="editingReviewId() === review.id"
+                (ngSubmit)="updateReview(review)"
+              >
+                <div
+                  class="review-rating-buttons"
+                  aria-label="Modificar puntuación"
+                >
+                  <button
+                    type="button"
+                    *ngFor="let star of ratingStars"
+                    [class.selected]="reviewForm(review.id).puntuacion >= star"
+                    (click)="setReviewRating(review.id, star)"
+                    [attr.aria-label]="'Valorar con ' + star + ' estrellas'"
+                  >
+                    <mat-icon>
+                      {{
+                        reviewForm(review.id).puntuacion >= star
+                          ? "star"
+                          : "star_border"
+                      }}
+                    </mat-icon>
+                  </button>
+                </div>
+
+                <textarea
+                  rows="3"
+                  placeholder="Actualiza tu opinión sobre este producto"
+                  [ngModel]="reviewForm(review.id).comentario"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="updateReviewComment(review.id, $event)"
+                ></textarea>
+
+                <p
+                  class="reviews-feedback error"
+                  *ngIf="updateReviewErrors()[review.id]"
+                >
+                  {{ updateReviewErrors()[review.id] }}
+                </p>
+
+                <div class="review-form-actions">
+                  <button
+                    type="submit"
+                    [disabled]="updatingReviewId() === review.id"
+                  >
+                    <mat-icon>
+                      {{
+                        updatingReviewId() === review.id
+                          ? "hourglass_empty"
+                          : "save"
+                      }}
+                    </mat-icon>
+
+                    {{
+                      updatingReviewId() === review.id
+                        ? "Guardando..."
+                        : "Guardar cambios"
+                    }}
+                  </button>
+
+                  <button
+                    type="button"
+                    class="secondary-review-button"
+                    [disabled]="updatingReviewId() === review.id"
+                    (click)="cancelEditingReview(review.id)"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </ng-container>
+
+            <ng-template #reviewFormTemplate>
+              <form class="review-form" (ngSubmit)="createReview(line)">
+                <div
+                  class="review-rating-buttons"
+                  aria-label="Seleccionar puntuación"
+                >
+                  <button
+                    type="button"
+                    *ngFor="let star of ratingStars"
+                    [class.selected]="reviewForm(line.id).puntuacion >= star"
+                    (click)="setReviewRating(line.id, star)"
+                    [attr.aria-label]="'Valorar con ' + star + ' estrellas'"
+                  >
+                    <mat-icon>
+                      {{
+                        reviewForm(line.id).puntuacion >= star
+                          ? "star"
+                          : "star_border"
+                      }}
+                    </mat-icon>
+                  </button>
+                </div>
+
+                <textarea
+                  rows="3"
+                  placeholder="Escribe tu opinión sobre este producto"
+                  [ngModel]="reviewForm(line.id).comentario"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="updateReviewComment(line.id, $event)"
+                ></textarea>
+
+                <p
+                  class="reviews-feedback error"
+                  *ngIf="createReviewErrors()[line.id]"
+                >
+                  {{ createReviewErrors()[line.id] }}
+                </p>
+
+                <button
+                  type="submit"
+                  [disabled]="submittingReviewLineId() === line.id"
+                >
+                  <mat-icon>
+                    {{
+                      submittingReviewLineId() === line.id
+                        ? "hourglass_empty"
+                        : "rate_review"
+                    }}
+                  </mat-icon>
+
+                  {{
+                    submittingReviewLineId() === line.id
+                      ? "Enviando..."
+                      : "Enviar valoración"
+                  }}
+                </button>
+              </form>
+            </ng-template>
+          </article>
+        </div>
       </section>
     </ng-container>
   </div>

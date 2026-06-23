@@ -8,8 +8,8 @@ import { TestBed } from '@angular/core/testing';
 import {
   CreateShippingAddressRequest,
   ShippingAddress,
-} from '../models/shipping-address.model';
-import { ShippingAddressService } from './shipping-address.service';
+} from './src/app/models/shipping-address.model';
+import { ShippingAddressService } from './src/app/services/shipping-address.service';
 
 describe('ShippingAddressService', () => {
   let service: ShippingAddressService;

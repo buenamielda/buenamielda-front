@@ -9,7 +9,7 @@ import {
   InvalidCredentialsError,
   LoginValidationError,
   UserNotFoundError,
-} from './auth.service';
+} from '../auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;

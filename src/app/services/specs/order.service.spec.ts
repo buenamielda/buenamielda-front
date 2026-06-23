@@ -8,9 +8,9 @@ import {
   InvalidOrderStatusError,
   OrderNotFoundError,
   OrderService,
-} from './order.service';
-import { CartService } from './cart.service';
-import { ProductCatalogService } from './product-catalog.service';
+} from '../order.service';
+import { CartService } from '../cart.service';
+import { ProductCatalogService } from '../product-catalog.service';
 
 describe('OrderService', () => {
   let service: OrderService;

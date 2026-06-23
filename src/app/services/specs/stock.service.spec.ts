@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Producto } from '../models/product.model';
-import { ProductCatalogService } from './product-catalog.service';
+import { Producto } from '../../models/product.model';
+import { ProductCatalogService } from '../product-catalog.service';
 import {
   InactiveStockProductError,
   InsufficientStockError,
   StockProductNotFoundError,
   StockService,
-} from './stock.service';
+} from '../stock.service';
 
 describe('StockService', () => {
   let service: StockService;

@@ -86,6 +86,22 @@ export const routes: Routes = [
       import('./pages/about/about.component').then((m) => m.AboutComponent),
     title: 'Sobre nosotros | Buena mielda',
   },
+    {
+    path: 'aprende',
+    loadComponent: () =>
+      import('./pages/placeholder/placeholder.component').then(
+        (m) => m.LearnPlaceholderComponent,
+      ),
+    title: 'Aprende apicultura | Buena mielda',
+  },
+  {
+    path: 'aprende/:section',
+    loadComponent: () =>
+      import('./pages/placeholder/placeholder.component').then(
+        (m) => m.LearnPlaceholderComponent,
+      ),
+    title: 'Aprende apicultura | Buena mielda',
+  },
   {
     path: 'admin/productos',
     canActivate: [adminGuard],

@@ -81,6 +81,12 @@ export const routes: Routes = [
     title: 'Contacto | Buena mielda',
   },
   {
+    path: 'sobre-nosotros',
+    loadComponent: () =>
+      import('./pages/about/about.component').then((m) => m.AboutComponent),
+    title: 'Sobre nosotros | Buena mielda',
+  },
+  {
     path: 'admin/productos',
     canActivate: [adminGuard],
     loadComponent: () =>

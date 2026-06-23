@@ -1,0 +1,117 @@
+<main class="about-page">
+  <section class="about-hero" aria-labelledby="about-title">
+    <div class="about-hero-bg">
+      <img
+        src="/assets/images/hero-colmenas.jpg"
+        alt="Colmenas de Buena mielda"
+        class="about-hero-img"
+      />
+      <div class="about-hero-overlay"></div>
+    </div>
+
+    <div class="container d-flex justify-content-center align-items-center h-100">
+      <div class="hero-card">
+        <div class="hero-bee" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <ellipse cx="20" cy="24" rx="9" ry="10" fill="#C8860A" opacity="0.25"/>
+            <ellipse cx="20" cy="23" rx="6" ry="8" fill="#C8860A" opacity="0.5"/>
+            <path d="M14 12 Q20 4 26 12" stroke="#C8860A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M11 16 Q20 9 29 16" stroke="#C8860A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="20" cy="22" rx="5" ry="6" fill="#2C1810" opacity="0.75"/>
+            <ellipse cx="20" cy="22" rx="3" ry="4" fill="#C8860A" opacity="0.9"/>
+            <line x1="15" y1="21" x2="25" y2="21" stroke="#C8860A" stroke-width="1" opacity="0.5"/>
+            <line x1="15" y1="24" x2="25" y2="24" stroke="#C8860A" stroke-width="1" opacity="0.5"/>
+          </svg>
+        </div>
+        <h1 id="about-title">Sobre nosotros</h1>
+        <p>
+          Miel natural y apicultura cercana para acompañar todos tus momentos
+          de placer.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="founder-section">
+    <div class="container-lg px-3 px-lg-4 founder-layout">
+      <figure class="founder-image">
+        <img
+          src="/assets/images/apicultores-buenamielda.png"
+          alt="Apicultor de Buena mielda junto a sus colmenas"
+        />
+      </figure>
+
+      <article class="founder-copy">
+        <h2>Del cuidado de las abejas a tu mesa.</h2>
+        <p class="founder-role">
+          Producción artesanal y respeto por el entorno
+        </p>
+        <p>
+          Buena mielda nace de una relación cercana con la apicultura y del
+          deseo de compartir productos que conservan el carácter de su origen.
+          Nuestro trabajo comienza observando las colmenas, entendiendo sus
+          ritmos y cuidando cada detalle.
+        </p>
+        <p>
+          Creemos que disfrutar de la miel también significa conocer el
+          paisaje, las flores y el esfuerzo que hay detrás de cada cosecha. Por
+          eso combinamos tienda y divulgación en un mismo espacio.
+        </p>
+        <blockquote>
+          “Cuidar de las abejas no es solo producir miel, es proteger un
+          equilibrio natural que nos da vida.”
+          <cite>Equipo Buena mielda</cite>
+        </blockquote>
+      </article>
+    </div>
+  </section>
+
+  <section class="product-section">
+    <div class="container-lg px-3 px-lg-4">
+      <div class="product-intro">
+        <p class="section-kicker">Nuestra forma de trabajar</p>
+        <h2>Miel pura, natural y deliciosa.</h2>
+        <p>
+          Nuestro compromiso va más allá de ofrecer productos de calidad:
+          queremos que cada tarro ayude a descubrir el valor de las abejas y
+          del territorio del que procede.
+        </p>
+      </div>
+
+      <div class="product-layout">
+        <div class="product-values">
+          <article *ngFor="let value of productValues">
+            <mat-icon aria-hidden="true">{{ value.icon }}</mat-icon>
+            <div>
+              <h3>{{ value.title }}</h3>
+              <p>{{ value.text }}</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="product-visual">
+          <img
+            src="/assets/images/miel-mil-flores.svg"
+            alt="Miel de mil flores Buena mielda"
+          />
+          <a routerLink="/productos">
+            Descubre nuestros productos
+            <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing-section">
+    <div class="container-lg px-3 px-lg-4 closing-content">
+      <mat-icon aria-hidden="true">eco</mat-icon>
+      <h2>Un proyecto que crece con cada colmena</h2>
+      <p>
+        Seguimos aprendiendo, compartiendo y trabajando para acercar una
+        apicultura responsable a más personas.
+      </p>
+      <a routerLink="/blog">Conoce más en nuestro blog</a>
+    </div>
+  </section>
+</main>

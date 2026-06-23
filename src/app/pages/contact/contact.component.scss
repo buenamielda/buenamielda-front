@@ -1,0 +1,425 @@
+$brand-dark: #272727;
+$brand-brown: #2c1810;
+$brand-mid: #5c3d2e;
+$brand-gold: #e6ac00;
+$brand-bg: #faf7f2;
+$font-serif: "Georgia", "Times New Roman", serif;
+
+:host {
+  display: block;
+  background: #fff;
+  color: $brand-dark;
+  font-family: $font-serif;
+}
+
+.contact-hero {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 520px;
+  align-items: center;
+  overflow: hidden;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    height: 480px;
+  }
+
+  @media (max-width: 480px) {
+    height: 420px;
+  }
+}
+
+.contact-hero-bg {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+}
+
+.contact-hero-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+}
+
+.contact-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(245, 240, 232, 0.3);
+}
+
+.hero-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 90%;
+  max-width: 480px;
+  padding: 2.5rem 3rem;
+  border: 1px solid rgba(245, 240, 232, 0.4);
+  border-radius: 16px;
+  background: rgba(245, 240, 232, 0.55);
+  box-shadow:
+    0 8px 32px rgba(20, 10, 4, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: heroCardIn 0.7s ease both;
+
+  h1 {
+    margin: 0 0 0.75rem;
+    color: $brand-brown;
+    font-family: $font-serif;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    animation: heroCardIn 0.7s ease 0.15s both;
+  }
+
+  p {
+    max-width: 340px;
+    margin: 0;
+    color: rgba($brand-brown, 0.8);
+    font-family: $font-serif;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    animation: heroCardIn 0.7s ease 0.2s both;
+  }
+}
+
+.hero-bee {
+  margin-bottom: 0.5rem;
+  animation: heroCardIn 0.7s ease 0.1s both;
+
+  svg {
+    filter: drop-shadow(0 2px 4px rgba(20, 10, 4, 0.15));
+  }
+}
+
+@keyframes heroCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  color: #c8860a;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.contact-content {
+  padding: 5.5rem 0 7rem;
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(420px, 1.05fr);
+  gap: clamp(3rem, 7vw, 6rem);
+  align-items: start;
+}
+
+.contact-details {
+  padding-top: 1rem;
+
+  h2 {
+    margin: 0.45rem 0 1rem;
+    color: $brand-brown;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+}
+
+.details-intro {
+  margin: 0;
+  color: rgba($brand-dark, 0.74);
+  line-height: 1.75;
+}
+
+.details-list {
+  display: grid;
+  gap: 1.7rem;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  mat-icon {
+    color: #c8860a;
+  }
+
+  div {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  strong {
+    color: $brand-brown;
+  }
+
+  a,
+  span {
+    color: rgba($brand-dark, 0.72);
+    line-height: 1.5;
+  }
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      color: #c8860a;
+    }
+  }
+}
+
+.map-panel {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 2.4rem;
+}
+
+.contact-map {
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  border: 1px solid rgba($brand-brown, 0.14);
+  border-radius: 8px;
+  background: $brand-bg;
+  box-shadow: 0 12px 32px rgba($brand-brown, 0.08);
+}
+
+.map-panel > a {
+  display: inline-grid;
+  width: fit-content;
+  min-width: 150px;
+  min-height: 38px;
+  place-items: center;
+  border-radius: 6px;
+  background: $brand-gold;
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    background: #c8860a;
+  }
+}
+
+.contact-form {
+  display: grid;
+  gap: 1.25rem;
+  padding: 2rem;
+  border: 1px solid rgba($brand-brown, 0.14);
+  border-radius: 8px;
+
+  header {
+    margin-bottom: 0.25rem;
+  }
+
+  h2 {
+    margin: 0 0 0.4rem;
+    color: $brand-brown;
+    font-size: 1.7rem;
+    font-weight: 700;
+  }
+
+  header p {
+    margin: 0;
+    color: rgba($brand-dark, 0.65);
+    font-size: 0.92rem;
+  }
+
+  label {
+    display: grid;
+    gap: 0.55rem;
+    color: $brand-brown;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    border: 1px solid rgba($brand-brown, 0.18);
+    border-radius: 8px;
+    background: $brand-bg;
+    color: $brand-dark;
+    font-family: $font-serif;
+    font-size: 0.96rem;
+    font-weight: 400;
+    outline: none;
+
+    &:focus {
+      border-color: $brand-gold;
+      box-shadow: 0 0 0 3px rgba($brand-gold, 0.13);
+    }
+
+    &.invalid {
+      border-color: #9e3324;
+    }
+  }
+
+  input,
+  select {
+    min-height: 46px;
+    padding: 0 0.85rem;
+  }
+
+  textarea {
+    min-height: 180px;
+    padding: 0.8rem;
+    resize: vertical;
+  }
+
+  button {
+    justify-self: start;
+    min-width: 210px;
+    min-height: 44px;
+    margin-top: 0.4rem;
+    border: 0;
+    border-radius: 8px;
+    background: $brand-gold;
+    color: #fff;
+    font-family: $font-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background 0.16s ease,
+      transform 0.16s ease;
+
+    &:hover {
+      background: #c8860a;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-error,
+.form-success {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.form-error {
+  background: rgba(#9e3324, 0.08);
+  color: #7a241a;
+}
+
+.form-success {
+  background: rgba($brand-gold, 0.14);
+  color: $brand-brown;
+}
+
+:host ::ng-deep .contact-map-marker {
+  display: grid;
+  place-items: center;
+
+  span {
+    position: relative;
+    display: block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid #fff;
+    border-radius: 999px 999px 999px 0;
+    background: $brand-gold;
+    box-shadow: 0 8px 18px rgba($brand-brown, 0.28);
+    transform: rotate(-45deg);
+
+    &::after {
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      background: $brand-brown;
+      content: "";
+    }
+  }
+}
+
+:host ::ng-deep .contact-map-popup {
+  display: grid;
+  gap: 0.25rem;
+  color: $brand-dark;
+  font-family: $font-serif;
+
+  strong {
+    color: $brand-brown;
+  }
+
+  span,
+  a {
+    color: rgba($brand-dark, 0.72);
+    font-size: 0.88rem;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: $brand-gold;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+
+  .contact-map {
+    height: 300px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .hero-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .contact-content {
+    padding: 3.5rem 0 5rem;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-form {
+    padding: 1.25rem;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .contact-map {
+    height: 260px;
+  }
+}

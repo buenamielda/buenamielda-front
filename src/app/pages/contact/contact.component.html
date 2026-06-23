@@ -1,0 +1,220 @@
+<main class="contact-page">
+  <section class="contact-hero" aria-labelledby="contact-title">
+    <div class="contact-hero-bg">
+      <img
+        src="/assets/images/hero-colmenas.jpg"
+        alt="Colmenas de Buena mielda"
+        class="contact-hero-img"
+      />
+      <div class="contact-hero-overlay"></div>
+    </div>
+
+    <div class="container d-flex justify-content-center align-items-center h-100">
+      <div class="hero-card">
+        <div class="hero-bee" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <ellipse
+              cx="20"
+              cy="24"
+              rx="9"
+              ry="10"
+              fill="#C8860A"
+              opacity="0.25"
+            />
+            <ellipse
+              cx="20"
+              cy="23"
+              rx="6"
+              ry="8"
+              fill="#C8860A"
+              opacity="0.5"
+            />
+            <path
+              d="M14 12 Q20 4 26 12"
+              stroke="#C8860A"
+              stroke-width="1.8"
+              fill="none"
+              stroke-linecap="round"
+            />
+            <path
+              d="M11 16 Q20 9 29 16"
+              stroke="#C8860A"
+              stroke-width="1.5"
+              fill="none"
+              stroke-linecap="round"
+            />
+            <ellipse
+              cx="20"
+              cy="22"
+              rx="5"
+              ry="6"
+              fill="#2C1810"
+              opacity="0.75"
+            />
+            <ellipse
+              cx="20"
+              cy="22"
+              rx="3"
+              ry="4"
+              fill="#C8860A"
+              opacity="0.9"
+            />
+            <line
+              x1="15"
+              y1="21"
+              x2="25"
+              y2="21"
+              stroke="#C8860A"
+              stroke-width="1"
+              opacity="0.5"
+            />
+            <line
+              x1="15"
+              y1="24"
+              x2="25"
+              y2="24"
+              stroke="#C8860A"
+              stroke-width="1"
+              opacity="0.5"
+            />
+          </svg>
+        </div>
+
+        <h1 id="contact-title">Contacta con nosotros</h1>
+        <p>
+          Resolvemos tus dudas sobre nuestros productos, pedidos y el mundo de
+          la apicultura.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-content">
+    <div class="container-lg px-3 px-lg-4 contact-layout">
+      <aside class="contact-details" aria-labelledby="contact-details-title">
+        <p class="eyebrow">Buena mielda</p>
+        <h2 id="contact-details-title">Hablemos</h2>
+        <p class="details-intro">
+          Escríbenos y te responderemos lo antes posible. Nos encantará ayudarte
+          a encontrar la miel adecuada o resolver cualquier consulta.
+        </p>
+
+        <ul class="details-list">
+          <li>
+            <mat-icon aria-hidden="true">mail_outline</mat-icon>
+            <div>
+              <strong>Email</strong>
+              <a href="mailto:buenamieldamicolmena@gmail.com">
+                buenamieldamicolmena&#64;gmail.com
+              </a>
+            </div>
+          </li>
+
+          <li>
+            <mat-icon aria-hidden="true">schedule</mat-icon>
+            <div>
+              <strong>Horario de atención</strong>
+              <span>Lunes a viernes, de 9:00 a 18:00</span>
+            </div>
+          </li>
+
+          <li>
+            <mat-icon aria-hidden="true">location_on</mat-icon>
+            <div>
+              <strong>Nuestras colmenas</strong>
+              <span>Rojas de Bureba, Burgos</span>
+            </div>
+          </li>
+        </ul>
+
+        <section class="map-panel" aria-label="Ubicación de Buena mielda">
+          <div id="contact-map" class="contact-map"></div>
+
+          <a
+            href="https://www.openstreetmap.org/search?query=Rojas%20de%20Bureba%2C%20Burgos"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ver localización
+          </a>
+        </section>
+      </aside>
+
+      <form class="contact-form" (ngSubmit)="send()" novalidate>
+        <header>
+          <h2>Envíanos un mensaje</h2>
+          <p>Todos los campos son obligatorios.</p>
+        </header>
+
+        <div class="field-grid">
+          <label>
+            Nombre
+            <input
+              type="text"
+              name="nombre"
+              autocomplete="name"
+              [ngModel]="form().nombre"
+              (ngModelChange)="updateField('nombre', $event)"
+              [class.invalid]="submitted() && form().nombre.trim().length < 2"
+            />
+          </label>
+
+          <label>
+            Email
+            <input
+              type="email"
+              name="email"
+              autocomplete="email"
+              [ngModel]="form().email"
+              (ngModelChange)="updateField('email', $event)"
+              [class.invalid]="
+                submitted() &&
+                !form().email.trim().match('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$')
+              "
+            />
+          </label>
+        </div>
+
+        <label>
+          Asunto
+          <select
+            name="asunto"
+            [ngModel]="form().asunto"
+            (ngModelChange)="updateField('asunto', $event)"
+            [class.invalid]="submitted() && form().asunto.trim().length < 3"
+          >
+            <option value="" disabled>
+              Selecciona el motivo de tu consulta
+            </option>
+            <option value="Pedido">Consulta sobre un pedido</option>
+            <option value="Producto">Información sobre productos</option>
+            <option value="Apicultura">Apicultura y divulgación</option>
+            <option value="Otro">Otro motivo</option>
+          </select>
+        </label>
+
+        <label>
+          Mensaje
+          <textarea
+            name="mensaje"
+            rows="6"
+            [ngModel]="form().mensaje"
+            (ngModelChange)="updateField('mensaje', $event)"
+            [class.invalid]="submitted() && form().mensaje.trim().length < 10"
+          ></textarea>
+        </label>
+
+        <p class="form-error" *ngIf="submitted() && !canSubmit()">
+          Revisa los campos antes de enviar el mensaje.
+        </p>
+
+        <p class="form-success" *ngIf="sent()">
+          Mensaje enviado correctamente. Nos pondremos en contacto contigo muy
+          pronto.
+        </p>
+
+        <button type="submit">Enviar mensaje</button>
+      </form>
+    </div>
+  </section>
+</main>

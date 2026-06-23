@@ -73,6 +73,36 @@ export const routes: Routes = [
     title: 'Detalle del blog | Buena mielda',
   },
   {
+    path: 'contacto',
+    loadComponent: () =>
+      import('./pages/contact/contact.component').then(
+        (m) => m.ContactComponent,
+      ),
+    title: 'Contacto | Buena mielda',
+  },
+  {
+    path: 'sobre-nosotros',
+    loadComponent: () =>
+      import('./pages/about/about.component').then((m) => m.AboutComponent),
+    title: 'Sobre nosotros | Buena mielda',
+  },
+    {
+    path: 'aprende',
+    loadComponent: () =>
+      import('./pages/placeholder/placeholder.component').then(
+        (m) => m.LearnPlaceholderComponent,
+      ),
+    title: 'Aprende apicultura | Buena mielda',
+  },
+  {
+    path: 'aprende/:section',
+    loadComponent: () =>
+      import('./pages/placeholder/placeholder.component').then(
+        (m) => m.LearnPlaceholderComponent,
+      ),
+    title: 'Aprende apicultura | Buena mielda',
+  },
+  {
     path: 'admin/productos',
     canActivate: [adminGuard],
     loadComponent: () =>

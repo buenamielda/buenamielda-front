@@ -73,6 +73,14 @@ export const routes: Routes = [
     title: 'Detalle del blog | Buena mielda',
   },
   {
+    path: 'contacto',
+    loadComponent: () =>
+      import('./pages/contact/contact.component').then(
+        (m) => m.ContactComponent,
+      ),
+    title: 'Contacto | Buena mielda',
+  },
+  {
     path: 'admin/productos',
     canActivate: [adminGuard],
     loadComponent: () =>

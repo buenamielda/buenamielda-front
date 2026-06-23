@@ -1,20 +1,23 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
 
-import { Producto } from '../../models/product.model';
-import { ListadoStockResponseDto } from '../../models/stock.model';
-import { ProductCatalogService } from '../../services/product-catalog.service';
 import {
-  StockProductNotFoundError,
-  StockService,
-} from '../../services/stock.service';
+  AdminProductoStockResponseDto,
+  AdminStockAlertResponseDto,
+} from '../../models/admin-stock.model';
+import { Producto } from '../../models/product.model';
+import { AdminStockService } from '../../services/admin-stock.service';
+import { ProductCatalogService } from '../../services/product-catalog.service';
+import { ProductTechnicalSheetService } from '../../services/product-technical-sheet.service';
 import { AdminProductsComponent } from './admin-products.component';
 
 describe('AdminProductsComponent', () => {
   let component: AdminProductsComponent;
   let fixture: ComponentFixture<AdminProductsComponent>;
   let productCatalog: jasmine.SpyObj<ProductCatalogService>;
-  let stockService: jasmine.SpyObj<StockService>;
+  let adminStockService: jasmine.SpyObj<AdminStockService>;
+  let technicalSheetService: jasmine.SpyObj<ProductTechnicalSheetService>;
 
   const products: Producto[] = [
     {
@@ -49,32 +52,51 @@ describe('AdminProductsComponent', () => {
     },
   ];
 
-  const stockResponse: ListadoStockResponseDto = {
-    productos: [
-      {
-        idProducto: 1,
-        nombre: 'Miel de tomillo',
-        precio: 8.5,
-        stock: 10,
-        activo: true,
-      },
-      {
-        idProducto: 2,
-        nombre: 'Polen natural',
-        precio: 6,
-        stock: 2,
-        activo: true,
-      },
-      {
-        idProducto: 3,
-        nombre: 'Miel agotada',
-        precio: 9,
-        stock: 0,
-        activo: false,
-      },
-    ],
+  const stockProducts: AdminProductoStockResponseDto[] = [
+    {
+      id: 1,
+      nombre: 'Miel de tomillo',
+      stock: 10,
+      activo: true,
+      deleted: false,
+    },
+    {
+      id: 2,
+      nombre: 'Polen natural',
+      stock: 2,
+      activo: true,
+      deleted: false,
+    },
+    {
+      id: 3,
+      nombre: 'Miel agotada',
+      stock: 0,
+      activo: false,
+      deleted: false,
+    },
+  ];
+
+  const resolvedAlert: AdminStockAlertResponseDto = {
+    id: 1,
+    tipo: 'BAJO_STOCK',
+    mensaje: 'Stock bajo',
+    stockDetectado: 2,
+    umbral: 10,
+    estado: 'RESUELTA',
+    fechaCreacion: '2026-06-23T10:00:00',
+    fechaResolucion: '2026-06-23T11:00:00',
+    idProducto: 2,
+    nombreProducto: 'Polen natural',
+    idUsuarioResolucion: 1,
+    nombreUsuarioResolucion: 'Admin',
   };
 
+  const stockSignal = signal<AdminProductoStockResponseDto[]>(stockProducts);
+  const stockLoadingSignal = signal(false);
+  const stockErrorSignal = signal<string | null>(null);
+  const stockAlertsSignal = signal<AdminStockAlertResponseDto[]>([]);
+  const stockAlertsLoadingSignal = signal(false);
+  const stockAlertsErrorSignal = signal<string | null>(null);
   beforeEach(async () => {
     productCatalog = jasmine.createSpyObj<ProductCatalogService>(
       'ProductCatalogService',
@@ -91,18 +113,43 @@ describe('AdminProductsComponent', () => {
       },
     );
 
-    stockService = jasmine.createSpyObj<StockService>('StockService', [
-      'getAllProductStocks',
-      'getProductStockById',
-    ]);
+    adminStockService = jasmine.createSpyObj<AdminStockService>(
+      'AdminStockService',
+      [
+        'cargarStock',
+        'actualizarStock',
+        'cargarAlertasPendientes',
+        'resolverAlerta',
+      ],
+      {
+        productosStock: stockSignal.asReadonly(),
+        cargando: stockLoadingSignal,
+        error: stockErrorSignal,
+        alertasPendientes: stockAlertsSignal.asReadonly(),
+        cargandoAlertas: stockAlertsLoadingSignal,
+        errorAlertas: stockAlertsErrorSignal,
+      },
+    );
 
-    stockService.getAllProductStocks.and.returnValue(stockResponse);
+    adminStockService.actualizarStock.and.returnValue(of(stockProducts[0]));
+    adminStockService.resolverAlerta.and.returnValue(of(resolvedAlert));
+
+    technicalSheetService = jasmine.createSpyObj<ProductTechnicalSheetService>(
+      'ProductTechnicalSheetService',
+      ['getAdminByProductId', 'create', 'update', 'updatePublished'],
+    );
+
+    technicalSheetService.getAdminByProductId.and.returnValue(of(null));
 
     await TestBed.configureTestingModule({
       imports: [AdminProductsComponent],
       providers: [
         { provide: ProductCatalogService, useValue: productCatalog },
-        { provide: StockService, useValue: stockService },
+        { provide: AdminStockService, useValue: adminStockService },
+        {
+          provide: ProductTechnicalSheetService,
+          useValue: technicalSheetService,
+        },
       ],
     }).compileComponents();
 
@@ -111,55 +158,49 @@ describe('AdminProductsComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create and load products', () => {
+  it('should create and load products and stock information', () => {
     expect(component).toBeTruthy();
     expect(productCatalog.cargarProductos).toHaveBeenCalled();
+    expect(adminStockService.cargarStock).toHaveBeenCalled();
+    expect(adminStockService.cargarAlertasPendientes).toHaveBeenCalled();
   });
 
   it('should show all stock products', () => {
-    expect(component.stockProducts()).toEqual(stockResponse.productos);
+    expect(component.stockProducts()).toEqual(stockProducts);
   });
 
   it('should filter stock products by name', () => {
     component.busquedaStock.set('polen');
 
-    expect(component.filteredStockProducts()).toEqual([
-      stockResponse.productos[1],
-    ]);
+    expect(component.filteredStockProducts()).toEqual([stockProducts[1]]);
   });
 
   it('should filter stock products by id', () => {
     component.busquedaStock.set('3');
 
-    expect(component.filteredStockProducts()).toEqual([
-      stockResponse.productos[2],
-    ]);
+    expect(component.filteredStockProducts()).toEqual([stockProducts[2]]);
   });
 
   it('should filter stock products by status', () => {
     component.busquedaStock.set('inactivo');
 
-    expect(component.filteredStockProducts()).toEqual([
-      stockResponse.productos[2],
-    ]);
+    expect(component.filteredStockProducts()).toEqual([stockProducts[2]]);
   });
 
   it('should count low stock active products', () => {
-    expect(component.lowStockCount()).toBe(1);
+    expect(component.lowStockCount()).toBe(2);
   });
 
   it('should count out of stock products', () => {
     expect(component.outOfStockCount()).toBe(1);
   });
 
-  it('should consult stock by id', () => {
-    stockService.getProductStockById.and.returnValue(stockResponse.productos[0]);
+  it('should consult stock by id from loaded admin stock products', () => {
     component.stockLookupId.set(1);
 
     component.consultarStockPorId();
 
-    expect(stockService.getProductStockById).toHaveBeenCalledOnceWith(1);
-    expect(component.selectedStock()).toEqual(stockResponse.productos[0]);
+    expect(component.selectedStock()).toEqual(stockProducts[0]);
     expect(component.stockLookupError()).toBe('');
   });
 
@@ -170,22 +211,76 @@ describe('AdminProductsComponent', () => {
 
     expect(component.selectedStock()).toBeNull();
     expect(component.stockLookupError()).toBe(
-      'Introduce un identificador de producto valido.',
+      'Introduce un identificador de producto válido.',
     );
-    expect(stockService.getProductStockById).not.toHaveBeenCalled();
   });
 
   it('should show controlled error when consulted product does not exist', () => {
-    stockService.getProductStockById.and.throwError(
-      new StockProductNotFoundError('ID 999'),
-    );
     component.stockLookupId.set(999);
 
     component.consultarStockPorId();
 
     expect(component.selectedStock()).toBeNull();
     expect(component.stockLookupError()).toBe(
-      'No se ha encontrado el producto "ID 999".',
+      'No se ha encontrado ningún producto con identificador 999.',
+    );
+  });
+
+  it('should prepare stock edition for a product', () => {
+    component.editarStock(stockProducts[1]);
+
+    expect(component.editingStockId()).toBe(2);
+    expect(component.editingStockValue()).toBe(2);
+    expect(component.stockUpdateError()).toBe('');
+  });
+
+  it('should reject invalid stock update values', () => {
+    component.editarStock(stockProducts[1]);
+    component.editingStockValue.set(-1);
+
+    component.guardarStock(stockProducts[1]);
+
+    expect(component.stockUpdateError()).toBe(
+      'El stock debe ser un número entero igual o superior a cero.',
+    );
+    expect(adminStockService.actualizarStock).not.toHaveBeenCalled();
+  });
+
+  it('should update stock using admin stock service', () => {
+    const updatedProduct: AdminProductoStockResponseDto = {
+      ...stockProducts[1],
+      stock: 8,
+    };
+
+    adminStockService.actualizarStock.and.returnValue(of(updatedProduct));
+
+    component.editarStock(stockProducts[1]);
+    component.editingStockValue.set(8);
+
+    component.guardarStock(stockProducts[1]);
+
+    expect(adminStockService.actualizarStock).toHaveBeenCalledOnceWith(2, {
+      stock: 8,
+    });
+    expect(component.stockUpdateSuccess()).toBe(
+      'Stock de "Polen natural" actualizado correctamente.',
+    );
+    expect(component.editingStockId()).toBeNull();
+    expect(adminStockService.cargarAlertasPendientes).toHaveBeenCalled();
+  });
+
+  it('should show error when stock update fails', () => {
+    adminStockService.actualizarStock.and.returnValue(
+      throwError(() => new Error('Backend error')),
+    );
+
+    component.editarStock(stockProducts[1]);
+    component.editingStockValue.set(8);
+
+    component.guardarStock(stockProducts[1]);
+
+    expect(component.stockUpdateError()).toBe(
+      'No se ha podido modificar el stock del producto.',
     );
   });
 });

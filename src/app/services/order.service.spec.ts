@@ -5,14 +5,18 @@ import { TestBed } from '@angular/core/testing';
 import {
   AuthRequiredError,
   EmptyCartError,
-  InvalidOrderTransitionError,
+  InvalidOrderStatusError,
   OrderNotFoundError,
   OrderService,
 } from './order.service';
+import { CartService } from './cart.service';
+import { ProductCatalogService } from './product-catalog.service';
 
 describe('OrderService', () => {
   let service: OrderService;
   let httpMock: HttpTestingController;
+  let cartService: jasmine.SpyObj<CartService>;
+  let productCatalog: jasmine.SpyObj<ProductCatalogService>;
 
   const apiOrder = {
     idPedido: 5,
@@ -20,6 +24,12 @@ describe('OrderService', () => {
     estado: 'CREADO',
     total: 17,
     idUsuario: 7,
+    telefono: '600000000',
+    direccion: 'Calle Miel 1',
+    codigoPostal: '28001',
+    localidad: 'Madrid',
+    provincia: 'Madrid',
+    pais: 'España',
     lineas: [
       {
         idLineaPedido: 1,
@@ -33,8 +43,30 @@ describe('OrderService', () => {
   };
 
   beforeEach(() => {
+    cartService = jasmine.createSpyObj<CartService>('CartService', ['clear']);
+    productCatalog = jasmine.createSpyObj<ProductCatalogService>(
+      'ProductCatalogService',
+      ['obtenerPorId', 'cargarProductos'],
+    );
+
+    productCatalog.obtenerPorId.and.returnValue({
+      id: 1,
+      nombre: 'Miel de tomillo',
+      descripcion: 'Miel natural',
+      precio: 8.5,
+      stock: 10,
+      imagenUrl: 'assets/images/miel-tomillo.svg',
+      activo: true,
+      nombreCategoria: 'Miel',
+    });
+
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: CartService, useValue: cartService },
+        { provide: ProductCatalogService, useValue: productCatalog },
+      ],
     });
 
     service = TestBed.inject(OrderService);
@@ -46,35 +78,38 @@ describe('OrderService', () => {
   });
 
   it('should create an order from the persistent cart using the API', () => {
-    service.createFromCart().subscribe((order) => {
+    service.createFromCart(3, 'tok_test').subscribe((order) => {
       expect(order.id).toBe(5);
       expect(order.estado).toBe('CREADO');
       expect(order.total).toBe(17);
       expect(order.idUsuario).toBe(7);
+      expect(order.direccion).toBe('Calle Miel 1');
       expect(order.lineas.length).toBe(1);
+      expect(order.lineas[0].id).toBe(1);
       expect(order.lineas[0].idProducto).toBe(1);
       expect(order.lineas[0].nombreProducto).toBe('Miel de tomillo');
+      expect(order.lineas[0].imagenProducto).toBe(
+        'assets/images/miel-tomillo.svg',
+      );
     });
 
     const request = httpMock.expectOne('/api/pedidos');
 
     expect(request.request.method).toBe('POST');
-    expect(request.request.body).toBeNull();
+    expect(request.request.body).toEqual({
+      idDireccionEnvio: 3,
+      stripeToken: 'tok_test',
+    });
 
     request.flush(apiOrder);
-  });
 
-  it('should store the last created order', () => {
-    service.createFromCart().subscribe();
-
-    httpMock.expectOne('/api/pedidos').flush(apiOrder);
-
+    expect(cartService.clear).toHaveBeenCalled();
+    expect(productCatalog.cargarProductos).toHaveBeenCalled();
     expect(service.lastOrder()?.id).toBe(5);
-    expect(service.getOrderById(5).estado).toBe('CREADO');
   });
 
   it('should map an empty cart backend error to EmptyCartError', () => {
-    service.createFromCart().subscribe({
+    service.createFromCart(3, 'tok_test').subscribe({
       next: () => fail('Expected EmptyCartError'),
       error: (error) => {
         expect(error).toEqual(jasmine.any(EmptyCartError));
@@ -82,13 +117,13 @@ describe('OrderService', () => {
     });
 
     httpMock.expectOne('/api/pedidos').flush(
-      { message: 'carrito.vacio' },
+      { message: 'carrito vacio' },
       { status: 400, statusText: 'Bad Request' },
     );
   });
 
   it('should map unauthorized backend errors to AuthRequiredError', () => {
-    service.createFromCart().subscribe({
+    service.createFromCart(3, 'tok_test').subscribe({
       next: () => fail('Expected AuthRequiredError'),
       error: (error) => {
         expect(error).toEqual(jasmine.any(AuthRequiredError));
@@ -115,49 +150,64 @@ describe('OrderService', () => {
     request.flush(apiOrder);
   });
 
-  it('should update order status locally when transition is valid', () => {
-    service.createFromCart().subscribe();
+  it('should get all user orders from the API', () => {
+    service.getOrdersFromApi().subscribe((orders) => {
+      expect(orders.length).toBe(1);
+      expect(orders[0].id).toBe(5);
+      expect(orders[0].lineas[0].nombreProducto).toBe('Miel de tomillo');
+    });
 
-    httpMock.expectOne('/api/pedidos').flush(apiOrder);
+    const request = httpMock.expectOne('/api/pedidos');
 
-    const updatedOrder = service.updateStatusLocal(5, { estado: 'PAGADO' });
+    expect(request.request.method).toBe('GET');
 
-    expect(updatedOrder.estado).toBe('PAGADO');
-    expect(service.getOrderStatus(5)).toBe('PAGADO');
+    request.flush([apiOrder]);
   });
 
-  it('should not allow incoherent local status transitions', () => {
-    service.createFromCart().subscribe();
+  it('should map not found backend errors when getting an order', () => {
+    service.getOrderByIdFromApi(999).subscribe({
+      next: () => fail('Expected OrderNotFoundError'),
+      error: (error) => {
+        expect(error).toEqual(jasmine.any(OrderNotFoundError));
+      },
+    });
 
-    httpMock.expectOne('/api/pedidos').flush(apiOrder);
-
-    expect(() =>
-      service.updateStatusLocal(5, { estado: 'ENTREGADO' }),
-    ).toThrowError(InvalidOrderTransitionError);
+    httpMock.expectOne('/api/pedidos/999').flush(
+      {},
+      { status: 404, statusText: 'Not Found' },
+    );
   });
 
-  it('should update order status through the API for admin flows', () => {
+  it('should update order status through the API', () => {
     const updatedApiOrder = {
       ...apiOrder,
-      estado: 'EN_PREPARACION',
+      estado: 'ENTREGADO',
     };
 
-    service
-      .updateStatusFromApi(5, { estado: 'EN_PREPARACION' })
-      .subscribe((order) => {
-        expect(order.id).toBe(5);
-        expect(order.estado).toBe('EN_PREPARACION');
-      });
+    service.updateStatusFromApi(5, { estado: 'ENTREGADO' }).subscribe((order) => {
+      expect(order.id).toBe(5);
+      expect(order.estado).toBe('ENTREGADO');
+      expect(service.lastOrder()?.estado).toBe('ENTREGADO');
+    });
 
     const request = httpMock.expectOne('/api/pedidos/5/estado');
 
     expect(request.request.method).toBe('PATCH');
-    expect(request.request.body).toEqual({ estado: 'EN_PREPARACION' });
+    expect(request.request.body).toEqual({ estado: 'ENTREGADO' });
 
     request.flush(updatedApiOrder);
   });
 
-  it('should throw controlled error when local order does not exist', () => {
-    expect(() => service.getOrderById(999)).toThrowError(OrderNotFoundError);
+  it('should reject invalid status before calling the API', () => {
+    service
+      .updateStatusFromApi(5, { estado: 'INVALIDO' as never })
+      .subscribe({
+        next: () => fail('Expected InvalidOrderStatusError'),
+        error: (error) => {
+          expect(error).toEqual(jasmine.any(InvalidOrderStatusError));
+        },
+      });
+
+    httpMock.expectNone('/api/pedidos/5/estado');
   });
 });

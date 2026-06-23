@@ -2,30 +2,18 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
-import { OrderService, OrderStateError } from './order.service';
 import { PaymentFailedError, PaymentService } from './payment.service';
 
 describe('PaymentService', () => {
-  let paymentService: PaymentService;
-  let orderService: OrderService;
+  let service: PaymentService;
   let httpMock: HttpTestingController;
 
-  const apiOrder = {
+  const paymentResponse = {
+    stripeChargeId: 'ch_test_123',
+    estado: 'PAGADO',
     idPedido: 5,
-    fechaPedido: '2026-05-20T12:00:00',
-    estado: 'CREADO',
     total: 17,
-    idUsuario: 7,
-    lineas: [
-      {
-        idLineaPedido: 1,
-        cantidad: 2,
-        idProducto: 1,
-        nombreProducto: 'Miel de tomillo',
-        precioUnitario: 8.5,
-        subtotal: 17,
-      },
-    ],
+    mensaje: 'Pago realizado correctamente.',
   };
 
   beforeEach(() => {
@@ -33,72 +21,56 @@ describe('PaymentService', () => {
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
 
-    paymentService = TestBed.inject(PaymentService);
-    orderService = TestBed.inject(OrderService);
+    service = TestBed.inject(PaymentService);
     httpMock = TestBed.inject(HttpTestingController);
-
-    orderService.createFromCart().subscribe();
-    httpMock.expectOne('/api/pedidos').flush(apiOrder);
   });
 
   afterEach(() => {
     httpMock.verify();
   });
 
-  it('should call payment endpoint and create a local accepted payment', () => {
-    paymentService
-      .payOrder({
-        idPedido: 5,
-        importe: 17,
-        metodoPago: 'TARJETA',
-      })
-      .subscribe((payment) => {
-        expect(payment.idPedido).toBe(5);
-        expect(payment.importe).toBe(17);
-        expect(payment.estado).toBe('ACEPTADO');
-        expect(orderService.getOrderStatus(5)).toBe('PAGADO');
-      });
+  it('should call payment endpoint with order id and Stripe token', () => {
+    service.payOrder(5, 'tok_test', 'Compra web').subscribe((payment) => {
+      expect(payment.stripeChargeId).toBe('ch_test_123');
+      expect(payment.estado).toBe('PAGADO');
+      expect(payment.idPedido).toBe(5);
+      expect(payment.total).toBe(17);
+    });
 
     const request = httpMock.expectOne('/api/pedidos/pagar');
 
     expect(request.request.method).toBe('POST');
-    expect(request.request.body).toBeNull();
+    expect(request.request.body).toEqual({
+      idPedido: 5,
+      stripeToken: 'tok_test',
+      metadata: 'Compra web',
+    });
 
-    request.flush(null);
+    request.flush(paymentResponse);
   });
 
-  it('should not call backend when simulated payment provider fails', () => {
-    paymentService
-      .payOrder({
-        idPedido: 5,
-        importe: 17,
-        metodoPago: 'SIMULATED_FAIL',
-      })
-      .subscribe({
-        next: () => fail('Expected PaymentFailedError'),
-        error: (error) => {
-          expect(error).toEqual(jasmine.any(PaymentFailedError));
-          expect(orderService.getOrderStatus(5)).toBe('CREADO');
-        },
-      });
+  it('should send empty metadata by default', () => {
+    service.payOrder(5, 'tok_test').subscribe();
 
-    httpMock.expectNone('/api/pedidos/pagar');
+    const request = httpMock.expectOne('/api/pedidos/pagar');
+
+    expect(request.request.body).toEqual({
+      idPedido: 5,
+      stripeToken: 'tok_test',
+      metadata: '',
+    });
+
+    request.flush(paymentResponse);
   });
 
   it('should map forbidden payment response to PaymentFailedError', () => {
-    paymentService
-      .payOrder({
-        idPedido: 5,
-        importe: 17,
-        metodoPago: 'TARJETA',
-      })
-      .subscribe({
-        next: () => fail('Expected PaymentFailedError'),
-        error: (error) => {
-          expect(error).toEqual(jasmine.any(PaymentFailedError));
-          expect(orderService.getOrderStatus(5)).toBe('CREADO');
-        },
-      });
+    service.payOrder(5, 'tok_test').subscribe({
+      next: () => fail('Expected PaymentFailedError'),
+      error: (error) => {
+        expect(error).toEqual(jasmine.any(PaymentFailedError));
+        expect(error.message).toBe('No tienes permisos para realizar el pago.');
+      },
+    });
 
     httpMock.expectOne('/api/pedidos/pagar').flush(
       {},
@@ -106,39 +78,32 @@ describe('PaymentService', () => {
     );
   });
 
-  it('should not allow paying an order twice locally', () => {
-    paymentService
-      .payOrder({
-        idPedido: 5,
-        importe: 17,
-        metodoPago: 'TARJETA',
-      })
-      .subscribe();
+  it('should map rejected card response to PaymentFailedError', () => {
+    service.payOrder(5, 'tok_test').subscribe({
+      next: () => fail('Expected PaymentFailedError'),
+      error: (error) => {
+        expect(error).toEqual(jasmine.any(PaymentFailedError));
+        expect(error.message).toBe('Stripe ha rechazado la tarjeta.');
+      },
+    });
 
-    httpMock.expectOne('/api/pedidos/pagar').flush(null);
-
-    expect(orderService.getOrderStatus(5)).toBe('PAGADO');
-
-    expect(() =>
-      paymentService.payOrder({
-        idPedido: 5,
-        importe: 17,
-        metodoPago: 'TARJETA',
-      }),
-    ).toThrowError(OrderStateError);
-
-    httpMock.expectNone('/api/pedidos/pagar');
+    httpMock.expectOne('/api/pedidos/pagar').flush(
+      {},
+      { status: 400, statusText: 'Bad Request' },
+    );
   });
 
-  it('should not allow paying with a wrong amount', () => {
-    expect(() =>
-      paymentService.payOrder({
-        idPedido: 5,
-        importe: 99,
-        metodoPago: 'TARJETA',
-      }),
-    ).toThrowError('El importe del pago no coincide con el total del pedido.');
+  it('should propagate unexpected backend errors', () => {
+    service.payOrder(5, 'tok_test').subscribe({
+      next: () => fail('Expected backend error'),
+      error: (error) => {
+        expect(error.status).toBe(500);
+      },
+    });
 
-    httpMock.expectNone('/api/pedidos/pagar');
+    httpMock.expectOne('/api/pedidos/pagar').flush(
+      {},
+      { status: 500, statusText: 'Server Error' },
+    );
   });
 });

@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 
-import { LineaPedidoResponseDto } from '../models/order.model';
 import { Producto } from '../models/product.model';
 import { ProductCatalogService } from './product-catalog.service';
 import {
@@ -39,20 +38,10 @@ describe('StockService', () => {
     stock: 0,
   };
 
-  const line: LineaPedidoResponseDto = {
-    id: 1,
-    cantidad: 3,
-    idProducto: 1,
-    nombreProducto: 'Miel de tomillo',
-    precioUnitario: 8.5,
-    subtotal: 25.5,
-    imagenProducto: 'assets/images/miel-tomillo.svg',
-  };
-
   beforeEach(() => {
     productCatalog = jasmine.createSpyObj<ProductCatalogService>(
       'ProductCatalogService',
-      ['todosLosProductos', 'obtenerPorId', 'actualizarStockLocal'],
+      ['todosLosProductos', 'obtenerPorId'],
     );
 
     TestBed.configureTestingModule({
@@ -151,6 +140,17 @@ describe('StockService', () => {
     expect(response.cantidadSolicitada).toBe(11);
   });
 
+  it('should validate stock as unavailable when requested quantity is zero', () => {
+    productCatalog.obtenerPorId.and.returnValue(product);
+
+    const response = service.validateStock({
+      idProducto: 1,
+      cantidadSolicitada: 0,
+    });
+
+    expect(response.disponible).toBeFalse();
+  });
+
   it('should validate stock as unavailable when stock is zero', () => {
     productCatalog.obtenerPorId.and.returnValue(outOfStockProduct);
 
@@ -182,6 +182,15 @@ describe('StockService', () => {
     ).toThrowError(StockProductNotFoundError);
   });
 
+  it('should return validation response when asserting available stock', () => {
+    productCatalog.obtenerPorId.and.returnValue(product);
+
+    const response = service.assertStockAvailable(1, 2);
+
+    expect(response.disponible).toBeTrue();
+    expect(response.stockDisponible).toBe(10);
+  });
+
   it('should throw inactive product error when asserting inactive product stock', () => {
     productCatalog.obtenerPorId.and.returnValue(inactiveProduct);
 
@@ -196,56 +205,5 @@ describe('StockService', () => {
     expect(() => service.assertStockAvailable(1, 11)).toThrowError(
       InsufficientStockError,
     );
-  });
-
-  it('should reduce stock using order lines', () => {
-    productCatalog.obtenerPorId.and.returnValue(product);
-
-    const response = service.updateStockForLines([line]);
-
-    expect(response).toEqual([
-      {
-        idProducto: 1,
-        nombre: 'Miel de tomillo',
-        precio: 8.5,
-        stock: 7,
-        activo: true,
-      },
-    ]);
-
-    expect(productCatalog.actualizarStockLocal).toHaveBeenCalledOnceWith(1, 7);
-  });
-
-  it('should not update any stock if one line has insufficient stock', () => {
-    const lines: LineaPedidoResponseDto[] = [
-      line,
-      {
-        id: 2,
-        cantidad: 20,
-        idProducto: 2,
-        nombreProducto: 'Polen natural',
-        precioUnitario: 6,
-        subtotal: 120,
-      },
-    ];
-
-    productCatalog.obtenerPorId.and.callFake((id: number) => {
-      if (id === 1) {
-        return product;
-      }
-
-      return {
-        ...product,
-        id: 2,
-        nombre: 'Polen natural',
-        stock: 5,
-      };
-    });
-
-    expect(() => service.updateStockForLines(lines)).toThrowError(
-      InsufficientStockError,
-    );
-
-    expect(productCatalog.actualizarStockLocal).not.toHaveBeenCalled();
   });
 });

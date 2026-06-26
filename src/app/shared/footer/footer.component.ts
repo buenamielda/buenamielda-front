@@ -18,7 +18,7 @@ export class FooterComponent {
     {
       title: 'Descubre',
       links: [
-        { label: 'Aprende Apicultura', route: '/aprende' },
+        { label: 'Aprende Apicultura', route: '/blog' },
         { label: 'Más buscado',        route: '/mas-buscado' },
         { label: 'Mejores ventas',     route: '/mejores-ventas' },
       ],

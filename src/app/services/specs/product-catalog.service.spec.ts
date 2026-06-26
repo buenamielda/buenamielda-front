@@ -1,8 +1,8 @@
+import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 
 import { Producto, ProductoPayload } from '../../models/product.model';
@@ -28,6 +28,14 @@ describe('ProductCatalogService', () => {
     id: 2,
     nombre: 'Miel inactiva',
     activo: false,
+  };
+
+  const outOfStockProduct: Producto = {
+    ...product,
+    id: 3,
+    nombre: 'Miel agotada',
+    stock: 0,
+    activo: true,
   };
 
   const payload: ProductoPayload = {
@@ -127,7 +135,7 @@ describe('ProductCatalogService', () => {
     service.cargarProductos();
     httpMock.expectOne('/api/productos').flush([product]);
 
-    const updatedProduct = {
+    const updatedProduct: Producto = {
       ...product,
       nombre: 'Miel actualizada',
     };
@@ -139,7 +147,20 @@ describe('ProductCatalogService', () => {
   });
 
   it('should create product with normalized request dto', () => {
-    service.crearProducto(payload);
+    const createdProduct: Producto = {
+      ...product,
+      nombre: payload.nombre,
+      descripcion: payload.descripcion,
+      precio: payload.precio,
+      stock: payload.stock,
+      imagenUrl: payload.imagenUrl,
+      nombreCategoria: payload.nombreCategoria ?? 'Polen',
+      activo: payload.activo ?? true,
+    };
+
+    service.crearProducto(payload).subscribe((response) => {
+      expect(response).toEqual(createdProduct);
+    });
 
     const request = httpMock.expectOne('/api/productos');
 
@@ -147,22 +168,12 @@ describe('ProductCatalogService', () => {
     expect(request.request.body).toEqual({
       nombre: 'Miel nueva',
       descripcion: 'Descripción',
-      precio: 9.5,
-      stock: 4,
+      precio: payload.precio,
+      stock: payload.stock,
       imagenUrl: 'assets/images/placeholder.svg',
-      idCategoria: 2,
-      activo: true,
+      idCategoria: payload.idCategoria,
+      activo: payload.activo,
     });
-
-    const createdProduct: Producto = {
-      ...product,
-      id: 3,
-      nombre: 'Miel nueva',
-      precio: 9.5,
-      stock: 4,
-      imagenUrl: 'assets/images/placeholder.svg',
-      nombreCategoria: 'Polen',
-    };
 
     request.flush(createdProduct);
 
@@ -171,14 +182,19 @@ describe('ProductCatalogService', () => {
 
   it('should update product and replace it in state', () => {
     service.cargarProductos();
-    httpMock.expectOne('/api/productos').flush([product]);
+    httpMock
+      .expectOne('/api/productos')
+      .flush([product, inactiveProduct, outOfStockProduct]);
 
-    const updatedProduct = {
+    const updatedProduct: Producto = {
       ...product,
-      nombre: 'Miel modificada',
+      nombre: 'Miel actualizada',
+      precio: 11.5,
     };
 
-    service.actualizarProducto(1, payload);
+    service.actualizarProducto(1, payload).subscribe((response) => {
+      expect(response).toEqual(updatedProduct);
+    });
 
     const request = httpMock.expectOne('/api/productos/1');
 
@@ -186,14 +202,20 @@ describe('ProductCatalogService', () => {
 
     request.flush(updatedProduct);
 
-    expect(service.todosLosProductos()).toEqual([updatedProduct]);
+    expect(service.todosLosProductos()[0]).toEqual(updatedProduct);
   });
 
   it('should delete product from state', () => {
     service.cargarProductos();
-    httpMock.expectOne('/api/productos').flush([product, inactiveProduct]);
+    httpMock
+      .expectOne('/api/productos')
+      .flush([product, inactiveProduct, outOfStockProduct]);
 
-    service.borrarProducto(1);
+    let completed = false;
+
+    service.borrarProducto(1).subscribe(() => {
+      completed = true;
+    });
 
     const request = httpMock.expectOne('/api/productos/1');
 
@@ -201,22 +223,29 @@ describe('ProductCatalogService', () => {
 
     request.flush(null);
 
-    expect(service.todosLosProductos()).toEqual([inactiveProduct]);
+    expect(completed).toBeTrue();
+    expect(service.todosLosProductos()).toEqual([
+      inactiveProduct,
+      outOfStockProduct,
+    ]);
   });
 
   it('should update product active status', () => {
     service.cargarProductos();
-    httpMock.expectOne('/api/productos').flush([product]);
+    httpMock
+      .expectOne('/api/productos')
+      .flush([product, inactiveProduct, outOfStockProduct]);
 
-    const updatedProduct = {
+    const updatedProduct: Producto = {
       ...product,
       activo: false,
     };
 
-    service.actualizarEstadoProducto(1, false);
+    service.actualizarEstadoProducto(1, false).subscribe((response) => {
+      expect(response).toEqual(updatedProduct);
+    });
 
     const request = httpMock.expectOne('/api/productos/1');
-
     expect(request.request.method).toBe('PATCH');
     expect(request.request.body).toEqual({ activo: false });
 

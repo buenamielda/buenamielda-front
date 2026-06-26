@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+.vscode
+.idea
+.angular
+.cache
+npm-debug.log
+Dockerfile
+docker-compose.yml
+*.zip
+*.rar

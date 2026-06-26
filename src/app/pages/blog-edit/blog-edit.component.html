@@ -10,9 +10,9 @@
         </p>
       </div>
 
-      <a routerLink="/blog" class="back-link">
+      <a routerLink="/admin/blog" class="back-link">
         <mat-icon>arrow_back</mat-icon>
-        Volver al blog
+        Volver a gestión del blog
       </a>
     </header>
 
@@ -111,13 +111,7 @@
         </p>
 
         <div class="form-actions">
-          <a
-            *ngIf="entradaId()"
-            [routerLink]="['/blog', entradaId()]"
-            class="ghost-link"
-          >
-            Cancelar
-          </a>
+          <a routerLink="/admin/blog" class="ghost-link"> Cancelar </a>
 
           <button
             type="button"
@@ -136,7 +130,7 @@
           <img
             [src]="form().imagenUrl || 'assets/images/placeholder.svg'"
             [alt]="form().titulo || 'Vista previa de entrada'"
-            onerror="this.src='assets/images/placeholder.svg'"
+            onerror="this.src = 'assets/images/placeholder.svg'"
           />
           <div>
             <span>{{ form().categoria || "Categoria" }}</span>

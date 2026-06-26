@@ -1,7 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-
+import { Observable, map, tap } from 'rxjs';
 import {
   EntradaBlog,
   EntradaBlogCreada,
@@ -120,6 +119,20 @@ export class BlogService {
     return this.http.get<EntradaBlogDetalle>(`${this.apiUrl}/${id}`);
   }
 
+  obtenerEntradaAdminPorId(id: number): Observable<EntradaBlogCreada> {
+    return this.http.get<EntradaBlogCreada[]>(`${this.apiUrl}/admin`).pipe(
+      map((entradas) => {
+        const entrada = entradas.find((item) => item.id === id);
+
+        if (!entrada) {
+          throw new Error('Entrada no encontrada.');
+        }
+
+        return entrada;
+      }),
+    );
+  }
+
   actualizarEntrada(
     id: number,
     payload: EntradaBlogPayload,
@@ -147,6 +160,9 @@ export class BlogService {
 
           this.entradasSignal.update((entradas) =>
             this.actualizarListadoTrasEdicion(entradas, entradaActualizada),
+          );
+          this.entradasAdminSignal.update((entradas) =>
+            this.actualizarEntradaAdmin(entradas, entradaActualizada),
           );
         }),
       );

@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { finalize, switchMap } from 'rxjs';
 
 import {
+  EntradaBlogCreada,
   EntradaBlogDetalle,
   EntradaBlogPayload,
 } from '../../models/blog.model';
@@ -150,22 +151,22 @@ export class BlogEditComponent implements OnInit {
     this.cargando.set(true);
     this.errorMessage.set('');
 
-   this.blogService
-      .obtenerEntradaPorId(id)
+    this.blogService
+      .obtenerEntradaAdminPorId(id)
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (entrada) => {
           this.form.set(this.toForm(entrada));
-          this.activaInicial.set(true);
+          this.activaInicial.set(entrada.activa);
         },
         error: () => {
           this.errorMessage.set(
-            'La entrada no existe o no esta disponible para su edicion.',
+            'La entrada no existe o no está disponible para su edición.',
           );
         },
       });
   }
-  
+
   private formularioVacio(): BlogEditForm {
     return {
       titulo: '',
@@ -177,14 +178,16 @@ export class BlogEditComponent implements OnInit {
     };
   }
 
-  private toForm(entrada: EntradaBlogDetalle): BlogEditForm {
+  private toForm(
+    entrada: EntradaBlogDetalle | EntradaBlogCreada,
+  ): BlogEditForm {
     return {
       titulo: entrada.titulo,
       resumen: entrada.resumen,
       contenido: entrada.contenido,
       imagenUrl: entrada.imagenUrl,
       categoria: entrada.categoria,
-      activa: true,
+      activa: 'activa' in entrada ? entrada.activa : true,
     };
   }
 

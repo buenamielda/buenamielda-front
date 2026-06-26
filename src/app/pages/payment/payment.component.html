@@ -35,41 +35,42 @@
             <h1>Método de pago</h1>
 
             <div class="stripe-card">
-            
               <label>Datos de la tarjeta</label>
 
               <div id="card-element"></div>
 
               <div id="card-errors"></div>
-
             </div>
-
           </section>
 
           <section class="form-section billing-section">
             <h2>Dirección de facturación</h2>
 
-            <label class="radio-option">
-              <input
-                type="radio"
-                name="billing"
-                [ngModel]="form().billingSameAsShipping"
-                [value]="true"
-                (ngModelChange)="updateField('billingSameAsShipping', $event)"
-              />
-              Usar la misma que la de envío
-            </label>
+            <div class="billing-options">
+              <label class="billing-option selected">
+                <input
+                  type="radio"
+                  name="billing"
+                  [checked]="true"
+                  readonly
+                  (click)="$event.preventDefault()"
+                />
+                <span>Usar la misma que la de envío</span>
+              </label>
 
-            <label class="radio-option">
-              <input
-                type="radio"
-                name="billing"
-                [ngModel]="form().billingSameAsShipping"
-                [value]="false"
-                (ngModelChange)="updateField('billingSameAsShipping', $event)"
-              />
-              Usar una dirección diferente para la facturación
-            </label>
+              <label class="billing-option disabled-option">
+                <input
+                  type="radio"
+                  name="billing"
+                  [checked]="false"
+                  [disabled]="true"
+                />
+                <span>Usar una dirección diferente para la facturación</span>
+                <small>
+                  Esta funcionalidad no está disponible actualmente.
+                </small>
+              </label>
+            </div>
           </section>
 
           <p class="form-error" *ngIf="errorMessage()">
@@ -94,7 +95,10 @@
                   item.product.imagenUrl || 'assets/images/placeholder.svg'
                 "
                 [alt]="item.product.nombre"
-                onerror="this.onerror=null; this.src='assets/images/placeholder.svg'"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'assets/images/placeholder.svg';
+                "
               />
               <span>{{ item.quantity }}</span>
             </div>

@@ -18,10 +18,16 @@ export class LearnPlaceholderComponent {
     colmenas: 'Tipos de colmenas',
     temporadas: 'Temporadas',
     'primeros-pasos': 'Primeros pasos',
+    ayuda: 'Ayuda',
+    suscribete: 'Suscríbete',
+    privacidad: 'Política de privacidad',
+    terminos: 'Términos y condiciones',
   };
 
   readonly sectionTitle = computed(() => {
     const section = this.params()?.get('section');
-    return section ? this.sectionNames[section] ?? 'Aprende apicultura' : 'Aprende apicultura';
+    return section
+      ? (this.sectionNames[section] ?? 'Aprende apicultura')
+      : 'Aprende apicultura';
   });
 }

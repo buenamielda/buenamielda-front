@@ -18,25 +18,25 @@ export class FooterComponent {
     {
       title: 'Descubre',
       links: [
-        { label: 'Aprende Apicultura', route: '/blog' },
-        { label: 'Más buscado',        route: '/mas-buscado' },
-        { label: 'Mejores ventas',     route: '/mejores-ventas' },
+        { label: 'Blog educativo', route: '/blog' },
+        { label: 'Más buscado',        route: 'info/mas-buscado' },
+        { label: 'Mejores ventas',     route: 'info/mejores-ventas' },
       ],
     },
     {
       title: 'Sobre nosotros',
       links: [
-        { label: 'Ayuda',       route: '/ayuda' },
+        { label: 'Ayuda',       route: 'info/ayuda' },
         { label: 'Pedidos',     route: '/pedidos' },
-        { label: 'Suscríbete',  route: '/suscribete' },
+        { label: 'Suscríbete',  route: 'info/suscribete' },
       ],
     },
     {
       title: 'Información',
       links: [
         { label: 'Contáctanos',            route: '/contacto' },
-        { label: 'Política de privacidad', route: '/privacidad' },
-        { label: 'Términos y condiciones', route: '/terminos' },
+        { label: 'Política de privacidad', route: 'info/privacidad' },
+        { label: 'Términos y condiciones', route: 'info/terminos' },
         { label: 'Puntos de venta', route: '/puntos-venta' },
       ],
     },

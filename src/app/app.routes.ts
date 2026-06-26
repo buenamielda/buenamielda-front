@@ -86,7 +86,7 @@ export const routes: Routes = [
       import('./pages/about/about.component').then((m) => m.AboutComponent),
     title: 'Sobre nosotros | Buena mielda',
   },
-    {
+  {
     path: 'aprende',
     loadComponent: () =>
       import('./pages/placeholder/placeholder.component').then(
@@ -270,6 +270,14 @@ export const routes: Routes = [
         (m) => m.ForumDetailComponent,
       ),
     title: 'Detalle del foro | Buena mielda',
+  },
+  {
+    path: 'info/:section',
+    loadComponent: () =>
+      import('./pages/placeholder/placeholder.component').then(
+        (m) => m.LearnPlaceholderComponent,
+      ),
+    title: 'Información | Buena mielda',
   },
   {
     path: '**',

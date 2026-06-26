@@ -160,7 +160,7 @@
             <h2>Valoraciones del producto</h2>
           </div>
 
-          <div class="reviews-summary" *ngIf="reviews().length > 0">
+          <div class="reviews-summary" *ngIf="hasRating()">
             <div class="review-stars" aria-label="Puntuación media">
               <mat-icon *ngFor="let star of ratingStars">
                 {{ starIcon(star, averageRating()) }}
@@ -168,7 +168,7 @@
             </div>
 
             <strong>{{ averageRating().toFixed(1).replace(".", ",") }}</strong>
-            <span>{{ reviews().length }} valoraciones</span>
+            <span>{{ ratingLabel() }}</span>
           </div>
         </div>
 
@@ -182,9 +182,27 @@
 
         <p
           class="reviews-feedback"
-          *ngIf="!reviewsLoading() && !reviewsError() && reviews().length === 0"
+          *ngIf="
+            !reviewsLoading() &&
+            !reviewsError() &&
+            reviews().length === 0 &&
+            !hasRating()
+          "
         >
           Este producto todavía no tiene valoraciones publicadas.
+        </p>
+
+        <p
+          class="reviews-feedback"
+          *ngIf="
+            !reviewsLoading() &&
+            !reviewsError() &&
+            reviews().length === 0 &&
+            hasRating()
+          "
+        >
+          Este producto tiene puntuación media, pero todavía no tiene
+          comentarios publicados.
         </p>
 
         <div

@@ -209,13 +209,24 @@ export class AdminProductsComponent implements OnInit {
     const payload = this.convertirFormularioAPayload(this.form());
     const editingId = this.editingId();
 
-    if (editingId) {
-      this.catalogoProductos.actualizarProducto(editingId, payload);
-    } else {
-      this.catalogoProductos.crearProducto(payload);
-    }
+    const request$ = editingId
+      ? this.catalogoProductos.actualizarProducto(editingId, payload)
+      : this.catalogoProductos.crearProducto(payload);
 
-    this.reiniciarFormulario();
+    request$.subscribe({
+      next: (productoActualizado) => {
+        this.adminStockService.sincronizarProducto(productoActualizado);
+        this.adminStockService.cargarAlertasPendientes();
+        this.reiniciarFormulario();
+      },
+      error: () => {
+        this.catalogoProductos.error.set(
+          editingId
+            ? 'No se ha podido modificar el producto.'
+            : 'No se ha podido crear el producto.',
+        );
+      },
+    });
   }
 
   editarProducto(producto: Producto): void {
@@ -250,10 +261,19 @@ export class AdminProductsComponent implements OnInit {
   }
 
   alternarEstadoProducto(producto: Producto): void {
-    this.catalogoProductos.actualizarEstadoProducto(
-      producto.id,
-      !producto.activo,
-    );
+    this.catalogoProductos
+      .actualizarEstadoProducto(producto.id, !producto.activo)
+      .subscribe({
+        next: (productoActualizado) => {
+          this.adminStockService.sincronizarProducto(productoActualizado);
+          this.adminStockService.cargarAlertasPendientes();
+        },
+        error: () => {
+          this.catalogoProductos.error.set(
+            'No se ha podido actualizar el estado del producto.',
+          );
+        },
+      });
   }
 
   borrarProducto(producto: Producto): void {
@@ -262,11 +282,21 @@ export class AdminProductsComponent implements OnInit {
     );
 
     if (confirmado) {
-      this.catalogoProductos.borrarProducto(producto.id);
+      this.catalogoProductos.borrarProducto(producto.id).subscribe({
+        next: () => {
+          this.adminStockService.eliminarProductoLocal(producto.id);
+          this.adminStockService.cargarAlertasPendientes();
 
-      if (this.editingId() === producto.id) {
-        this.reiniciarFormulario();
-      }
+          if (this.editingId() === producto.id) {
+            this.reiniciarFormulario();
+          }
+        },
+        error: () => {
+          this.catalogoProductos.error.set(
+            'No se ha podido borrar el producto.',
+          );
+        },
+      });
     }
   }
 

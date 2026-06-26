@@ -56,8 +56,8 @@ export class HomeComponent {
   ];
 
   popularLinks = [
-    { label: 'Miel de tomillo', route: '/productos/1' },
-    { label: 'Aprende apicultura', route: '/aprende' },
-    { label: 'Blog científico', route: '/blog' },
+    { label: 'Productos', route: '/productos' },
+    { label: 'Blog educativo', route: '/blog' },
+    { label: 'Foro', route: '/foro' },
   ];
 }

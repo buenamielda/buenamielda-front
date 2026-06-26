@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 
 import { Producto, ProductoPayload } from '../models/product.model';
 
@@ -91,73 +92,64 @@ export class ProductCatalogService {
     });
   }
 
-  crearProducto(payload: ProductoPayload): void {
+  crearProducto(payload: ProductoPayload): Observable<Producto> {
     this.error.set(null);
 
-    this.http
+    return this.http
       .post<Producto>(this.apiUrl, this.toRequestDto(payload))
-      .subscribe({
-        next: (productoCreado) => {
+      .pipe(
+        tap((productoCreado) => {
           this.productosSignal.update((productos) => [
             ...productos,
             productoCreado,
           ]);
-        },
-        error: () => {
-          this.error.set('No se ha podido crear el producto.');
-        },
-      });
+        }),
+      );
   }
 
-  actualizarProducto(id: number, payload: ProductoPayload): void {
+  actualizarProducto(
+    id: number,
+    payload: ProductoPayload,
+  ): Observable<Producto> {
     this.error.set(null);
 
-    this.http
+    return this.http
       .put<Producto>(`${this.apiUrl}/${id}`, this.toRequestDto(payload))
-      .subscribe({
-        next: (productoActualizado) => {
+      .pipe(
+        tap((productoActualizado) => {
           this.productosSignal.update((productos) =>
             productos.map((producto) =>
               producto.id === id ? productoActualizado : producto,
             ),
           );
-        },
-        error: () => {
-          this.error.set('No se ha podido modificar el producto.');
-        },
-      });
+        }),
+      );
   }
 
-  borrarProducto(id: number): void {
+  borrarProducto(id: number): Observable<void> {
     this.error.set(null);
 
-    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
-      next: () => {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
         this.productosSignal.update((productos) =>
           productos.filter((producto) => producto.id !== id),
         );
-      },
-      error: () => {
-        this.error.set('No se ha podido borrar el producto.');
-      },
-    });
+      }),
+    );
   }
 
-  actualizarEstadoProducto(id: number, activo: boolean): void {
+  actualizarEstadoProducto(id: number, activo: boolean): Observable<Producto> {
     this.error.set(null);
 
-    this.http.patch<Producto>(`${this.apiUrl}/${id}`, { activo }).subscribe({
-      next: (productoActualizado) => {
+    return this.http.patch<Producto>(`${this.apiUrl}/${id}`, { activo }).pipe(
+      tap((productoActualizado) => {
         this.productosSignal.update((productos) =>
           productos.map((producto) =>
             producto.id === id ? productoActualizado : producto,
           ),
         );
-      },
-      error: () => {
-        this.error.set('No se ha podido actualizar el estado del producto.');
-      },
-    });
+      }),
+    );
   }
 
   actualizarStockLocal(id: number, stock: number): void {

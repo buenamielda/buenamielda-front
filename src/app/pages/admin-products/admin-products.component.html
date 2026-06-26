@@ -325,17 +325,24 @@
           <label>
             Categoría
             <select
-              [ngModel]="form().nombreCategoria"
+              [ngModel]="form().idCategoria"
               name="category"
-              (ngModelChange)="cambiarCampo('nombreCategoria', $event)"
+              required
+              (ngModelChange)="cambiarCategoria($event)"
             >
-              <option value="miel">Miel</option>
-              <option value="polen">Polen</option>
-              <option value="propoleo">Propóleo</option>
-              <option value="cosmetica">Cosmética</option>
+              <option
+                *ngFor="let categoria of categoriasActivas()"
+                [ngValue]="categoria.id"
+              >
+                {{ categoria.nombre }}
+              </option>
             </select>
           </label>
         </div>
+
+        <p class="stock-error" *ngIf="categoriasError()">
+          {{ categoriasError() }}
+        </p>
 
         <label>
           Imagen

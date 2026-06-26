@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
+import { Producto } from '../models/product.model';
 import {
   AdminProductoStockResponseDto,
   AdminStockAlertResponseDto,
@@ -41,6 +42,34 @@ export class AdminStockService {
       },
     });
   }
+
+  sincronizarProducto(producto: Producto): void {
+  const productoStock: AdminProductoStockResponseDto = {
+    id: producto.id,
+    nombre: producto.nombre,
+    stock: producto.stock,
+    activo: producto.activo,
+    deleted: false,
+  };
+
+  this.productosStockSignal.update((productos) => {
+    const existe = productos.some((item) => item.id === producto.id);
+
+    if (!existe) {
+      return [...productos, productoStock];
+    }
+
+    return productos.map((item) =>
+      item.id === producto.id ? productoStock : item,
+    );
+  });
+}
+
+eliminarProductoLocal(idProducto: number): void {
+  this.productosStockSignal.update((productos) =>
+    productos.filter((producto) => producto.id !== idProducto),
+  );
+}
 
   private readonly alertasUrl = '/api/admin/alertas-stock';
 

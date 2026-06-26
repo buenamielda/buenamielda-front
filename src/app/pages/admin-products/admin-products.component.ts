@@ -1,11 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { Producto, ProductoPayload } from '../../models/product.model';
 import { ProductCatalogService } from '../../services/product-catalog.service';
 import { AdminProductoStockResponseDto } from '../../models/admin-stock.model';
 import { AdminStockService } from '../../services/admin-stock.service';
+import { AdminCategoryService } from '../../services/admin-category.service';
 import {
   ProductTechnicalSheet,
   ProductTechnicalSheetPayload,
@@ -46,9 +54,16 @@ export class AdminProductsComponent implements OnInit {
   private readonly catalogoProductos = inject(ProductCatalogService);
   private readonly adminStockService = inject(AdminStockService);
   private readonly technicalSheetService = inject(ProductTechnicalSheetService);
+  private readonly categoryService = inject(AdminCategoryService);
 
   readonly productos = this.catalogoProductos.todosLosProductos;
   readonly error = this.catalogoProductos.error;
+  readonly categorias = this.categoryService.categorias;
+  readonly categoriasError = this.categoryService.error;
+
+  readonly categoriasActivas = computed(() =>
+    this.categorias().filter((categoria) => categoria.activa),
+  );
 
   readonly editingId = signal<number | null>(null);
   readonly busqueda = signal('');
@@ -141,8 +156,33 @@ export class AdminProductsComponent implements OnInit {
       this.stockProducts().filter((producto) => producto.stock === 0).length,
   );
 
+  constructor() {
+    effect(() => {
+      const categorias = this.categoriasActivas();
+
+      if (categorias.length === 0) {
+        return;
+      }
+
+      const categoriaActualExiste = categorias.some(
+        (categoria) => categoria.id === this.form().idCategoria,
+      );
+
+      if (!categoriaActualExiste) {
+        const primeraCategoria = categorias[0];
+
+        this.form.update((actual) => ({
+          ...actual,
+          idCategoria: primeraCategoria.id,
+          nombreCategoria: primeraCategoria.nombre,
+        }));
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.catalogoProductos.cargarProductos();
+    this.categoryService.cargarCategorias();
     this.adminStockService.cargarStock();
     this.adminStockService.cargarAlertasPendientes();
   }
@@ -154,11 +194,14 @@ export class AdminProductsComponent implements OnInit {
     this.form.update((actual) => ({ ...actual, [campo]: valor }));
   }
 
-  cambiarCategoria(idCategoria: number): void {
+  cambiarCategoria(idCategoria: number | string): void {
+    const categoriaId = Number(idCategoria);
+    const categoria = this.categorias().find((item) => item.id === categoriaId);
+
     this.form.update((actual) => ({
       ...actual,
-      idCategoria: Number(idCategoria),
-      nombreCategoria: this.obtenerNombreCategoria(Number(idCategoria)),
+      idCategoria: categoriaId,
+      nombreCategoria: categoria?.nombre ?? actual.nombreCategoria,
     }));
   }
 
@@ -355,13 +398,15 @@ export class AdminProductsComponent implements OnInit {
   }
 
   private formularioVacio(): FormularioProducto {
+    const categoriaInicial = this.categoriasActivas()[0];
+
     return {
       nombre: '',
       precio: 0,
       stock: 1,
       imagenUrl: 'assets/images/placeholder.svg',
-      idCategoria: 1,
-      nombreCategoria: 'Miel',
+      idCategoria: categoriaInicial?.id ?? 1,
+      nombreCategoria: categoriaInicial?.nombre ?? '',
       activo: true,
       pesoNeto: '',
       descripcion: '',
@@ -390,21 +435,13 @@ export class AdminProductsComponent implements OnInit {
   }
 
   private resolverIdCategoria(nombreCategoria: string): number {
-    const categoria = nombreCategoria.toLowerCase().trim();
+    const categoria = this.categorias().find(
+      (item) =>
+        item.nombre.trim().toLowerCase() ===
+        nombreCategoria.trim().toLowerCase(),
+    );
 
-    if (categoria === 'polen') {
-      return 2;
-    }
-
-    return 1;
-  }
-
-  private obtenerNombreCategoria(idCategoria: number): string {
-    if (idCategoria === 2) {
-      return 'Polen';
-    }
-
-    return 'Miel';
+    return categoria?.id ?? this.categoriasActivas()[0]?.id ?? 1;
   }
 
   cambiarCampoFicha<K extends keyof FormularioFichaTecnica>(

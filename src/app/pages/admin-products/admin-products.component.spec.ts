@@ -2,11 +2,13 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
+import { CategoriaAdminResponseDto } from '../../models/admin-category.model';
 import {
   AdminProductoStockResponseDto,
   AdminStockAlertResponseDto,
 } from '../../models/admin-stock.model';
 import { Producto } from '../../models/product.model';
+import { AdminCategoryService } from '../../services/admin-category.service';
 import { AdminStockService } from '../../services/admin-stock.service';
 import { ProductCatalogService } from '../../services/product-catalog.service';
 import { ProductTechnicalSheetService } from '../../services/product-technical-sheet.service';
@@ -18,6 +20,7 @@ describe('AdminProductsComponent', () => {
   let productCatalog: jasmine.SpyObj<ProductCatalogService>;
   let adminStockService: jasmine.SpyObj<AdminStockService>;
   let technicalSheetService: jasmine.SpyObj<ProductTechnicalSheetService>;
+  let categoryService: jasmine.SpyObj<AdminCategoryService>;
 
   const products: Producto[] = [
     {
@@ -49,6 +52,21 @@ describe('AdminProductsComponent', () => {
       imagenUrl: 'assets/images/miel-tomillo.svg',
       activo: false,
       nombreCategoria: 'Miel',
+    },
+  ];
+
+  const categories: CategoriaAdminResponseDto[] = [
+    {
+      id: 1,
+      nombre: 'Miel',
+      descripcion: 'Productos de miel',
+      activa: true,
+    },
+    {
+      id: 2,
+      nombre: 'Polen',
+      descripcion: 'Productos de polen',
+      activa: true,
     },
   ];
 
@@ -91,13 +109,33 @@ describe('AdminProductsComponent', () => {
     nombreUsuarioResolucion: 'Admin',
   };
 
+  const productSignal = signal<Producto[]>(products);
+  const productErrorSignal = signal<string | null>(null);
+
+  const categoriesSignal = signal<CategoriaAdminResponseDto[]>(categories);
+  const categoriesErrorSignal = signal<string | null>(null);
+
   const stockSignal = signal<AdminProductoStockResponseDto[]>(stockProducts);
   const stockLoadingSignal = signal(false);
   const stockErrorSignal = signal<string | null>(null);
   const stockAlertsSignal = signal<AdminStockAlertResponseDto[]>([]);
   const stockAlertsLoadingSignal = signal(false);
   const stockAlertsErrorSignal = signal<string | null>(null);
+
   beforeEach(async () => {
+    productSignal.set(products);
+    productErrorSignal.set(null);
+
+    categoriesSignal.set(categories);
+    categoriesErrorSignal.set(null);
+
+    stockSignal.set(stockProducts);
+    stockLoadingSignal.set(false);
+    stockErrorSignal.set(null);
+    stockAlertsSignal.set([]);
+    stockAlertsLoadingSignal.set(false);
+    stockAlertsErrorSignal.set(null);
+
     productCatalog = jasmine.createSpyObj<ProductCatalogService>(
       'ProductCatalogService',
       [
@@ -108,8 +146,22 @@ describe('AdminProductsComponent', () => {
         'borrarProducto',
       ],
       {
-        todosLosProductos: signal(products).asReadonly(),
-        error: signal<string | null>(null),
+        todosLosProductos: productSignal.asReadonly(),
+        error: productErrorSignal,
+      },
+    );
+
+    productCatalog.crearProducto.and.returnValue(of(products[0]));
+    productCatalog.actualizarProducto.and.returnValue(of(products[0]));
+    productCatalog.actualizarEstadoProducto.and.returnValue(of(products[0]));
+    productCatalog.borrarProducto.and.returnValue(of(void 0));
+
+    categoryService = jasmine.createSpyObj<AdminCategoryService>(
+      'AdminCategoryService',
+      ['cargarCategorias'],
+      {
+        categorias: categoriesSignal.asReadonly(),
+        error: categoriesErrorSignal,
       },
     );
 
@@ -120,6 +172,8 @@ describe('AdminProductsComponent', () => {
         'actualizarStock',
         'cargarAlertasPendientes',
         'resolverAlerta',
+        'sincronizarProducto',
+        'eliminarProductoLocal',
       ],
       {
         productosStock: stockSignal.asReadonly(),
@@ -145,6 +199,7 @@ describe('AdminProductsComponent', () => {
       imports: [AdminProductsComponent],
       providers: [
         { provide: ProductCatalogService, useValue: productCatalog },
+        { provide: AdminCategoryService, useValue: categoryService },
         { provide: AdminStockService, useValue: adminStockService },
         {
           provide: ProductTechnicalSheetService,
@@ -158,9 +213,10 @@ describe('AdminProductsComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create and load products and stock information', () => {
+  it('should create and load products, categories and stock information', () => {
     expect(component).toBeTruthy();
     expect(productCatalog.cargarProductos).toHaveBeenCalled();
+    expect(categoryService.cargarCategorias).toHaveBeenCalled();
     expect(adminStockService.cargarStock).toHaveBeenCalled();
     expect(adminStockService.cargarAlertasPendientes).toHaveBeenCalled();
   });

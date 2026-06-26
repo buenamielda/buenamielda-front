@@ -38,6 +38,7 @@ export class ProductDetailComponent implements OnInit {
   readonly reviews = signal<ProductReviewCommentResponse[]>([]);
   readonly averageRating = signal(0);
   readonly ratingStars = [1, 2, 3, 4, 5];
+  readonly isAdmin = computed(() => this.authService.isAdmin());
 
   readonly cargando = this.productCatalog.cargando;
   readonly error = this.productCatalog.error;
@@ -90,6 +91,13 @@ export class ProductDetailComponent implements OnInit {
 
   anadirAlCarrito(): void {
     this.cartError.set('');
+
+    if (this.authService.isAdmin()) {
+      this.cartError.set(
+        'Los administradores no pueden añadir productos al carrito.',
+      );
+      return;
+    }
 
     if (!this.authService.hasActiveSession()) {
       this.router.navigate(['/login'], {

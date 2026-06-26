@@ -88,8 +88,17 @@
 
           <p class="cart-error" *ngIf="cartError()">{{ cartError() }}</p>
 
-          <button type="button" class="buy-button" (click)="anadirAlCarrito()">
-            Añadir al carro
+          <button
+            type="button"
+            class="buy-button"
+            [disabled]="isAdmin()"
+            (click)="anadirAlCarrito()"
+          >
+            {{
+              isAdmin()
+                ? "No disponible para administradores"
+                : "Añadir al carro"
+            }}
           </button>
 
           <div class="product-details" *ngIf="producto.detalles?.length">

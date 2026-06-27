@@ -1,0 +1,14 @@
+services:
+  buenamielda-front:
+    build: .
+    container_name: buenamielda-front
+
+    ports:
+      - "4200:80"
+
+    networks:
+      - buenamielda-network
+
+networks:
+  buenamielda-network:
+    external: true
